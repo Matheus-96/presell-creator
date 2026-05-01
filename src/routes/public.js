@@ -5,7 +5,7 @@ const {
   parsePresellSettings
 } = require("../services/presellTemplates");
 const { recordEvent, getOrCreateSession } = require("../services/analyticsService");
-const { buildAffiliateUrl } = require("../services/urlBuilder");
+const { buildAffiliateUrl, buildRedirectUrl } = require("../services/urlBuilder");
 const { generatePixelHtml } = require("../services/pixelService");
 const { TRACKING_PARAMS, collectTrackingParams } = require("../middleware/tracking");
 
@@ -58,7 +58,13 @@ router.get("/go/:slug", (req, res) => {
 
   recordEvent(req, presell, "cta_click");
   const { params } = getOrCreateSession(req);
-  const targetUrl = buildAffiliateUrl(presell.affiliate_url, params);
+  
+  // Extract gclid specifically and strip it from general params to avoid duplication
+  const gclid = params.gclid;
+  const trackingParams = { ...params };
+  delete trackingParams.gclid;
+  
+  const targetUrl = buildRedirectUrl(presell.affiliate_url, trackingParams, gclid);
   recordEvent(req, presell, "redirect", { target_url: targetUrl });
 
   res.redirect(302, targetUrl);

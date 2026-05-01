@@ -1,0 +1,15 @@
+{
+  "extends": ["airbnb-base"],
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "plugins": [],
+  "rules": {
+    "no-console": "off",
+    "import/no-unresolved": "off",
+    "import/extensions": ["error", "ignorePackages", {
+      "js": "never"
+    }]
+  }
+}
