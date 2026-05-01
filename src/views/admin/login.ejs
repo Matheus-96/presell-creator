@@ -4,25 +4,115 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= title %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      border: none;
+    }
+    .login-card .card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 2rem 1rem;
+    }
+    .login-card .card-header h1 {
+      margin: 0;
+      font-size: 1.75rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .login-card .card-header p {
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+      opacity: 0.95;
+      text-align: center;
+    }
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-login {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 0.75rem;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      color: white;
+    }
+    .btn-login:focus {
+      box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.5);
+      color: white;
+    }
+  </style>
 </head>
-<body class="admin-body">
-  <main class="login-shell">
-    <section class="panel compact">
-      <h1>Presell Admin</h1>
-      <p class="muted">Entre para gerenciar paginas, links e analytics.</p>
-      <% if (error) { %><p class="alert"><%= error %></p><% } %>
-      <form method="post" action="/admin/login" class="stack">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label>Usuario
-          <input name="username" autocomplete="username" required>
-        </label>
-        <label>Senha
-          <input name="password" type="password" autocomplete="current-password" required>
-        </label>
-        <button class="button primary" type="submit">Entrar</button>
-      </form>
-    </section>
+<body>
+  <main class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+        <div class="card login-card">
+          <div class="card-header">
+            <h1>Presell Admin</h1>
+            <p class="mb-0">Entre para gerenciar paginas, links e analytics.</p>
+          </div>
+          <div class="card-body p-4">
+            <% if (error) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Erro de autenticação:</strong> <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+            <form method="post" action="/admin/login">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              
+              <div class="mb-3">
+                <label for="username" class="form-label">Usuário</label>
+                <input 
+                  type="text" 
+                  class="form-control form-control-lg" 
+                  id="username" 
+                  name="username" 
+                  autocomplete="username" 
+                  required
+                  placeholder="seu.usuario"
+                >
+              </div>
+
+              <div class="mb-4">
+                <label for="password" class="form-label">Senha</label>
+                <input 
+                  type="password" 
+                  class="form-control form-control-lg" 
+                  id="password" 
+                  name="password" 
+                  autocomplete="current-password" 
+                  required
+                  placeholder="••••••••"
+                >
+              </div>
+
+              <button type="submit" class="btn btn-login btn-lg w-100">
+                Entrar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

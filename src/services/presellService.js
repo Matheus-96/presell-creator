@@ -34,7 +34,7 @@ function savePresell(input, imagePath) {
       UPDATE presells
       SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
           subtitle = ?, body = ?, bullets = ?, cta_text = ?, affiliate_url = ?,
-          image_path = ?, settings_json = ?, updated_at = CURRENT_TIMESTAMP
+          image_path = ?, settings_json = ?, google_pixel = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
       data.slug,
@@ -49,6 +49,7 @@ function savePresell(input, imagePath) {
       data.affiliateUrl,
       data.imagePath,
       data.settingsJson,
+      data.googlePixel,
       input.id
     );
     return getPresellById(input.id);
@@ -57,8 +58,8 @@ function savePresell(input, imagePath) {
   const result = db.prepare(`
     INSERT INTO presells (
       slug, status, template, title, headline, subtitle, body, bullets,
-      cta_text, affiliate_url, image_path, settings_json
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      cta_text, affiliate_url, image_path, settings_json, google_pixel
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     data.slug,
     data.status,
@@ -71,7 +72,8 @@ function savePresell(input, imagePath) {
     data.ctaText,
     data.affiliateUrl,
     data.imagePath,
-    data.settingsJson
+    data.settingsJson,
+    data.googlePixel
   );
 
   return getPresellById(result.lastInsertRowid);
@@ -87,8 +89,8 @@ function duplicatePresell(id) {
   const result = db.prepare(`
     INSERT INTO presells (
       slug, status, template, title, headline, subtitle, body, bullets,
-      cta_text, affiliate_url, image_path, settings_json
-    ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      cta_text, affiliate_url, image_path, settings_json, google_pixel
+    ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     slug,
     source.template,
@@ -100,7 +102,8 @@ function duplicatePresell(id) {
     source.cta_text,
     source.affiliate_url,
     source.image_path,
-    source.settings_json || "{}"
+    source.settings_json || "{}",
+    source.google_pixel || null
   );
 
   return getPresellById(result.lastInsertRowid);
@@ -147,6 +150,11 @@ function normalizePresellInput(input, imagePath, existingPresell = null) {
     existingSettings
   );
 
+  const googlePixel = String(input.google_pixel || "").trim();
+  if (googlePixel && googlePixel.length > 50) {
+    throw new Error("Google Pixel ID deve ter no maximo 50 caracteres.");
+  }
+
   return {
     slug,
     status,
@@ -159,7 +167,8 @@ function normalizePresellInput(input, imagePath, existingPresell = null) {
     ctaText: String(input.cta_text || "Continuar").trim(),
     affiliateUrl,
     imagePath: imagePath || input.current_image_path || "",
-    settingsJson: JSON.stringify(settings)
+    settingsJson: JSON.stringify(settings),
+    googlePixel: googlePixel || null
   };
 }
 

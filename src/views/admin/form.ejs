@@ -1,12 +1,5 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body class="admin-body">
+<%- include('_header') %>
+  <%- include('_navbar') %>
   <header class="admin-header">
     <div>
       <strong><%= title %></strong>
@@ -77,6 +70,11 @@
         </label>
       </div>
 
+      <label>Google Ads Pixel (opcional)
+        <input type="text" name="google_pixel" value="<%= presell.google_pixel || '' %>" placeholder="999999999999">
+        <p class="helper-text">ID do seu Google Ads Pixel para rastreamento de conversões</p>
+      </label>
+
       <label>Imagem principal
         <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
       </label>
@@ -144,5 +142,4 @@
       </form>
     <% } %>
   </main>
-</body>
-</html>
+<%- include('_footer') %>

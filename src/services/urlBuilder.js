@@ -12,4 +12,22 @@ function buildAffiliateUrl(baseUrl, params) {
   return url.toString();
 }
 
-module.exports = { buildAffiliateUrl };
+function buildRedirectUrl(affiliateUrl, params, gclid = null) {
+  const url = new URL(affiliateUrl);
+
+  // Add all tracking parameters
+  for (const key of TRACKING_PARAMS) {
+    if (params[key] && !url.searchParams.has(key)) {
+      url.searchParams.set(key, params[key]);
+    }
+  }
+
+  // Add gclid if provided and not already present
+  if (gclid && !url.searchParams.has("gclid")) {
+    url.searchParams.set("gclid", gclid);
+  }
+
+  return url.toString();
+}
+
+module.exports = { buildAffiliateUrl, buildRedirectUrl };

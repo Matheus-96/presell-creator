@@ -1,0 +1,34 @@
+<%
+  // Renderiza preview de um presell sem necessidade de salvar
+  // Recebe: presell (object com id, template, headline, etc), bullets (array), settings (object)
+  
+  if (!presell || !presell.template) {
+    // Presell inválido ou sem template definido
+  } else {
+    // Define a variável de preview para desabilitar links CTA
+    var preview = true;
+    var templateFile = presell.template;
+    
+    // Renderiza o template específico do presell
+    try {
+      -%>
+      <div class="preview-container">
+        <%- include(`../presell/${templateFile}`, { 
+          title: presell.title || 'Preview',
+          presell: presell,
+          settings: settings || {},
+          bullets: bullets || [],
+          preview: true
+        }) %>
+      </div>
+      <%
+    } catch(e) {
+      // Template não encontrado, exibe erro
+      -%>
+      <div class="preview-error">
+        <p class="alert">Erro ao carregar preview: template "<%- templateFile %>" não encontrado.</p>
+      </div>
+      <%
+    }
+  }
+-%>

@@ -65,6 +65,10 @@ function migrate() {
     CREATE INDEX IF NOT EXISTS idx_events_presell_type ON events(presell_id, event_type);
     CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
   `);
+
+  runMigration("002_add_google_pixel_column", `
+    ALTER TABLE presells ADD COLUMN google_pixel TEXT DEFAULT NULL;
+  `);
 }
 
 function runMigration(name, sql) {

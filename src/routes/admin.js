@@ -110,6 +110,28 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
   });
 });
 
+router.post("/api/presells/:id/preview", requireAuth, (req, res) => {
+  const presell = getPresellById(req.params.id);
+  if (!presell) return res.status(404).json({ error: "Presell nao encontrada." });
+
+  // Merge existing presell with form data (without saving)
+  const previewPresell = {
+    ...presell,
+    ...req.body
+  };
+
+  const selectedTemplate = getTemplateDefinition(previewPresell.template);
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.render(`presell/${selectedTemplate.id}`, {
+    title: `Preview - ${previewPresell.title}`,
+    presell: previewPresell,
+    settings: parsePresellSettings(previewPresell),
+    bullets: parseBullets(previewPresell),
+    preview: true
+  });
+});
+
 router.post("/presells/:id/delete", requireAuth, verifyCsrf, (req, res) => {
   deletePresell(req.params.id);
   res.redirect("/admin");
@@ -168,6 +190,7 @@ function emptyPresell() {
     bullets: "",
     cta_text: "Continuar",
     affiliate_url: "",
+    google_pixel: "",
     image_path: "",
     settings_json: "{}"
   };
