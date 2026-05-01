@@ -32,7 +32,12 @@ const sessionConfig = {
   name: "presell.sid",
   secret: process.env.SESSION_SECRET || "development-secret",
   resave: false,
-  saveUninitialized: false,
+  // CRITICAL FIX: saveUninitialized must be TRUE for CSRF to work!
+  // With FALSE: GET /login creates session but doesn't save it (no cookie sent)
+  // Then POST /login creates a DIFFERENT session, so CSRF token never matches
+  // With TRUE: Session is created and saved with Set-Cookie header
+  // So POST /login uses the same session and token validates correctly
+  saveUninitialized: true,
   cookie: {
     httpOnly: true,
     // In HTTP mode, use "strict" to prevent SameSite blocking
