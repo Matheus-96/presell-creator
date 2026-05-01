@@ -18,6 +18,7 @@ const {
 } = require("../services/presellTemplates");
 const { getOverview } = require("../services/analyticsService");
 const { upload, registerUpload } = require("../services/uploadService");
+const { generatePixelHtml } = require("../services/pixelService");
 
 const router = express.Router();
 
@@ -100,12 +101,14 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
   if (!presell) return res.status(404).send("Presell nao encontrada.");
 
   const selectedTemplate = getTemplateDefinition(presell.template);
+  const pixelHtml = generatePixelHtml(presell.google_pixel);
 
   res.render(`presell/${selectedTemplate.id}`, {
     title: `Preview - ${presell.title}`,
     presell,
     settings: parsePresellSettings(presell),
     bullets: parseBullets(presell),
+    pixelHtml,
     preview: true
   });
 });
@@ -121,6 +124,7 @@ router.post("/api/presells/:id/preview", requireAuth, (req, res) => {
   };
 
   const selectedTemplate = getTemplateDefinition(previewPresell.template);
+  const pixelHtml = generatePixelHtml(previewPresell.google_pixel);
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.render(`presell/${selectedTemplate.id}`, {
@@ -128,6 +132,7 @@ router.post("/api/presells/:id/preview", requireAuth, (req, res) => {
     presell: previewPresell,
     settings: parsePresellSettings(previewPresell),
     bullets: parseBullets(previewPresell),
+    pixelHtml,
     preview: true
   });
 });

@@ -46,7 +46,10 @@ app.use("/", publicRoutes);
 app.use("/admin", adminRoutes);
 
 app.use((req, res) => {
-  res.status(404).render("presell/404", { title: "Pagina nao encontrada" });
+  res.status(404).render("presell/404", { 
+    title: "Pagina nao encontrada",
+    pixelHtml: ""
+  });
 });
 
 app.use((err, req, res, next) => {

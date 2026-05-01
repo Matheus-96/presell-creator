@@ -10,136 +10,159 @@
     <% } %>
   </header>
 
-  <main class="admin-main narrow">
+  <main class="admin-main">
     <% if (error) { %><p class="alert"><%= error %></p><% } %>
-    <form class="panel stack" method="post" enctype="multipart/form-data" action="<%= presell.id ? '/admin/presells/' + presell.id : '/admin/presells' %>">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
+    <div class="container-fluid">
+      <div class="row g-3">
+        <!-- Form Column (Left) -->
+        <div class="col-12 col-md-6">
+          <form class="panel stack" method="post" enctype="multipart/form-data" action="<%= presell.id ? '/admin/presells/' + presell.id : '/admin/presells' %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
 
-      <div class="grid-2">
-        <label>Slug
-          <input name="slug" value="<%= presell.slug || '' %>" placeholder="minha-presell" required>
-        </label>
-        <label>Status
-          <select name="status">
-            <option value="draft" <%= presell.status === 'draft' ? 'selected' : '' %>>Rascunho</option>
-            <option value="published" <%= presell.status === 'published' ? 'selected' : '' %>>Publicado</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="grid-2">
-        <label>Template
-          <select name="template">
-            <% var templateOptions = templateDefinitions && templateDefinitions.length ? templateDefinitions : templates.map(function(template) { return { id: template, name: template, description: '', fields: [] }; }); %>
-            <% templateOptions.forEach(function(template) { %>
-              <option value="<%= template.id %>" <%= presell.template === template.id ? 'selected' : '' %>><%= template.name || template.id %></option>
-            <% }) %>
-          </select>
-          <% if (selectedTemplate && selectedTemplate.description) { %>
-            <span class="template-help"><%= selectedTemplate.description %></span>
-          <% } %>
-        </label>
-        <label>Titulo interno
-          <input name="title" value="<%= presell.title || '' %>" required>
-        </label>
-      </div>
-
-      <label>Headline
-        <input name="headline" value="<%= presell.headline || '' %>" required>
-      </label>
-
-      <label>Subtitulo
-        <input name="subtitle" value="<%= presell.subtitle || '' %>">
-      </label>
-
-      <label>Corpo
-        <textarea name="body" rows="7"><%= presell.body || '' %></textarea>
-      </label>
-
-      <label>Bullets / beneficios, um por linha
-        <textarea name="bullets" rows="5"><%= presell.bullets || '' %></textarea>
-      </label>
-
-      <div class="grid-2">
-        <label>Texto do CTA
-          <input name="cta_text" value="<%= presell.cta_text || 'Continuar' %>" required>
-        </label>
-        <label>Link afiliado
-          <input name="affiliate_url" value="<%= presell.affiliate_url || '' %>" placeholder="https://exemplo.com/oferta" required>
-        </label>
-      </div>
-
-      <label>Google Ads Pixel (opcional)
-        <input type="text" name="google_pixel" value="<%= presell.google_pixel || '' %>" placeholder="999999999999">
-        <p class="helper-text">ID do seu Google Ads Pixel para rastreamento de conversões</p>
-      </label>
-
-      <label>Imagem principal
-        <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
-      </label>
-
-      <% if (presell.image_path) { %>
-        <img class="thumb" src="/media/<%= presell.image_path %>" alt="">
-      <% } %>
-
-      <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
-        <section class="settings-panel">
-          <h2>Opcoes do modelo</h2>
-          <% selectedTemplate.fields.forEach(function(field) { %>
-            <% var fieldValue = settings && settings[field.name] !== undefined ? settings[field.name] : field.defaultValue; %>
-            <% var fieldDisplayValue = fieldValue !== undefined && fieldValue !== null ? fieldValue : ''; %>
-            <% if (field.type === 'textarea') { %>
-              <label><%= field.label || field.name %>
-                <textarea name="settings[<%= field.name %>]" rows="<%= field.rows || 4 %>"><%= fieldDisplayValue %></textarea>
+            <div class="grid-2">
+              <label>Slug
+                <input name="slug" value="<%= presell.slug || '' %>" placeholder="minha-presell" required>
               </label>
-            <% } else if (field.type === 'select') { %>
-              <label><%= field.label || field.name %>
-                <select name="settings[<%= field.name %>]">
-                  <% (field.options || []).forEach(function(option) { %>
-                    <% var optionValue = typeof option === 'object' ? option.value : option; %>
-                    <% var optionLabel = typeof option === 'object' ? option.label : option; %>
-                    <option value="<%= optionValue %>" <%= String(fieldValue) === String(optionValue) ? 'selected' : '' %>><%= optionLabel %></option>
-                  <% }) %>
+              <label>Status
+                <select name="status">
+                  <option value="draft" <%= presell.status === 'draft' ? 'selected' : '' %>>Rascunho</option>
+                  <option value="published" <%= presell.status === 'published' ? 'selected' : '' %>>Publicado</option>
                 </select>
               </label>
-            <% } else if (field.type === 'checkbox') { %>
-              <label class="checkbox-row">
-                <input type="hidden" name="settings[<%= field.name %>]" value="false">
-                <input type="checkbox" name="settings[<%= field.name %>]" value="true" <%= fieldValue === true || fieldValue === 'true' ? 'checked' : '' %>>
-                <%= field.label || field.name %>
-              </label>
-            <% } else { %>
-              <% var inputType = field.type === 'range' || field.type === 'color' || field.type === 'text' ? field.type : 'text'; %>
-              <label><%= field.label || field.name %>
-                <input
-                  type="<%= inputType %>"
-                  name="settings[<%= field.name %>]"
-                  value="<%= fieldDisplayValue %>"
-                  <%= field.min !== undefined ? 'min="' + field.min + '"' : '' %>
-                  <%= field.max !== undefined ? 'max="' + field.max + '"' : '' %>
-                  <%= field.step !== undefined ? 'step="' + field.step + '"' : '' %>
-                >
-              </label>
-            <% } %>
-            <% if (field.helpText) { %>
-              <p class="helper-text"><%= field.helpText %></p>
-            <% } %>
-          <% }) %>
-        </section>
-      <% } %>
+            </div>
 
-      <div class="form-actions">
-        <button class="button primary" type="submit">Salvar</button>
-        <a class="button" href="/admin">Cancelar</a>
+            <div class="grid-2">
+              <label>Template
+                <select name="template">
+                  <% var templateOptions = templateDefinitions && templateDefinitions.length ? templateDefinitions : templates.map(function(template) { return { id: template, name: template, description: '', fields: [] }; }); %>
+                  <% templateOptions.forEach(function(template) { %>
+                    <option value="<%= template.id %>" <%= presell.template === template.id ? 'selected' : '' %>><%= template.name || template.id %></option>
+                  <% }) %>
+                </select>
+                <% if (selectedTemplate && selectedTemplate.description) { %>
+                  <span class="template-help"><%= selectedTemplate.description %></span>
+                <% } %>
+              </label>
+              <label>Titulo interno
+                <input name="title" value="<%= presell.title || '' %>" required>
+              </label>
+            </div>
+
+            <label>Headline
+              <input name="headline" value="<%= presell.headline || '' %>" required>
+            </label>
+
+            <label>Subtitulo
+              <input name="subtitle" value="<%= presell.subtitle || '' %>">
+            </label>
+
+            <label>Corpo
+              <textarea name="body" rows="7"><%= presell.body || '' %></textarea>
+            </label>
+
+            <label>Bullets / beneficios, um por linha
+              <textarea name="bullets" rows="5"><%= presell.bullets || '' %></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label>Texto do CTA
+                <input name="cta_text" value="<%= presell.cta_text || 'Continuar' %>" required>
+              </label>
+              <label>Link afiliado
+                <input name="affiliate_url" value="<%= presell.affiliate_url || '' %>" placeholder="https://exemplo.com/oferta" required>
+              </label>
+            </div>
+
+            <label>Google Ads Pixel (opcional)
+              <input type="text" name="google_pixel" value="<%= presell.google_pixel || '' %>" placeholder="999999999999">
+              <p class="helper-text">ID do seu Google Ads Pixel para rastreamento de conversões</p>
+            </label>
+
+            <label>Imagem principal
+              <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
+            </label>
+
+            <% if (presell.image_path) { %>
+              <img class="thumb" src="/media/<%= presell.image_path %>" alt="">
+            <% } %>
+
+            <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
+              <section class="settings-panel">
+                <h2>Opcoes do modelo</h2>
+                <% selectedTemplate.fields.forEach(function(field) { %>
+                  <% var fieldValue = settings && settings[field.name] !== undefined ? settings[field.name] : field.defaultValue; %>
+                  <% var fieldDisplayValue = fieldValue !== undefined && fieldValue !== null ? fieldValue : ''; %>
+                  <% if (field.type === 'textarea') { %>
+                    <label><%= field.label || field.name %>
+                      <textarea name="settings[<%= field.name %>]" rows="<%= field.rows || 4 %>"><%= fieldDisplayValue %></textarea>
+                    </label>
+                  <% } else if (field.type === 'select') { %>
+                    <label><%= field.label || field.name %>
+                      <select name="settings[<%= field.name %>]">
+                        <% (field.options || []).forEach(function(option) { %>
+                          <% var optionValue = typeof option === 'object' ? option.value : option; %>
+                          <% var optionLabel = typeof option === 'object' ? option.label : option; %>
+                          <option value="<%= optionValue %>" <%= String(fieldValue) === String(optionValue) ? 'selected' : '' %>><%= optionLabel %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+                  <% } else if (field.type === 'checkbox') { %>
+                    <label class="checkbox-row">
+                      <input type="hidden" name="settings[<%= field.name %>]" value="false">
+                      <input type="checkbox" name="settings[<%= field.name %>]" value="true" <%= fieldValue === true || fieldValue === 'true' ? 'checked' : '' %>>
+                      <%= field.label || field.name %>
+                    </label>
+                  <% } else { %>
+                    <% var inputType = field.type === 'range' || field.type === 'color' || field.type === 'text' ? field.type : 'text'; %>
+                    <label><%= field.label || field.name %>
+                      <input
+                        type="<%= inputType %>"
+                        name="settings[<%= field.name %>]"
+                        value="<%= fieldDisplayValue %>"
+                        <%= field.min !== undefined ? 'min="' + field.min + '"' : '' %>
+                        <%= field.max !== undefined ? 'max="' + field.max + '"' : '' %>
+                        <%= field.step !== undefined ? 'step="' + field.step + '"' : '' %>
+                      >
+                    </label>
+                  <% } %>
+                  <% if (field.helpText) { %>
+                    <p class="helper-text"><%= field.helpText %></p>
+                  <% } %>
+                <% }) %>
+              </section>
+            <% } %>
+
+            <div class="form-actions">
+              <button class="button primary" type="submit">Salvar</button>
+              <a class="button" href="/admin">Cancelar</a>
+            </div>
+          </form>
+
+          <% if (presell.id) { %>
+            <form method="post" action="/admin/presells/<%= presell.id %>/delete" onsubmit="return confirm('Excluir esta presell?')">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="button danger" type="submit">Excluir presell</button>
+            </form>
+          <% } %>
+        </div>
+
+        <!-- Preview Column (Right) -->
+        <div class="col-12 col-md-6">
+          <div class="preview-container">
+            <h3 class="mb-3">Preview</h3>
+            <div id="preview-pane" class="preview-pane">
+              <% if (previewHtml) { %>
+                <%- previewHtml %>
+              <% } else { %>
+                <div class="text-center text-muted py-5">
+                  <p>Carregando preview...</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
       </div>
-    </form>
-
-    <% if (presell.id) { %>
-      <form method="post" action="/admin/presells/<%= presell.id %>/delete" onsubmit="return confirm('Excluir esta presell?')">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="button danger" type="submit">Excluir presell</button>
-      </form>
-    <% } %>
+    </div>
   </main>
 <%- include('_footer') %>
