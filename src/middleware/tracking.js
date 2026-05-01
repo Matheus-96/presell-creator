@@ -16,7 +16,11 @@ function collectTrackingParams(query) {
   const params = {};
   for (const key of TRACKING_PARAMS) {
     if (typeof query[key] === "string" && query[key].trim() !== "") {
-      params[key] = query[key].trim();
+      const value = query[key].trim();
+      // Validate parameter length (max 100 chars), especially important for gclid
+      if (value.length <= 100) {
+        params[key] = value;
+      }
     }
   }
   return params;
