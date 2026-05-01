@@ -7,199 +7,98 @@
   <link rel="stylesheet" href="/static/styles.css">
   <%- pixelHtml %>
   <style>
-    .app-ad-fullscreen-body {
+    .app-ad-fullscreen-bg {
       margin: 0;
       padding: 0;
+      min-height: 100vh;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      min-height: 100vh;
-      display: flex;
-      align-items: flex-end;
-      position: relative;
+      background-color: #0a0a0a;
     }
 
-    .app-ad-fullscreen-body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%);
-      pointer-events: none;
-    }
-
-    .app-ad-fullscreen-shell {
-      width: 100%;
-      padding: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .app-ad-fullscreen-card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .app-ad-fullscreen-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #666;
-      margin: 0 0 12px 0;
-    }
-
-    .app-ad-fullscreen-media {
-      margin: -24px -24px 20px -24px;
-      border-radius: 16px 16px 0 0;
-      overflow: hidden;
-    }
-
-    .app-ad-fullscreen-image {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .app-ad-fullscreen-copy {
-      margin-bottom: 20px;
-    }
-
-    .app-ad-fullscreen-headline {
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1.3;
-      margin: 0 0 12px 0;
-      color: #1a1a1a;
-    }
-
-    .app-ad-fullscreen-subtitle {
-      font-size: 16px;
-      color: #555;
-      margin: 0 0 12px 0;
-      line-height: 1.5;
-    }
-
-    .app-ad-fullscreen-microcopy {
-      font-size: 14px;
-      color: #777;
-      margin: 12px 0 0 0;
-      line-height: 1.4;
-    }
-
-    .app-ad-fullscreen-cta {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 20px 0;
-    }
-
-    .app-ad-fullscreen-button-solid {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .app-ad-fullscreen-button-solid:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .app-ad-fullscreen-button-solid:active {
-      transform: translateY(0);
-    }
-
-    .app-ad-fullscreen-button-outline {
+    .app-ad-fullscreen-bg .app-ad-shell {
       background: transparent;
-      color: #667eea;
-      border: 2px solid #667eea;
     }
 
-    .app-ad-fullscreen-button-outline:hover {
-      background: #667eea;
-      color: white;
+    .app-ad-fullscreen-bg .app-ad-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
     }
 
-    .app-ad-fullscreen-disclaimer {
-      font-size: 12px;
-      color: #999;
-      margin: 16px 0 0 0;
-      line-height: 1.4;
-      text-align: center;
+    .app-ad-fullscreen-bg .app-ad-label {
+      color: rgba(255, 255, 255, 0.7);
     }
 
-    @media (max-width: 600px) {
-      .app-ad-fullscreen-body {
-        align-items: center;
-      }
+    .app-ad-fullscreen-bg .app-ad-headline {
+      color: #fff;
+    }
 
-      .app-ad-fullscreen-shell {
-        padding: 16px;
-      }
+    .app-ad-fullscreen-bg .app-ad-subtitle,
+    .app-ad-fullscreen-bg .app-ad-microcopy,
+    .app-ad-fullscreen-bg .app-ad-disclaimer {
+      color: rgba(255, 255, 255, 0.75);
+    }
 
-      .app-ad-fullscreen-card {
-        padding: 16px;
-      }
+    .app-ad-fullscreen-bg .app-ad-button-outline {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
 
-      .app-ad-fullscreen-headline {
-        font-size: 20px;
-      }
+    .app-ad-fullscreen-bg .app-ad-button-soft {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+    }
 
-      .app-ad-fullscreen-subtitle {
-        font-size: 14px;
-      }
+    .app-ad-fullscreen-bg .app-ad-image {
+      border-radius: 8px;
     }
   </style>
 </head>
-<body class="public-body app-ad-fullscreen-body" style="<% if (presell.background_image_path) { %>background-image: url('/media/<%= presell.background_image_path %>'); <% } %>">
+<body class="public-body app-ad-body app-ad-fullscreen-bg" style="<% if (presell.background_image_path) { %>background-image: url('/media/<%= presell.background_image_path %>'); <% } %>">
   <%
     var appAdCtaHref = preview ? '#' : '/go/' + presell.slug;
-    var appAdLabelText = settings.label_text || 'Oferta especial';
+    var appAdLabelText = settings.label_text || 'Anuncio';
     var appAdMicrocopy = settings.microcopy || '';
     var appAdDisclaimer = settings.disclaimer || '';
+    var appAdLayoutDensity = settings.layout_density || 'comfortable';
     var appAdButtonStyle = settings.button_style || 'solid';
   %>
-  <div class="app-ad-fullscreen-shell">
-    <article class="app-ad-fullscreen-card">
+  <main class="app-ad-shell app-ad-density-<%= appAdLayoutDensity %>">
+    <article class="app-ad-card">
       <% if (appAdLabelText) { %>
-        <p class="app-ad-fullscreen-label"><%= appAdLabelText %></p>
+        <p class="app-ad-label"><%= appAdLabelText %></p>
       <% } %>
 
       <% if (presell.image_path) { %>
-        <figure class="app-ad-fullscreen-media">
-          <img class="app-ad-fullscreen-image" src="/media/<%= presell.image_path %>" alt="">
+        <figure class="app-ad-media">
+          <img class="app-ad-image" src="/media/<%= presell.image_path %>" alt="">
         </figure>
       <% } %>
 
-      <div class="app-ad-fullscreen-copy">
-        <h1 class="app-ad-fullscreen-headline"><%= presell.headline %></h1>
+      <div class="app-ad-copy">
+        <h1 class="app-ad-headline"><%= presell.headline %></h1>
         <% if (presell.subtitle) { %>
-          <p class="app-ad-fullscreen-subtitle"><%= presell.subtitle %></p>
+          <p class="app-ad-subtitle"><%= presell.subtitle %></p>
         <% } %>
         <% if (appAdMicrocopy) { %>
-          <p class="app-ad-fullscreen-microcopy"><%= appAdMicrocopy %></p>
+          <p class="app-ad-microcopy"><%= appAdMicrocopy %></p>
         <% } %>
       </div>
 
-      <a class="app-ad-fullscreen-cta app-ad-fullscreen-button-<%= appAdButtonStyle %>" href="<%= appAdCtaHref %>"><%= presell.cta_text %></a>
+      <a class="app-ad-cta app-ad-button-<%= appAdButtonStyle %>" href="<%= appAdCtaHref %>"><%= presell.cta_text %></a>
 
       <% if (appAdDisclaimer) { %>
-        <p class="app-ad-fullscreen-disclaimer"><%= appAdDisclaimer %></p>
+        <p class="app-ad-disclaimer"><%= appAdDisclaimer %></p>
       <% } %>
     </article>
-  </div>
+  </main>
 </body>
 </html>

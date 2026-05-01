@@ -193,13 +193,13 @@ const templateRegistry = {
   "app-ad-fullscreen": {
     id: "app-ad-fullscreen",
     name: "Anuncio in-app com fundo",
-    description: "Anuncio in-app com imagem de fundo customizavel para maior impacto visual.",
+    description: "Anuncio in-app com imagem de fundo e efeito vidro fosco (glass blur).",
     fields: [
       {
         name: "label_text",
         label: "Rotulo",
         type: "text",
-        defaultValue: "Oferta especial"
+        defaultValue: "Anuncio"
       },
       {
         name: "microcopy",
@@ -214,13 +214,25 @@ const templateRegistry = {
         defaultValue: "Voce sera redirecionado para uma pagina externa."
       },
       {
+        name: "layout_density",
+        label: "Densidade",
+        type: "select",
+        defaultValue: "comfortable",
+        options: [
+          { value: "compact", label: "Compacta" },
+          { value: "comfortable", label: "Confortavel" },
+          { value: "spacious", label: "Espacosa" }
+        ]
+      },
+      {
         name: "button_style",
         label: "Estilo do botao",
         type: "select",
         defaultValue: "solid",
         options: [
           { value: "solid", label: "Solido" },
-          { value: "outline", label: "Contorno" }
+          { value: "outline", label: "Contorno" },
+          { value: "soft", label: "Suave" }
         ]
       }
     ]
