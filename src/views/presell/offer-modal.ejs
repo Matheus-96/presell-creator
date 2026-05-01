@@ -9,7 +9,7 @@
 </head>
 <body class="public-body offer-modal-body">
   <%
-    var offerCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var offerCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var offerDiscountText = settings.discount_text || '';
     var offerScarcityText = settings.scarcity_text || '';
     var offerRating = settings.rating || '';

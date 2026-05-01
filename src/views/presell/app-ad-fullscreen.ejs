@@ -64,7 +64,7 @@
 </head>
 <body class="public-body app-ad-body app-ad-fullscreen-bg" style="<% if (presell.background_image_path) { %>background-image: url('/media/<%= presell.background_image_path %>'); <% } %>">
   <%
-    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var appAdLabelText = settings.label_text || 'Anuncio';
     var appAdMicrocopy = settings.microcopy || '';
     var appAdDisclaimer = settings.disclaimer || '';

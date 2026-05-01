@@ -25,7 +25,7 @@
           <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
         </ul>
       </div>
-      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug %>"><%= presell.cta_text %></a>
+      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
       <p class="disclaimer">Esta pagina pode conter link de afiliado.</p>
     </section>
   </main>

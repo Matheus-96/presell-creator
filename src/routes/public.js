@@ -7,8 +7,16 @@ const {
 const { recordEvent, getOrCreateSession } = require("../services/analyticsService");
 const { buildAffiliateUrl } = require("../services/urlBuilder");
 const { generatePixelHtml } = require("../services/pixelService");
+const { TRACKING_PARAMS, collectTrackingParams } = require("../middleware/tracking");
 
 const router = express.Router();
+
+// Build a query string from captured tracking params (gclid, utm_*, etc.)
+function buildTrackingQuery(query) {
+  const params = collectTrackingParams(query);
+  const qs = new URLSearchParams(params).toString();
+  return qs ? "?" + qs : "";
+}
 
 router.get("/", (req, res) => {
   res.redirect("/admin");
@@ -26,6 +34,7 @@ router.get("/p/:slug", (req, res) => {
   recordEvent(req, presell, "page_view");
   const selectedTemplate = getTemplateDefinition(presell.template);
   const pixelHtml = generatePixelHtml(presell.google_pixel);
+  const trackingQuery = buildTrackingQuery(req.query);
 
   res.render(`presell/${selectedTemplate.id}`, {
     title: presell.title,
@@ -33,6 +42,7 @@ router.get("/p/:slug", (req, res) => {
     settings: parsePresellSettings(presell),
     bullets: parseBullets(presell),
     pixelHtml,
+    trackingQuery,
     preview: false
   });
 });

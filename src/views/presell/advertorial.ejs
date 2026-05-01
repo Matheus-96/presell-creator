@@ -20,7 +20,7 @@
           <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
         </ul>
       <% } %>
-      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug %>"><%= presell.cta_text %></a>
+      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
       <p class="disclaimer">Conteudo informativo. Ao continuar, voce sera direcionado para a pagina oficial da oferta.</p>
     </article>
   </main>

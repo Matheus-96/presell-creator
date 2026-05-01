@@ -9,7 +9,7 @@
 </head>
 <body class="public-body app-ad-body">
   <%
-    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var appAdLabelText = settings.label_text || 'Anuncio';
     var appAdMicrocopy = settings.microcopy || '';
     var appAdDisclaimer = settings.disclaimer || '';

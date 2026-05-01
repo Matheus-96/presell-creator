@@ -9,7 +9,7 @@
 </head>
 <body class="public-body device-frame-body">
   <%
-    var deviceCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var deviceCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var deviceFrameType = settings.frame_type || 'browser';
     var deviceTopBarText = settings.top_bar_text || '';
     var deviceFooterLeftText = settings.footer_left_text || '';

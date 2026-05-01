@@ -13,7 +13,7 @@
     var officialAccentColor = settings.accent_color || '#1769ff';
     var officialShowArrows = settings.show_arrows === true || settings.show_arrows === 'true' || settings.show_arrows === '1' || settings.show_arrows === 1;
     var officialTrustBadges = (settings.trust_badges || '').split(/\r?\n/).map(function(item) { return item.trim(); }).filter(Boolean).slice(0, 3);
-    var officialCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var officialCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
   %>
   <main class="official-simple-shell" style="--official-simple-accent: <%= officialAccentColor %>;">
     <section class="official-simple-panel">

@@ -19,7 +19,7 @@
           <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
         </ul>
       <% } %>
-      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug %>"><%= presell.cta_text %></a>
+      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
     </section>
     <% if (presell.image_path) { %><img class="side-img" src="/media/<%= presell.image_path %>" alt=""><% } %>
   </main>

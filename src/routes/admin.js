@@ -128,6 +128,7 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
     settings: parsePresellSettings(presell),
     bullets: parseBullets(presell),
     pixelHtml,
+    trackingQuery: "",
     preview: true
   });
 });
@@ -150,6 +151,7 @@ router.post("/api/presells/preview", requireAuth, verifyCsrf, (req, res) => {
     settings: parsePresellSettings(previewPresell),
     bullets: parseBullets(previewPresell),
     pixelHtml,
+    trackingQuery: "",
     preview: true
   });
 });
@@ -175,6 +177,7 @@ router.post("/api/presells/:id/preview", requireAuth, verifyCsrf, (req, res) => 
     settings: parsePresellSettings(previewPresell),
     bullets: parseBullets(previewPresell),
     pixelHtml,
+    trackingQuery: "",
     preview: true
   });
 });
