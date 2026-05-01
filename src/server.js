@@ -25,6 +25,41 @@ app.locals.nl2br = (value) =>
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Simple memory store for sessions
+// Ensures sessions persist between requests even if no store is configured
+const sessionStore = new Map();
+
+class SimpleMemoryStore {
+  get(sid, callback) {
+    setImmediate(() => {
+      const sess = sessionStore.get(sid);
+      callback(null, sess || null);
+    });
+  }
+
+  set(sid, session, callback) {
+    setImmediate(() => {
+      sessionStore.set(sid, session);
+      callback(null);
+    });
+  }
+
+  destroy(sid, callback) {
+    setImmediate(() => {
+      sessionStore.delete(sid);
+      callback(null);
+    });
+  }
+
+  all(callback) {
+    setImmediate(() => {
+      const sessions = Array.from(sessionStore.values());
+      callback(null, sessions);
+    });
+  }
+}
+
 // Session configuration
 // WARNING: sameSite behavior changes with NODE_ENV and protocol
 // See CSRF_ENVIRONMENT_ISSUES.md for detailed troubleshooting
@@ -38,6 +73,8 @@ const sessionConfig = {
   // With TRUE: Session is created and saved with Set-Cookie header
   // So POST /login uses the same session and token validates correctly
   saveUninitialized: true,
+  // Use explicit memory store to ensure persistence between requests
+  store: new SimpleMemoryStore(),
   cookie: {
     httpOnly: true,
     // In HTTP mode, use "strict" to prevent SameSite blocking
