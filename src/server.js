@@ -3,6 +3,7 @@ require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
+const { EventEmitter } = require("events");
 
 const { migrate } = require("./db/migrations");
 const adminRoutes = require("./routes/admin");
@@ -30,7 +31,11 @@ app.use(express.json());
 // Ensures sessions persist between requests even if no store is configured
 const sessionStore = new Map();
 
-class SimpleMemoryStore {
+class SimpleMemoryStore extends EventEmitter {
+  constructor() {
+    super();
+  }
+
   get(sid, callback) {
     setImmediate(() => {
       const sess = sessionStore.get(sid);
