@@ -133,20 +133,7 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
 });
 
 // API endpoint para preview de presell NOVO (sem ID na URL)
-router.post("/api/presells/preview", requireAuth, (req, res) => {
-  // Validar CSRF token (enviado via header X-CSRF-Token do form-preview.js)
-  const csrfToken = req.headers['x-csrf-token'] || req.headers['x-csrftoken'] || (req.body && req.body._csrf) || (req.body && req.body.csrfToken);
-  
-  if (!csrfToken) {
-    console.warn('CSRF token not provided for /api/presells/preview');
-    return res.status(403).json({ error: "Token CSRF invalido." });
-  }
-  
-  if (csrfToken !== req.session.csrfToken) {
-    console.warn('CSRF validation failed for /api/presells/preview');
-    return res.status(403).json({ error: "Token CSRF invalido." });
-  }
-
+router.post("/api/presells/preview", requireAuth, verifyCsrf, (req, res) => {
   // Cria presell vazio e faz merge com dados do form
   const previewPresell = {
     ...emptyPresell(),
@@ -168,20 +155,7 @@ router.post("/api/presells/preview", requireAuth, (req, res) => {
 });
 
 // API endpoint para preview de presell EXISTENTE (com ID na URL)
-router.post("/api/presells/:id/preview", requireAuth, (req, res) => {
-  // Validar CSRF token (enviado via header X-CSRF-Token do form-preview.js)
-  const csrfToken = req.headers['x-csrf-token'] || req.headers['x-csrftoken'] || (req.body && req.body._csrf) || (req.body && req.body.csrfToken);
-  
-  if (!csrfToken) {
-    console.warn('CSRF token not provided for /api/presells/:id/preview');
-    return res.status(403).json({ error: "Token CSRF invalido." });
-  }
-  
-  if (csrfToken !== req.session.csrfToken) {
-    console.warn('CSRF validation failed for /api/presells/:id/preview');
-    return res.status(403).json({ error: "Token CSRF invalido." });
-  }
-
+router.post("/api/presells/:id/preview", requireAuth, verifyCsrf, (req, res) => {
   const presell = getPresellById(req.params.id);
   if (!presell) return res.status(404).json({ error: "Presell nao encontrada." });
 
