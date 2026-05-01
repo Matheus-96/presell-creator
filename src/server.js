@@ -9,11 +9,12 @@ const { SQLiteSessionStore } = require("./db/sessionStore");
 const adminRoutes = require("./routes/admin");
 const publicRoutes = require("./routes/public");
 const assetRoutes = require("./routes/assets");
+const { getAdminSummary } = require("../controllers/summaryController");
 
 migrate();
 
 const app = express();
-const port = Number(process.env.PORT || 3000);
+const port = Number(process.env.PORT || 3001);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -51,6 +52,7 @@ app.use("/static", express.static(path.join(__dirname, "public")));
 app.use("/media", assetRoutes);
 app.use("/", publicRoutes);
 app.use("/admin", adminRoutes);
+app.get('/api/admin/summary', getAdminSummary);
 
 app.use((req, res) => {
   res.status(404).render("presell/404", {
