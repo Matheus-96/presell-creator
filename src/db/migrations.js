@@ -69,6 +69,10 @@ function migrate() {
   runMigration("002_add_google_pixel_column", `
     ALTER TABLE presells ADD COLUMN google_pixel TEXT DEFAULT NULL;
   `);
+
+  runMigration("003_add_background_image_column", `
+    ALTER TABLE presells ADD COLUMN background_image_path TEXT DEFAULT NULL;
+  `);
 }
 
 function runMigration(name, sql) {

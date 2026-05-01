@@ -25,16 +25,16 @@ function getPublishedPresell(slug) {
     .get(slug);
 }
 
-function savePresell(input, imagePath) {
+function savePresell(input, imagePath, backgroundImagePath) {
   const existingPresell = input.id ? getPresellById(input.id) : null;
-  const data = normalizePresellInput(input, imagePath, existingPresell);
+  const data = normalizePresellInput(input, imagePath, backgroundImagePath, existingPresell);
 
   if (input.id) {
     db.prepare(`
       UPDATE presells
       SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
           subtitle = ?, body = ?, bullets = ?, cta_text = ?, affiliate_url = ?,
-          image_path = ?, settings_json = ?, google_pixel = ?, updated_at = CURRENT_TIMESTAMP
+          image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
       data.slug,
@@ -50,6 +50,7 @@ function savePresell(input, imagePath) {
       data.imagePath,
       data.settingsJson,
       data.googlePixel,
+      data.backgroundImagePath,
       input.id
     );
     return getPresellById(input.id);
@@ -58,8 +59,8 @@ function savePresell(input, imagePath) {
   const result = db.prepare(`
     INSERT INTO presells (
       slug, status, template, title, headline, subtitle, body, bullets,
-      cta_text, affiliate_url, image_path, settings_json, google_pixel
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     data.slug,
     data.status,
@@ -73,7 +74,8 @@ function savePresell(input, imagePath) {
     data.affiliateUrl,
     data.imagePath,
     data.settingsJson,
-    data.googlePixel
+    data.googlePixel,
+    data.backgroundImagePath
   );
 
   return getPresellById(result.lastInsertRowid);
@@ -120,7 +122,7 @@ function parseBullets(presell) {
     .filter(Boolean);
 }
 
-function normalizePresellInput(input, imagePath, existingPresell = null) {
+function normalizePresellInput(input, imagePath, backgroundImagePath, existingPresell = null) {
   const slug = String(input.slug || "")
     .trim()
     .toLowerCase()
@@ -167,6 +169,7 @@ function normalizePresellInput(input, imagePath, existingPresell = null) {
     ctaText: String(input.cta_text || "Continuar").trim(),
     affiliateUrl,
     imagePath: imagePath || input.current_image_path || "",
+    backgroundImagePath: backgroundImagePath || input.current_background_image_path || "",
     settingsJson: JSON.stringify(settings),
     googlePixel: googlePixel || null
   };

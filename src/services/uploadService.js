@@ -25,6 +25,11 @@ const upload = multer({
   }
 });
 
+const uploadMultiple = upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'background_image', maxCount: 1 }
+]);
+
 function registerUpload(file) {
   if (!file) return "";
 
@@ -36,4 +41,4 @@ function registerUpload(file) {
   return file.filename;
 }
 
-module.exports = { upload, registerUpload, uploadDir };
+module.exports = { upload, uploadMultiple, registerUpload, uploadDir };

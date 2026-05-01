@@ -189,6 +189,41 @@ const templateRegistry = {
         ]
       }
     ]
+  },
+  "app-ad-fullscreen": {
+    id: "app-ad-fullscreen",
+    name: "Anuncio in-app com fundo",
+    description: "Anuncio in-app com imagem de fundo customizavel para maior impacto visual.",
+    fields: [
+      {
+        name: "label_text",
+        label: "Rotulo",
+        type: "text",
+        defaultValue: "Oferta especial"
+      },
+      {
+        name: "microcopy",
+        label: "Microcopy",
+        type: "text",
+        defaultValue: "Toque para continuar no site oficial."
+      },
+      {
+        name: "disclaimer",
+        label: "Aviso",
+        type: "textarea",
+        defaultValue: "Voce sera redirecionado para uma pagina externa."
+      },
+      {
+        name: "button_style",
+        label: "Estilo do botao",
+        type: "select",
+        defaultValue: "solid",
+        options: [
+          { value: "solid", label: "Solido" },
+          { value: "outline", label: "Contorno" }
+        ]
+      }
+    ]
   }
 };
 

@@ -17,7 +17,7 @@ const {
   parsePresellSettings
 } = require("../services/presellTemplates");
 const { getOverview } = require("../services/analyticsService");
-const { upload, registerUpload } = require("../services/uploadService");
+const { upload, uploadMultiple, registerUpload } = require("../services/uploadService");
 const { generatePixelHtml } = require("../services/pixelService");
 
 const router = express.Router();
@@ -60,38 +60,57 @@ router.get("/", requireAuth, (req, res) => {
 });
 
 router.get("/presells/new", requireAuth, (req, res) => {
-  res.render("admin/form", {
-    title: "Nova presell",
-    presell: emptyPresell(),
-    ...getFormTemplateLocals(emptyPresell()),
-    error: ""
-  });
+  try {
+    const presell = emptyPresell();
+    const locals = getFormTemplateLocals(presell);
+    
+    res.render("admin/form", {
+      title: "Nova presell",
+      presell,
+      ...locals,
+      previewHtml: "",
+      csrfToken: req.session.csrfToken,
+      error: ""
+    });
+  } catch (error) {
+    console.error("Error in GET /presells/new:", error);
+    res.status(500).send("Erro interno no servidor: " + error.message);
+  }
 });
 
 router.post(
   "/presells",
   requireAuth,
-  upload.single("image"),
+  uploadMultiple,
   verifyCsrf,
   savePresellHandler
 );
 
 router.get("/presells/:id/edit", requireAuth, (req, res) => {
-  const presell = getPresellById(req.params.id);
-  if (!presell) return res.status(404).send("Presell nao encontrada.");
+  try {
+    const presell = getPresellById(req.params.id);
+    if (!presell) return res.status(404).send("Presell nao encontrada.");
 
-  res.render("admin/form", {
-    title: "Editar presell",
-    presell,
-    ...getFormTemplateLocals(presell),
-    error: ""
-  });
+    const locals = getFormTemplateLocals(presell);
+    
+    res.render("admin/form", {
+      title: "Editar presell",
+      presell,
+      ...locals,
+      previewHtml: "",
+      csrfToken: req.session.csrfToken,
+      error: ""
+    });
+  } catch (error) {
+    console.error("Error in GET /presells/:id/edit:", error);
+    res.status(500).send("Erro interno no servidor: " + error.message);
+  }
 });
 
 router.post(
   "/presells/:id",
   requireAuth,
-  upload.single("image"),
+  uploadMultiple,
   verifyCsrf,
   savePresellHandler
 );
@@ -113,7 +132,56 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
   });
 });
 
+// API endpoint para preview de presell NOVO (sem ID na URL)
+router.post("/api/presells/preview", requireAuth, (req, res) => {
+  // Validar CSRF token (enviado via header X-CSRF-Token do form-preview.js)
+  const csrfToken = req.headers['x-csrf-token'] || req.headers['x-csrftoken'] || (req.body && req.body._csrf) || (req.body && req.body.csrfToken);
+  
+  if (!csrfToken) {
+    console.warn('CSRF token not provided for /api/presells/preview');
+    return res.status(403).json({ error: "Token CSRF invalido." });
+  }
+  
+  if (csrfToken !== req.session.csrfToken) {
+    console.warn('CSRF validation failed for /api/presells/preview');
+    return res.status(403).json({ error: "Token CSRF invalido." });
+  }
+
+  // Cria presell vazio e faz merge com dados do form
+  const previewPresell = {
+    ...emptyPresell(),
+    ...req.body
+  };
+
+  const selectedTemplate = getTemplateDefinition(previewPresell.template);
+  const pixelHtml = generatePixelHtml(previewPresell.google_pixel);
+
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.render(`presell/${selectedTemplate.id}`, {
+    title: `Preview - ${previewPresell.title || 'Novo Presell'}`,
+    presell: previewPresell,
+    settings: parsePresellSettings(previewPresell),
+    bullets: parseBullets(previewPresell),
+    pixelHtml,
+    preview: true
+  });
+});
+
+// API endpoint para preview de presell EXISTENTE (com ID na URL)
 router.post("/api/presells/:id/preview", requireAuth, (req, res) => {
+  // Validar CSRF token (enviado via header X-CSRF-Token do form-preview.js)
+  const csrfToken = req.headers['x-csrf-token'] || req.headers['x-csrftoken'] || (req.body && req.body._csrf) || (req.body && req.body.csrfToken);
+  
+  if (!csrfToken) {
+    console.warn('CSRF token not provided for /api/presells/:id/preview');
+    return res.status(403).json({ error: "Token CSRF invalido." });
+  }
+  
+  if (csrfToken !== req.session.csrfToken) {
+    console.warn('CSRF validation failed for /api/presells/:id/preview');
+    return res.status(403).json({ error: "Token CSRF invalido." });
+  }
+
   const presell = getPresellById(req.params.id);
   if (!presell) return res.status(404).json({ error: "Presell nao encontrada." });
 
@@ -150,8 +218,9 @@ router.post("/presells/:id/duplicate", requireAuth, verifyCsrf, (req, res) => {
 
 function savePresellHandler(req, res) {
   try {
-    const imagePath = registerUpload(req.file);
-    const presell = savePresell({ ...req.body, id: req.params.id }, imagePath);
+    const imagePath = req.files && req.files.image ? registerUpload(req.files.image[0]) : undefined;
+    const backgroundImagePath = req.files && req.files.background_image ? registerUpload(req.files.background_image[0]) : undefined;
+    const presell = savePresell({ ...req.body, id: req.params.id }, imagePath, backgroundImagePath);
     res.redirect(`/admin/presells/${presell.id}/edit`);
   } catch (error) {
     const presell = { ...emptyPresell(), ...req.body, id: req.params.id };
@@ -166,20 +235,27 @@ function savePresellHandler(req, res) {
 }
 
 function getFormTemplateLocals(presell, postedSettings = null, existingPresell = null) {
-  const selectedTemplate = getTemplateDefinition(presell.template);
-  const existingSettings = existingPresell
-    ? parsePresellSettings(existingPresell)
-    : parsePresellSettings(presell);
-  const settings = postedSettings
-    ? normalizeSettings(selectedTemplate.id, postedSettings, existingSettings)
-    : existingSettings;
+  try {
+    const selectedTemplate = getTemplateDefinition(presell.template);
+    const existingSettings = existingPresell
+      ? parsePresellSettings(existingPresell)
+      : parsePresellSettings(presell);
+    const settings = postedSettings
+      ? normalizeSettings(selectedTemplate.id, postedSettings, existingSettings)
+      : existingSettings;
 
-  return {
-    templates: allowedTemplates,
-    templateDefinitions,
-    selectedTemplate,
-    settings
-  };
+    const result = {
+      templates: allowedTemplates,
+      templateDefinitions,
+      selectedTemplate,
+      settings
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error in getFormTemplateLocals:", error);
+    throw error;
+  }
 }
 
 function emptyPresell() {

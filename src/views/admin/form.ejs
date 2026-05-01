@@ -19,6 +19,7 @@
           <form class="panel stack" method="post" enctype="multipart/form-data" action="<%= presell.id ? '/admin/presells/' + presell.id : '/admin/presells' %>">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
+            <input type="hidden" name="current_background_image_path" value="<%= presell.background_image_path || '' %>">
 
             <div class="grid-2">
               <label>Slug
@@ -85,6 +86,15 @@
 
             <% if (presell.image_path) { %>
               <img class="thumb" src="/media/<%= presell.image_path %>" alt="">
+            <% } %>
+
+            <label>Imagem de fundo (para template com fundo)
+              <input type="file" name="background_image" accept="image/png,image/jpeg,image/webp,image/gif">
+              <p class="helper-text">Use com o template "Anuncio in-app com fundo"</p>
+            </label>
+
+            <% if (presell.background_image_path) { %>
+              <img class="thumb" src="/media/<%= presell.background_image_path %>" alt="Background">
             <% } %>
 
             <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
@@ -165,4 +175,6 @@
       </div>
     </div>
   </main>
+
+<script src="/static/js/form-preview.js"></script>
 <%- include('_footer') %>
