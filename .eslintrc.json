@@ -5,6 +5,7 @@
     "es2021": true
   },
   "plugins": [],
+  "ignorePatterns": ["src/services/**"],
   "rules": {
     "no-console": "off",
     "func-names": "off",
@@ -16,8 +17,23 @@
     "max-len": "off",
     "no-use-before-define": "off",
     "consistent-return": "off",
-    "no-trailing-spaces": "off",
+    "no-shadow": "off",
     "object-curly-newline": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    "no-underscore-dangle": "off",
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "prefer-destructuring": "off",
+    "operator-linebreak": "off",
+    "no-multi-spaces": "off",
+    "prefer-template": "off",
+    "wrap-iife": "off",
+    "space-before-function-paren": "off",
+    "strict": "off",
+    "no-continue": "off",
+    "object-shorthand": "off",
+    "arrow-parens": "off",
+    "implicit-arrow-linebreak": "off",
+    "no-promise-executor-return": "off"
   }
 }

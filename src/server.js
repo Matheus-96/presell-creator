@@ -17,12 +17,11 @@ const port = Number(process.env.PORT || 3000);
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.locals.nl2br = (value) =>
-  String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\r?\n/g, "<br>");
+app.locals.nl2br = (value) => String(value || "")
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/\r?\n/g, "<br>");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -54,7 +53,7 @@ app.use("/", publicRoutes);
 app.use("/admin", adminRoutes);
 
 app.use((req, res) => {
-  res.status(404).render("presell/404", { 
+  res.status(404).render("presell/404", {
     title: "Pagina nao encontrada",
     pixelHtml: ""
   });

@@ -34,8 +34,8 @@ router.post("/login", verifyCsrf, (req, res) => {
   const expectedHash = process.env.ADMIN_PASSWORD_HASH || "";
 
   if (
-    req.body.username === expectedUser &&
-    verifyAdminPassword(req.body.password, expectedHash)
+    req.body.username === expectedUser
+    && verifyAdminPassword(req.body.password, expectedHash)
   ) {
     req.session.isAdmin = true;
     return res.redirect("/admin");
@@ -63,7 +63,7 @@ router.get("/presells/new", requireAuth, (req, res) => {
   try {
     const presell = emptyPresell();
     const locals = getFormTemplateLocals(presell);
-    
+
     res.render("admin/form", {
       title: "Nova presell",
       presell,
@@ -74,7 +74,7 @@ router.get("/presells/new", requireAuth, (req, res) => {
     });
   } catch (error) {
     console.error("Error in GET /presells/new:", error);
-    res.status(500).send("Erro interno no servidor: " + error.message);
+    res.status(500).send(`Erro interno no servidor: ${error.message}`);
   }
 });
 
@@ -92,7 +92,7 @@ router.get("/presells/:id/edit", requireAuth, (req, res) => {
     if (!presell) return res.status(404).send("Presell nao encontrada.");
 
     const locals = getFormTemplateLocals(presell);
-    
+
     res.render("admin/form", {
       title: "Editar presell",
       presell,
@@ -103,7 +103,7 @@ router.get("/presells/:id/edit", requireAuth, (req, res) => {
     });
   } catch (error) {
     console.error("Error in GET /presells/:id/edit:", error);
-    res.status(500).send("Erro interno no servidor: " + error.message);
+    res.status(500).send(`Erro interno no servidor: ${error.message}`);
   }
 });
 
@@ -227,7 +227,7 @@ function getFormTemplateLocals(presell, postedSettings = null, existingPresell =
       selectedTemplate,
       settings
     };
-    
+
     return result;
   } catch (error) {
     console.error("Error in getFormTemplateLocals:", error);

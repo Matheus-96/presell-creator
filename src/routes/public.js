@@ -15,7 +15,7 @@ const router = express.Router();
 function buildTrackingQuery(query) {
   const params = collectTrackingParams(query);
   const qs = new URLSearchParams(params).toString();
-  return qs ? "?" + qs : "";
+  return qs ? `?${qs}` : "";
 }
 
 router.get("/", (req, res) => {
@@ -25,7 +25,7 @@ router.get("/", (req, res) => {
 router.get("/p/:slug", (req, res) => {
   const presell = getPublishedPresell(req.params.slug);
   if (!presell) {
-    return res.status(404).render("presell/404", { 
+    return res.status(404).render("presell/404", {
       title: "Presell nao encontrada",
       pixelHtml: ""
     });
@@ -50,7 +50,7 @@ router.get("/p/:slug", (req, res) => {
 router.get("/go/:slug", (req, res) => {
   const presell = getPublishedPresell(req.params.slug);
   if (!presell) {
-    return res.status(404).render("presell/404", { 
+    return res.status(404).render("presell/404", {
       title: "Presell nao encontrada",
       pixelHtml: ""
     });
@@ -58,12 +58,12 @@ router.get("/go/:slug", (req, res) => {
 
   recordEvent(req, presell, "cta_click");
   const { params } = getOrCreateSession(req);
-  
+
   // Extract gclid specifically and strip it from general params to avoid duplication
-  const gclid = params.gclid;
+  const { gclid } = params;
   const trackingParams = { ...params };
   delete trackingParams.gclid;
-  
+
   const targetUrl = buildRedirectUrl(presell.affiliate_url, trackingParams, gclid);
   recordEvent(req, presell, "redirect", { target_url: targetUrl });
 

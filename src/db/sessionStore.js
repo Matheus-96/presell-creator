@@ -18,7 +18,7 @@ sessionDb.exec(`
   )
 `);
 
-const Store = session.Store;
+const { Store } = session;
 
 class SQLiteSessionStore extends Store {
   constructor(options) {

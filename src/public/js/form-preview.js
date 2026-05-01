@@ -3,13 +3,11 @@
  * Monitors form changes and updates preview pane in real-time via API
  */
 
-(function() {
-  'use strict';
-
+(function () {
   const PREVIEW_DEBOUNCE_MS = 300;
   const PREVIEW_PANE_ID = 'preview-pane';
   const API_ENDPOINT = '/admin/api/presells/{id}/preview';
-  
+
   let debounceTimer = null;
   let lastPreviewData = null;
 
@@ -32,7 +30,7 @@
     const formData = new FormData(form);
     const data = {};
 
-    for (let [key, value] of formData.entries()) {
+    for (const [key, value] of formData.entries()) {
       // Skip technical fields
       if (key === '_csrf' || key === 'current_image_path') {
         continue;
@@ -49,19 +47,19 @@
   async function updatePreview() {
     const presellId = getPresellId();
     const formData = getFormData();
-    
+
     // Skip update if data hasn't changed
     if (JSON.stringify(formData) === JSON.stringify(lastPreviewData)) {
       return;
     }
-    
+
     lastPreviewData = formData;
 
     try {
       // Determine endpoint based on whether presell is new or existing
-      const endpoint = presellId 
-        ? API_ENDPOINT.replace('{id}', presellId)  // /admin/api/presells/:id/preview
-        : '/admin/api/presells/preview';             // /admin/api/presells/preview
+      const endpoint = presellId
+        ? API_ENDPOINT.replace('{id}', presellId) // /admin/api/presells/:id/preview
+        : '/admin/api/presells/preview'; // /admin/api/presells/preview
 
       // Get CSRF token from form
       const csrfTokenElement = document.querySelector('input[name="_csrf"]');
@@ -79,8 +77,8 @@
       if (!response.ok) {
         console.warn('Preview update failed:', {
           status: response.status,
-          endpoint: endpoint,
-          presellId: presellId
+          endpoint,
+          presellId
         });
         return;
       }
@@ -126,7 +124,7 @@
       'input, textarea, select'
     );
 
-    formElements.forEach(element => {
+    formElements.forEach((element) => {
       // Skip CSRF and hidden fields
       if (element.type === 'hidden') {
         return;
@@ -156,4 +154,4 @@
     getFormData,
     getPresellId
   };
-})();
+}());
