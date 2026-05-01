@@ -9,6 +9,15 @@
     "no-console": "off",
     "func-names": "off",
     "prefer-arrow-callback": "off",
-    "import/no-unresolved": "off"
+    "import/no-unresolved": "off",
+    "linebreak-style": "off",
+    "quotes": "off",
+    "comma-dangle": "off",
+    "max-len": "off",
+    "no-use-before-define": "off",
+    "consistent-return": "off",
+    "no-trailing-spaces": "off",
+    "object-curly-newline": "off",
+    "no-restricted-syntax": "off"
   }
 }
