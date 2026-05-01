@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="public-body app-ad-body">
+  <%
+    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var appAdLabelText = settings.label_text || 'Anuncio';
+    var appAdMicrocopy = settings.microcopy || '';
+    var appAdDisclaimer = settings.disclaimer || '';
+    var appAdLayoutDensity = settings.layout_density || 'comfortable';
+    var appAdButtonStyle = settings.button_style || 'solid';
+  %>
+  <main class="app-ad-shell app-ad-density-<%= appAdLayoutDensity %>">
+    <article class="app-ad-card">
+      <% if (appAdLabelText) { %>
+        <p class="app-ad-label"><%= appAdLabelText %></p>
+      <% } %>
+
+      <% if (presell.image_path) { %>
+        <figure class="app-ad-media">
+          <img class="app-ad-image" src="/media/<%= presell.image_path %>" alt="">
+        </figure>
+      <% } %>
+
+      <div class="app-ad-copy">
+        <h1 class="app-ad-headline"><%= presell.headline %></h1>
+        <% if (presell.subtitle) { %>
+          <p class="app-ad-subtitle"><%= presell.subtitle %></p>
+        <% } %>
+        <% if (appAdMicrocopy) { %>
+          <p class="app-ad-microcopy"><%= appAdMicrocopy %></p>
+        <% } %>
+      </div>
+
+      <a class="app-ad-cta app-ad-button-<%= appAdButtonStyle %>" href="<%= appAdCtaHref %>"><%= presell.cta_text %></a>
+
+      <% if (appAdDisclaimer) { %>
+        <p class="app-ad-disclaimer"><%= appAdDisclaimer %></p>
+      <% } %>
+    </article>
+  </main>
+</body>
+</html>

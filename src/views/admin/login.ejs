@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="admin-body">
+  <main class="login-shell">
+    <section class="panel compact">
+      <h1>Presell Admin</h1>
+      <p class="muted">Entre para gerenciar paginas, links e analytics.</p>
+      <% if (error) { %><p class="alert"><%= error %></p><% } %>
+      <form method="post" action="/admin/login" class="stack">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Usuario
+          <input name="username" autocomplete="username" required>
+        </label>
+        <label>Senha
+          <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="button primary" type="submit">Entrar</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="public-body">
+  <main class="split-shell">
+    <section class="problem-panel">
+      <p class="eyebrow">Problema e solucao</p>
+      <h1><%= presell.headline %></h1>
+      <% if (presell.subtitle) { %><p class="lead"><%= presell.subtitle %></p><% } %>
+      <div class="copy"><%- nl2br(presell.body) %></div>
+      <% if (bullets.length) { %>
+        <ul class="benefits">
+          <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
+        </ul>
+      <% } %>
+      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug %>"><%= presell.cta_text %></a>
+    </section>
+    <% if (presell.image_path) { %><img class="side-img" src="/media/<%= presell.image_path %>" alt=""><% } %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div>
+      <strong>Presell Server</strong>
+      <span class="muted">gestao server-side</span>
+    </div>
+    <nav>
+      <a class="button" href="/admin/presells/new">Nova presell</a>
+      <form method="post" action="/admin/logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="button ghost" type="submit">Sair</button>
+      </form>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    <section class="metrics-grid">
+      <article class="metric"><span>Views</span><strong><%= analytics.totals.views %></strong></article>
+      <article class="metric"><span>Cliques</span><strong><%= analytics.totals.clicks %></strong></article>
+      <article class="metric"><span>Redirects</span><strong><%= analytics.totals.redirects %></strong></article>
+      <article class="metric"><span>CTR</span><strong><%= analytics.totals.ctr.toFixed(1) %>%</strong></article>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h1>Presells</h1>
+        <a class="button primary" href="/admin/presells/new">Criar pagina</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Titulo</th>
+              <th>Status</th>
+              <th>Template</th>
+              <th>Views</th>
+              <th>Cliques</th>
+              <th>CTR</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% presells.forEach(function(presell) { 
+              const row = analytics.byPresell.find(function(item) { return item.id === presell.id; }) || { views: 0, clicks: 0, ctr: 0 };
+            %>
+              <tr>
+                <td>
+                  <strong><%= presell.title %></strong>
+                  <span class="muted block">/p/<%= presell.slug %></span>
+                </td>
+                <td><span class="status <%= presell.status %>"><%= presell.status %></span></td>
+                <td><%= presell.template %></td>
+                <td><%= row.views %></td>
+                <td><%= row.clicks %></td>
+                <td><%= row.ctr.toFixed(1) %>%</td>
+                <td>
+                  <div class="actions table-actions">
+                  <% if (presell.status === 'published') { %>
+                    <a class="action-link" href="/p/<%= presell.slug %>" target="_blank">Abrir</a>
+                  <% } %>
+                  <a class="action-link" href="/admin/presells/<%= presell.id %>/preview" target="_blank">Preview</a>
+                  <a class="action-link primary" href="/admin/presells/<%= presell.id %>/edit">Editar</a>
+                  <form method="post" action="/admin/presells/<%= presell.id %>/duplicate">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="action-link" type="submit">Duplicar</button>
+                  </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (presells.length === 0) { %>
+              <tr><td colspan="7" class="muted">Nenhuma presell cadastrada ainda.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="two-col">
+      <div class="panel">
+        <h2>Origens UTM</h2>
+        <table>
+          <thead><tr><th>Origem</th><th>Views</th></tr></thead>
+          <tbody>
+            <% analytics.sources.forEach(function(source) { %>
+              <tr><td><%= source.source || '(sem utm_source)' %></td><td><%= source.total %></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h2>Ultimos eventos</h2>
+        <div class="event-list">
+          <% analytics.recent.forEach(function(event) { %>
+            <div>
+              <strong><%= event.event_type %></strong>
+              <span><%= event.title || 'sem pagina' %></span>
+              <small><%= event.created_at %></small>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

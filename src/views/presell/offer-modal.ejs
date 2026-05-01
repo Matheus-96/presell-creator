@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="public-body offer-modal-body">
+  <%
+    var offerCtaHref = preview ? '#' : '/go/' + presell.slug;
+    var offerDiscountText = settings.discount_text || '';
+    var offerScarcityText = settings.scarcity_text || '';
+    var offerRating = settings.rating || '';
+    var offerStarsText = settings.stars_text || '';
+    var offerCtaText = settings.modal_cta_text_override || presell.cta_text;
+    var offerOverlayStrength = settings.overlay_strength || '0.62';
+  %>
+  <main class="offer-modal-shell" style="--offer-modal-overlay-strength: <%= offerOverlayStrength %>;">
+    <section class="offer-modal-backdrop">
+      <% if (presell.image_path) { %>
+        <img class="offer-modal-hero-image" src="/media/<%= presell.image_path %>" alt="">
+      <% } %>
+      <div class="offer-modal-overlay" aria-hidden="true"></div>
+    </section>
+
+    <section class="offer-modal-card" aria-labelledby="offer-modal-title">
+      <% if (offerDiscountText) { %>
+        <p class="offer-modal-discount"><%= offerDiscountText %></p>
+      <% } %>
+
+      <h1 id="offer-modal-title" class="offer-modal-headline"><%= presell.headline %></h1>
+
+      <% if (presell.subtitle) { %>
+        <p class="offer-modal-subtitle"><%= presell.subtitle %></p>
+      <% } %>
+
+      <% if (offerRating || offerStarsText) { %>
+        <div class="offer-modal-rating" aria-label="<%= offerRating %> <%= offerStarsText %>">
+          <% if (offerStarsText) { %><span class="offer-modal-stars"><%= offerStarsText %></span><% } %>
+          <% if (offerRating) { %><span class="offer-modal-rating-value"><%= offerRating %></span><% } %>
+        </div>
+      <% } %>
+
+      <% if (offerScarcityText) { %>
+        <p class="offer-modal-scarcity"><%= offerScarcityText %></p>
+      <% } %>
+
+      <a class="offer-modal-cta" href="<%= offerCtaHref %>"><%= offerCtaText %></a>
+    </section>
+  </main>
+</body>
+</html>

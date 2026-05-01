@@ -1,0 +1,22 @@
+{
+  "name": "presell-server",
+  "version": "1.0.0",
+  "description": "Server-side presell manager for affiliate bridge pages.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "hash-password": "node scripts/hash-password.js",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "multer": "^2.0.2"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

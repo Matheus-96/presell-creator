@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="public-body">
+  <main class="review-shell">
+    <section class="review-hero">
+      <div>
+        <p class="eyebrow">Analise rapida</p>
+        <h1><%= presell.headline %></h1>
+        <% if (presell.subtitle) { %><p class="lead"><%= presell.subtitle %></p><% } %>
+      </div>
+      <% if (presell.image_path) { %><img class="hero-img" src="/media/<%= presell.image_path %>" alt=""><% } %>
+    </section>
+    <section class="article">
+      <div class="copy"><%- nl2br(presell.body) %></div>
+      <div class="review-box">
+        <h2>Resumo</h2>
+        <ul class="benefits">
+          <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
+        </ul>
+      </div>
+      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug %>"><%= presell.cta_text %></a>
+      <p class="disclaimer">Esta pagina pode conter link de afiliado.</p>
+    </section>
+  </main>
+</body>
+</html>

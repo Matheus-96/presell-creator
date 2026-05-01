@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="public-body official-simple-body">
+  <%
+    var officialBadgeText = settings.badge_text || 'Pagina oficial';
+    var officialAccentColor = settings.accent_color || '#1769ff';
+    var officialShowArrows = settings.show_arrows === true || settings.show_arrows === 'true' || settings.show_arrows === '1' || settings.show_arrows === 1;
+    var officialTrustBadges = (settings.trust_badges || '').split(/\r?\n/).map(function(item) { return item.trim(); }).filter(Boolean).slice(0, 3);
+    var officialCtaHref = preview ? '#' : '/go/' + presell.slug;
+  %>
+  <main class="official-simple-shell" style="--official-simple-accent: <%= officialAccentColor %>;">
+    <section class="official-simple-panel">
+      <% if (officialBadgeText) { %>
+        <p class="official-simple-badge"><%= officialBadgeText %></p>
+      <% } %>
+
+      <div class="official-simple-copy">
+        <h1 class="official-simple-headline"><%= presell.headline %></h1>
+        <% if (presell.subtitle) { %>
+          <p class="official-simple-subtitle"><%= presell.subtitle %></p>
+        <% } %>
+      </div>
+
+      <% if (officialTrustBadges.length) { %>
+        <ul class="official-simple-trust-list">
+          <% officialTrustBadges.forEach(function(item) { %>
+            <li class="official-simple-trust-item"><%= item %></li>
+          <% }) %>
+        </ul>
+      <% } %>
+
+      <a class="official-simple-cta" href="<%= officialCtaHref %>">
+        <% if (officialShowArrows) { %><span class="official-simple-arrow" aria-hidden="true">&gt;</span><% } %>
+        <span class="official-simple-cta-text"><%= presell.cta_text %></span>
+        <% if (officialShowArrows) { %><span class="official-simple-arrow" aria-hidden="true">&lt;</span><% } %>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
