@@ -2,14 +2,13 @@
   "extends": ["airbnb-base"],
   "env": {
     "node": true,
-    "es2022": true
+    "es2021": true
   },
   "plugins": [],
   "rules": {
     "no-console": "off",
-    "import/no-unresolved": "off",
-    "import/extensions": ["error", "ignorePackages", {
-      "js": "never"
-    }]
+    "func-names": "off",
+    "prefer-arrow-callback": "off",
+    "import/no-unresolved": "off"
   }
 }
