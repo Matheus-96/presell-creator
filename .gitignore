@@ -2,6 +2,8 @@ node_modules/
 .env
 storage/database.sqlite
 storage/database.sqlite-*
+storage/sessions.sqlite
+storage/sessions.sqlite-*
 storage/uploads/*
 !storage/uploads/.gitkeep
 *.log
