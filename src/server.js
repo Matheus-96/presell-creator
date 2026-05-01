@@ -25,20 +25,33 @@ app.locals.nl2br = (value) =>
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(
-  session({
-    name: "presell.sid",
-    secret: process.env.SESSION_SECRET || "development-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 8
-    }
-  })
-);
+// Session configuration
+// WARNING: sameSite behavior changes with NODE_ENV and protocol
+// See CSRF_ENVIRONMENT_ISSUES.md for detailed troubleshooting
+const sessionConfig = {
+  name: "presell.sid",
+  secret: process.env.SESSION_SECRET || "development-secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    // In HTTP mode, use "strict" to prevent SameSite blocking
+    // In HTTPS mode (production), use "lax" for better UX
+    sameSite: process.env.NODE_ENV === "production" ? "lax" : "strict",
+    // secure must be false for HTTP, true for HTTPS
+    // In production with X-Forwarded-Proto header, set to true
+    secure: process.env.NODE_ENV === "production" && process.env.FORCE_HTTPS !== "false",
+    // 8 hour session timeout
+    maxAge: 1000 * 60 * 60 * 8
+  }
+};
+
+// Trust proxy if behind reverse proxy (nginx/apache)
+if (process.env.TRUST_PROXY === "true" || process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
+app.use(session(sessionConfig));
 
 app.use("/static", express.static(path.join(__dirname, "public")));
 app.use("/media", assetRoutes);
