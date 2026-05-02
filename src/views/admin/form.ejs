@@ -1,180 +1,265 @@
 <%- include('_header') %>
-  <%- include('_navbar') %>
-  <header class="admin-header">
-    <div>
-      <strong><%= title %></strong>
-      <a class="muted" href="/admin">voltar ao painel</a>
-    </div>
-    <% if (presell.id) { %>
-      <a class="button" target="_blank" href="/admin/presells/<%= presell.id %>/preview">Preview</a>
-    <% } %>
-  </header>
+<%- include('_navbar') %>
+<header class="admin-header">
+  <div>
+    <strong><%= title %></strong>
+    <a class="muted" href="/admin">voltar ao painel</a>
+  </div>
+  <% if (presell.id) { %>
+    <a class="button" target="_blank" href="/admin/presells/<%= presell.id %>/preview">Preview</a>
+  <% } %>
+</header>
 
-  <main class="admin-main">
-    <% if (error) { %><p class="alert"><%= error %></p><% } %>
-    <div class="container-fluid">
-      <div class="row g-3">
-        <!-- Form Column (Left) -->
-        <div class="col-12 col-md-6">
-          <form class="panel stack" method="post" enctype="multipart/form-data" action="<%= presell.id ? '/admin/presells/' + presell.id : '/admin/presells' %>">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
-            <input type="hidden" name="current_background_image_path" value="<%= presell.background_image_path || '' %>">
+<main class="admin-main">
+  <% if (error) { %><p class="alert"><%= error %></p><% } %>
+  <div class="container-fluid">
+    <div class="row g-3">
+      <!-- Left Column: Sidebar Navigation -->
+      <div class="col-12 col-md-2">
+        <div class="sidebar-nav">
+          <h6 class="sidebar-heading">Seções</h6>
+          <nav class="nav flex-column">
+            <a class="nav-link" href="#info-basicas">📋 Informações Básicas</a>
+            <a class="nav-link" href="#conteudo">✏️ Conteúdo</a>
+            <a class="nav-link" href="#conversao">💰 Conversão</a>
+            <a class="nav-link" href="#midia">🖼️ Mídia</a>
+            <a class="nav-link" href="#opcoes-template">⚙️ Opções do Template</a>
+          </nav>
 
-            <div class="grid-2">
-              <label>Slug
-                <input name="slug" value="<%= presell.slug || '' %>" placeholder="minha-presell" required>
-              </label>
-              <label>Status
-                <select name="status">
-                  <option value="draft" <%= presell.status === 'draft' ? 'selected' : '' %>>Rascunho</option>
-                  <option value="published" <%= presell.status === 'published' ? 'selected' : '' %>>Publicado</option>
-                </select>
-              </label>
+          <!-- Sidebar Actions (Fixed at bottom) -->
+          <div class="sidebar-actions">
+            <button class="btn btn-success w-100 mb-2" form="presell-form" type="submit">
+              <i class="bi bi-check-circle"></i> Salvar
+            </button>
+            <a class="btn btn-outline-secondary w-100 mb-2" href="/admin">
+              <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+            <% if (presell.id) { %>
+              <form method="post" action="/admin/presells/<%= presell.id %>/delete" onsubmit="return confirm('Excluir esta presell?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-outline-danger w-100" type="submit">
+                  <i class="bi bi-trash"></i> Excluir
+                </button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Column: Form Cards -->
+      <div class="col-12 col-md-5">
+        <form class="panel stack" id="presell-form" method="post" enctype="multipart/form-data" action="<%= presell.id ? '/admin/presells/' + presell.id : '/admin/presells' %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
+          <input type="hidden" name="current_background_image_path" value="<%= presell.background_image_path || '' %>">
+
+          <!-- Card 1: Informações Básicas -->
+          <div class="card shadow-sm border-0 mb-4" id="info-basicas">
+            <div class="card-header bg-white">
+              <i class="bi bi-info-circle"></i> Informações Básicas
             </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Slug
+                    <input type="text" name="slug" class="form-control" value="<%= presell.slug || '' %>" placeholder="minha-presell" required>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Status
+                    <select name="status" class="form-select">
+                      <option value="draft" <%= presell.status === 'draft' ? 'selected' : '' %>>Rascunho</option>
+                      <option value="published" <%= presell.status === 'published' ? 'selected' : '' %>>Publicado</option>
+                    </select>
+                    <% if (presell.status) { %>
+                      <span class="badge bg-<%= presell.status === 'published' ? 'success' : 'secondary' %> mt-2"><%= presell.status === 'published' ? 'Publicado' : 'Rascunho' %></span>
+                    <% } %>
+                  </label>
+                </div>
+              </div>
+              <div class="row g-3 mt-3">
+                <div class="col-md-6">
+                  <label class="form-label">Template
+                    <select name="template" class="form-select">
+                      <% var templateOptions = templateDefinitions && templateDefinitions.length ? templateDefinitions : templates.map(function(template) { return { id: template, name: template, description: '', fields: [] }; }); %>
+                      <% templateOptions.forEach(function(template) { %>
+                        <option value="<%= template.id %>" <%= presell.template === template.id ? 'selected' : '' %>><%= template.name || template.id %></option>
+                      <% }) %>
+                    </select>
+                    <% if (selectedTemplate && selectedTemplate.description) { %>
+                      <span class="template-help text-muted small"><%= selectedTemplate.description %></span>
+                    <% } %>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Titulo interno
+                    <input type="text" name="title" class="form-control" value="<%= presell.title || '' %>" required>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <div class="grid-2">
-              <label>Template
-                <select name="template">
-                  <% var templateOptions = templateDefinitions && templateDefinitions.length ? templateDefinitions : templates.map(function(template) { return { id: template, name: template, description: '', fields: [] }; }); %>
-                  <% templateOptions.forEach(function(template) { %>
-                    <option value="<%= template.id %>" <%= presell.template === template.id ? 'selected' : '' %>><%= template.name || template.id %></option>
-                  <% }) %>
-                </select>
-                <% if (selectedTemplate && selectedTemplate.description) { %>
-                  <span class="template-help"><%= selectedTemplate.description %></span>
+          <!-- Card 2: Conteúdo -->
+          <div class="card shadow-sm border-0 mb-4" id="conteudo">
+            <div class="card-header bg-white">
+              <i class="bi bi-pencil"></i> Conteúdo
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Headline
+                  <input type="text" name="headline" class="form-control" value="<%= presell.headline || '' %>" required>
+                </label>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Subtitulo
+                  <input type="text" name="subtitle" class="form-control" value="<%= presell.subtitle || '' %>">
+                </label>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Corpo
+                  <textarea name="body" class="form-control" rows="7"><%= presell.body || '' %></textarea>
+                </label>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Bullets / beneficios, um por linha
+                  <textarea name="bullets" class="form-control" rows="5"><%= presell.bullets || '' %></textarea>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Conversão -->
+          <div class="card shadow-sm border-0 mb-4" id="conversao">
+            <div class="card-header bg-white">
+              <i class="bi bi-currency-dollar"></i> Conversão
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Texto do CTA
+                    <input type="text" name="cta_text" class="form-control" value="<%= presell.cta_text || 'Continuar' %>" required>
+                  </label>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Link afiliado
+                    <input type="text" name="affiliate_url" class="form-control" value="<%= presell.affiliate_url || '' %>" placeholder="https://exemplo.com/oferta" required>
+                  </label>
+                </div>
+              </div>
+              <div class="mb-3 mt-3">
+                <label class="form-label">Google Ads Pixel (opcional)
+                  <input type="text" name="google_pixel" class="form-control" value="<%= presell.google_pixel || '' %>" placeholder="999999999999">
+                  <p class="helper-text text-muted small">ID do seu Google Ads Pixel para rastreamento de conversões</p>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Mídia -->
+          <div class="card shadow-sm border-0 mb-4" id="midia">
+            <div class="card-header bg-white">
+              <i class="bi bi-image"></i> Mídia
+            </div>
+            <div class="card-body">
+              <div class="mb-4">
+                <label class="form-label">Imagem principal
+                  <input type="file" name="image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
+                </label>
+                <% if (presell.image_path) { %>
+                  <img class="img-thumbnail mt-2" src="/media/<%= presell.image_path %>" alt="Imagem principal" style="max-width: 200px;">
                 <% } %>
-              </label>
-              <label>Titulo interno
-                <input name="title" value="<%= presell.title || '' %>" required>
-              </label>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Imagem de fundo (para template com fundo)
+                  <input type="file" name="background_image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
+                  <p class="helper-text text-muted small">Use com o template "Anuncio in-app com fundo"</p>
+                </label>
+                <% if (presell.background_image_path) { %>
+                  <img class="img-thumbnail mt-2" src="/media/<%= presell.background_image_path %>" alt="Background" style="max-width: 200px;">
+                <% } %>
+              </div>
             </div>
+          </div>
 
-            <label>Headline
-              <input name="headline" value="<%= presell.headline || '' %>" required>
-            </label>
-
-            <label>Subtitulo
-              <input name="subtitle" value="<%= presell.subtitle || '' %>">
-            </label>
-
-            <label>Corpo
-              <textarea name="body" rows="7"><%= presell.body || '' %></textarea>
-            </label>
-
-            <label>Bullets / beneficios, um por linha
-              <textarea name="bullets" rows="5"><%= presell.bullets || '' %></textarea>
-            </label>
-
-            <div class="grid-2">
-              <label>Texto do CTA
-                <input name="cta_text" value="<%= presell.cta_text || 'Continuar' %>" required>
-              </label>
-              <label>Link afiliado
-                <input name="affiliate_url" value="<%= presell.affiliate_url || '' %>" placeholder="https://exemplo.com/oferta" required>
-              </label>
-            </div>
-
-            <label>Google Ads Pixel (opcional)
-              <input type="text" name="google_pixel" value="<%= presell.google_pixel || '' %>" placeholder="999999999999">
-              <p class="helper-text">ID do seu Google Ads Pixel para rastreamento de conversões</p>
-            </label>
-
-            <label>Imagem principal
-              <input type="file" name="image" accept="image/png,image/jpeg,image/webp,image/gif">
-            </label>
-
-            <% if (presell.image_path) { %>
-              <img class="thumb" src="/media/<%= presell.image_path %>" alt="">
-            <% } %>
-
-            <label>Imagem de fundo (para template com fundo)
-              <input type="file" name="background_image" accept="image/png,image/jpeg,image/webp,image/gif">
-              <p class="helper-text">Use com o template "Anuncio in-app com fundo"</p>
-            </label>
-
-            <% if (presell.background_image_path) { %>
-              <img class="thumb" src="/media/<%= presell.background_image_path %>" alt="Background">
-            <% } %>
-
-            <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
-              <section class="settings-panel">
-                <h2>Opcoes do modelo</h2>
+          <!-- Card 5: Opções do Template -->
+          <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
+            <div class="card shadow-sm border-0 mb-4" id="opcoes-template">
+              <div class="card-header bg-white">
+                <i class="bi bi-gear"></i> Opções do Template
+              </div>
+              <div class="card-body">
                 <% selectedTemplate.fields.forEach(function(field) { %>
                   <% var fieldValue = settings && settings[field.name] !== undefined ? settings[field.name] : field.defaultValue; %>
                   <% var fieldDisplayValue = fieldValue !== undefined && fieldValue !== null ? fieldValue : ''; %>
-                  <% if (field.type === 'textarea') { %>
-                    <label><%= field.label || field.name %>
-                      <textarea name="settings[<%= field.name %>]" rows="<%= field.rows || 4 %>"><%= fieldDisplayValue %></textarea>
-                    </label>
-                  <% } else if (field.type === 'select') { %>
-                    <label><%= field.label || field.name %>
-                      <select name="settings[<%= field.name %>]">
-                        <% (field.options || []).forEach(function(option) { %>
-                          <% var optionValue = typeof option === 'object' ? option.value : option; %>
-                          <% var optionLabel = typeof option === 'object' ? option.label : option; %>
-                          <option value="<%= optionValue %>" <%= String(fieldValue) === String(optionValue) ? 'selected' : '' %>><%= optionLabel %></option>
-                        <% }) %>
-                      </select>
-                    </label>
-                  <% } else if (field.type === 'checkbox') { %>
-                    <label class="checkbox-row">
-                      <input type="hidden" name="settings[<%= field.name %>]" value="false">
-                      <input type="checkbox" name="settings[<%= field.name %>]" value="true" <%= fieldValue === true || fieldValue === 'true' ? 'checked' : '' %>>
-                      <%= field.label || field.name %>
-                    </label>
-                  <% } else { %>
-                    <% var inputType = field.type === 'range' || field.type === 'color' || field.type === 'text' ? field.type : 'text'; %>
-                    <label><%= field.label || field.name %>
-                      <input
-                        type="<%= inputType %>"
-                        name="settings[<%= field.name %>]"
-                        value="<%= fieldDisplayValue %>"
-                        <%= field.min !== undefined ? 'min="' + field.min + '"' : '' %>
-                        <%= field.max !== undefined ? 'max="' + field.max + '"' : '' %>
-                        <%= field.step !== undefined ? 'step="' + field.step + '"' : '' %>
-                      >
-                    </label>
-                  <% } %>
-                  <% if (field.helpText) { %>
-                    <p class="helper-text"><%= field.helpText %></p>
-                  <% } %>
+                  <div class="mb-3">
+                    <% if (field.type === 'textarea') { %>
+                      <label class="form-label"><%= field.label || field.name %>
+                        <textarea name="settings[<%= field.name %>]" class="form-control" rows="<%= field.rows || 4 %>"><%= fieldDisplayValue %></textarea>
+                      </label>
+                    <% } else if (field.type === 'select') { %>
+                      <label class="form-label"><%= field.label || field.name %>
+                        <select name="settings[<%= field.name %>]" class="form-select">
+                          <% (field.options || []).forEach(function(option) { %>
+                            <% var optionValue = typeof option === 'object' ? option.value : option; %>
+                            <% var optionLabel = typeof option === 'object' ? option.label : option; %>
+                            <option value="<%= optionValue %>" <%= String(fieldValue) === String(optionValue) ? 'selected' : '' %>><%= optionLabel %></option>
+                          <% }) %>
+                        </select>
+                      </label>
+                    <% } else if (field.type === 'checkbox') { %>
+                      <label class="checkbox-row form-check">
+                        <input type="hidden" name="settings[<%= field.name %>]" value="false">
+                        <input type="checkbox" name="settings[<%= field.name %>]" value="true" class="form-check-input" <%= fieldValue === true || fieldValue === 'true' ? 'checked' : '' %>>
+                        <%= field.label || field.name %>
+                      </label>
+                    <% } else { %>
+                      <% var inputType = field.type === 'range' || field.type === 'color' || field.type === 'text' ? field.type : 'text'; %>
+                      <label class="form-label"><%= field.label || field.name %>
+                        <input
+                          type="<%= inputType %>"
+                          name="settings[<%= field.name %>]"
+                          class="form-control"
+                          value="<%= fieldDisplayValue %>"
+                          <%= field.min !== undefined ? 'min="' + field.min + '"' : '' %>
+                          <%= field.max !== undefined ? 'max="' + field.max + '"' : '' %>
+                          <%= field.step !== undefined ? 'step="' + field.step + '"' : '' %>
+                        >
+                      </label>
+                    <% } %>
+                    <% if (field.helpText) { %>
+                      <p class="helper-text text-muted small"><%= field.helpText %></p>
+                    <% } %>
+                  </div>
                 <% }) %>
-              </section>
-            <% } %>
-
-            <div class="form-actions">
-              <button class="button primary" type="submit">Salvar</button>
-              <a class="button" href="/admin">Cancelar</a>
+              </div>
             </div>
-          </form>
-
-          <% if (presell.id) { %>
-            <form method="post" action="/admin/presells/<%= presell.id %>/delete" onsubmit="return confirm('Excluir esta presell?')">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="button danger" type="submit">Excluir presell</button>
-            </form>
           <% } %>
-        </div>
 
-        <!-- Preview Column (Right) -->
-        <div class="col-12 col-md-6">
-          <div class="preview-container">
-            <h3 class="mb-3">Preview</h3>
-            <div id="preview-pane" class="preview-pane">
-              <% if (previewHtml) { %>
-                <%- previewHtml %>
-              <% } else { %>
-                <div class="text-center text-muted py-5">
-                  <p>Carregando preview...</p>
-                </div>
-              <% } %>
-            </div>
+
+        </form>
+
+
+      </div>
+
+      <!-- Right Column: Preview -->
+      <div class="col-12 col-md-5">
+        <div class="preview-container">
+          <h3 class="mb-3">Preview</h3>
+          <div id="preview-pane" class="preview-pane">
+            <% if (previewHtml) { %>
+              <%- previewHtml %>
+            <% } else { %>
+              <div class="text-center text-muted py-5">
+                <p>Carregando preview...</p>
+              </div>
+            <% } %>
           </div>
         </div>
       </div>
     </div>
-  </main>
+  </div>
+</main>
 
 <script src="/static/js/form-preview.js"></script>
 <%- include('_footer') %>

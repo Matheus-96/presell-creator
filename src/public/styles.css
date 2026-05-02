@@ -826,7 +826,7 @@ th {
 }
 
 .preview-pane {
-  height: 550px;
+  height: 700px;
   overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -917,4 +917,197 @@ th {
   .app-ad-media {
     width: min(150px, 54vw);
   }
+}
+
+/* ===========================
+   New Form Layout Styles
+   =========================== */
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  position: sticky;
+  top: 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.sidebar-heading {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sidebar-nav .nav-link {
+  display: block;
+  padding: 8px 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
+}
+
+.sidebar-nav .nav-link:hover {
+  background: var(--soft);
+  color: var(--brand);
+}
+
+/* Form Section Cards */
+.form-section {
+  scroll-margin-top: 20px;
+}
+
+.form-section .card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.form-section .card-header h5 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.form-section .card-header h5 i {
+  margin-right: 8px;
+  color: var(--brand);
+}
+
+.form-section .card-body {
+  padding: 20px;
+}
+
+/* Improved file input styling */
+input[type="file"] {
+  padding: 10px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+input[type="file"]::file-selector-button {
+  padding: 6px 12px;
+  margin-right: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--soft);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+
+/* Image thumbnail container */
+.thumb-container {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fafbfc;
+  display: inline-block;
+}
+
+.thumb-container .thumb {
+  width: 180px;
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.thumb-container .thumb-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* Template dropdown improvement */
+select[name="template"] {
+  cursor: pointer;
+}
+
+/* Status badge in form */
+.status-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge-inline.published {
+  color: var(--brand-dark);
+  background: #dbf4ec;
+}
+
+.status-badge-inline.draft {
+  color: var(--warning);
+  background: #fff1d6;
+}
+
+/* Responsive adjustments for new layout */
+@media (max-width: 768px) {
+  .sidebar-nav {
+    position: static;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar-nav .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .sidebar-nav .nav-link {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  
+  .sidebar-actions {
+    position: static;
+    margin-top: 16px;
+  }
+}
+
+/* Sidebar Actions (Fixed buttons at bottom) */
+.sidebar-actions {
+  position: sticky;
+  bottom: 20px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-actions .btn {
+  font-size: 14px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  width: 100%;
+  font-weight: 600;
+}
+
+.sidebar-actions .btn i {
+  margin-right: 6px;
+}
+
+.sidebar-actions form {
+  margin: 0;
 }
