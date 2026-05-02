@@ -1,31 +1,29 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body">
   <main class="review-shell">
     <section class="review-hero">
       <div>
-        <p class="eyebrow">Analise rapida</p>
-        <h1><%= presell.headline %></h1>
-        <% if (presell.subtitle) { %><p class="lead"><%= presell.subtitle %></p><% } %>
+        <%- include('includes/eyebrow-headline', { 
+          eyebrow: 'Análise rápida',
+          headlineClass: '',
+          subtitle: presell.subtitle,
+          subtitleClass: 'lead'
+        }) %>
       </div>
-      <% if (presell.image_path) { %><img class="hero-img" src="/media/<%= presell.image_path %>" alt=""><% } %>
+      <%- include('includes/hero-image', { presell: presell, imageClass: 'hero-img' }) %>
     </section>
     <section class="article">
       <div class="copy"><%- nl2br(presell.body) %></div>
       <div class="review-box">
         <h2>Resumo</h2>
-        <ul class="benefits">
-          <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
-        </ul>
+        <%- include('includes/benefits', { bullets: bullets, listClass: 'benefits' }) %>
       </div>
-      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'cta'
+      }) %>
       <p class="disclaimer">Esta pagina pode conter link de afiliado.</p>
     </section>
   </main>

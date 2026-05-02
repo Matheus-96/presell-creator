@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body app-ad-body">
   <%
     var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
@@ -38,7 +30,12 @@
         <% } %>
       </div>
 
-      <a class="app-ad-cta app-ad-button-<%= appAdButtonStyle %>" href="<%= appAdCtaHref %>"><%= presell.cta_text %></a>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'app-ad-cta app-ad-button-' + appAdButtonStyle
+      }) %>
 
       <% if (appAdDisclaimer) { %>
         <p class="app-ad-disclaimer"><%= appAdDisclaimer %></p>

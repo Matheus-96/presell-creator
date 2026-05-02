@@ -195,8 +195,23 @@ router.post("/presells/:id/duplicate", requireAuth, verifyCsrf, (req, res) => {
 
 function savePresellHandler(req, res) {
   try {
-    const imagePath = req.files && req.files.image ? registerUpload(req.files.image[0]) : undefined;
-    const backgroundImagePath = req.files && req.files.background_image ? registerUpload(req.files.background_image[0]) : undefined;
+    // Handle image removal
+    let imagePath = undefined;
+    let backgroundImagePath = undefined;
+    
+    // Check if user wants to remove main image
+    if (req.body.remove_image === 'true') {
+      imagePath = null; // Signal to remove
+    } else if (req.files && req.files.image) {
+      imagePath = registerUpload(req.files.image[0]);
+    }
+    
+    // Check if user wants to remove background image
+    if (req.body.remove_background_image === 'true') {
+      backgroundImagePath = null; // Signal to remove
+    } else if (req.files && req.files.background_image) {
+      backgroundImagePath = registerUpload(req.files.background_image[0]);
+    }
     const presell = savePresell({ ...req.body, id: req.params.id }, imagePath, backgroundImagePath);
     res.redirect(`/admin/presells/${presell.id}/edit`);
   } catch (error) {

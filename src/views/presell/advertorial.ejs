@@ -1,26 +1,22 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body">
   <main class="article-shell">
     <article class="article">
-      <p class="eyebrow">Especial</p>
-      <h1><%= presell.headline %></h1>
-      <% if (presell.subtitle) { %><p class="lead"><%= presell.subtitle %></p><% } %>
-      <% if (presell.image_path) { %><img class="hero-img" src="/media/<%= presell.image_path %>" alt=""><% } %>
+      <%- include('includes/eyebrow-headline', { 
+        eyebrow: 'Especial',
+        headlineClass: 'article h1',
+        subtitle: presell.subtitle,
+        subtitleClass: 'lead'
+      }) %>
+      <%- include('includes/hero-image', { presell: presell, imageClass: 'hero-img' }) %>
       <div class="copy"><%- nl2br(presell.body) %></div>
-      <% if (bullets.length) { %>
-        <ul class="benefits">
-          <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
-        </ul>
-      <% } %>
-      <a class="cta" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
+      <%- include('includes/benefits', { bullets: bullets, listClass: 'benefits' }) %>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'cta'
+      }) %>
       <p class="disclaimer">Conteudo informativo. Ao continuar, voce sera direcionado para a pagina oficial da oferta.</p>
     </article>
   </main>

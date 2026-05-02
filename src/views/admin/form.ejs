@@ -7,6 +7,11 @@
   </div>
   <% if (presell.id) { %>
     <a class="button" target="_blank" href="/admin/presells/<%= presell.id %>/preview">Preview</a>
+    <% if (presell.status === 'published') { %>
+      <button class="button" onclick="copyToClipboard(window.location.origin + '/p/<%= presell.slug %>', this)">
+        <i class="bi bi-clipboard"></i> Copiar Link
+      </button>
+    <% } %>
   <% } %>
 </header>
 
@@ -156,31 +161,60 @@
             </div>
           </div>
 
-          <!-- Card 4: Mídia -->
-          <div class="card shadow-sm border-0 mb-4" id="midia">
-            <div class="card-header bg-white">
-              <i class="bi bi-image"></i> Mídia
-            </div>
-            <div class="card-body">
-              <div class="mb-4">
-                <label class="form-label">Imagem principal
-                  <input type="file" name="image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
-                </label>
-                <% if (presell.image_path) { %>
-                  <img class="img-thumbnail mt-2" src="/media/<%= presell.image_path %>" alt="Imagem principal" style="max-width: 200px;">
-                <% } %>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Imagem de fundo (para template com fundo)
-                  <input type="file" name="background_image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
-                  <p class="helper-text text-muted small">Use com o template "Anuncio in-app com fundo"</p>
-                </label>
-                <% if (presell.background_image_path) { %>
-                  <img class="img-thumbnail mt-2" src="/media/<%= presell.background_image_path %>" alt="Background" style="max-width: 200px;">
-                <% } %>
-              </div>
-            </div>
-          </div>
+           <!-- Card 4: Mídia -->
+           <div class="card shadow-sm border-0 mb-4" id="midia">
+             <div class="card-header bg-white">
+               <i class="bi bi-image"></i> Mídia
+             </div>
+             <div class="card-body">
+               <!-- Main Image -->
+               <div class="mb-4">
+                 <label class="form-label">Imagem principal</label>
+                 <input type="file" name="image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
+                 
+                 <% if (presell.image_path) { %>
+                   <div class="image-preview-container mt-3 p-3 border rounded bg-light" id="main-image-container">
+                     <div class="d-flex align-items-start gap-3">
+                       <img class="img-thumbnail" src="/media/<%= presell.image_path %>" alt="Imagem principal" style="max-width: 200px;">
+                       <div class="flex-grow-1">
+                         <p class="mb-2 text-muted small"><i class="bi bi-file-image"></i> <%= presell.image_path %></p>
+                         <div class="form-check">
+                           <input class="form-check-input" type="checkbox" name="remove_image" value="true" id="remove_image">
+                           <label class="form-check-label text-danger" for="remove_image">
+                             <i class="bi bi-trash"></i> Remover imagem
+                           </label>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 <% } %>
+               </div>
+               
+               <!-- Background Image -->
+               <div class="mb-3">
+                 <label class="form-label">Imagem de fundo (para template com fundo)</label>
+                 <input type="file" name="background_image" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif">
+                 <p class="helper-text text-muted small">Use com o template "Anúncio in-app com fundo"</p>
+                 
+                 <% if (presell.background_image_path) { %>
+                   <div class="image-preview-container mt-3 p-3 border rounded bg-light" id="bg-image-container">
+                     <div class="d-flex align-items-start gap-3">
+                       <img class="img-thumbnail" src="/media/<%= presell.background_image_path %>" alt="Background" style="max-width: 200px;">
+                       <div class="flex-grow-1">
+                         <p class="mb-2 text-muted small"><i class="bi bi-file-image"></i> <%= presell.background_image_path %></p>
+                         <div class="form-check">
+                           <input class="form-check-input" type="checkbox" name="remove_background_image" value="true" id="remove_background_image">
+                           <label class="form-check-label text-danger" for="remove_background_image">
+                             <i class="bi bi-trash"></i> Remover imagem de fundo
+                           </label>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 <% } %>
+               </div>
+             </div>
+           </div>
 
           <!-- Card 5: Opções do Template -->
           <% if (selectedTemplate && selectedTemplate.fields && selectedTemplate.fields.length) { %>
@@ -262,4 +296,5 @@
 </main>
 
 <script src="/static/js/form-preview.js"></script>
+<script src="/static/js/form-media.js"></script>
 <%- include('_footer') %>

@@ -1,68 +1,7 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-  <style>
-    .app-ad-fullscreen-bg {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      background-color: #0a0a0a;
-    }
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 
-    .app-ad-fullscreen-bg .app-ad-shell {
-      background: transparent;
-    }
 
-    .app-ad-fullscreen-bg .app-ad-card {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-    }
-
-    .app-ad-fullscreen-bg .app-ad-label {
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .app-ad-fullscreen-bg .app-ad-headline {
-      color: #fff;
-    }
-
-    .app-ad-fullscreen-bg .app-ad-subtitle,
-    .app-ad-fullscreen-bg .app-ad-microcopy,
-    .app-ad-fullscreen-bg .app-ad-disclaimer {
-      color: rgba(255, 255, 255, 0.75);
-    }
-
-    .app-ad-fullscreen-bg .app-ad-button-outline {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.35);
-    }
-
-    .app-ad-fullscreen-bg .app-ad-button-soft {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .app-ad-fullscreen-bg .app-ad-image {
-      border-radius: 8px;
-    }
-  </style>
-</head>
-<body class="public-body app-ad-body app-ad-fullscreen-bg" style="<% if (presell.background_image_path) { %>background-image: url('/media/<%= presell.background_image_path %>'); <% } %>">
+<body class="public-body app-ad-body app-ad-fullscreen-bg" style="<%= fullscreenBgStyle %>">
   <%
     var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var appAdLabelText = settings.label_text || 'Anuncio';
@@ -70,9 +9,13 @@
     var appAdDisclaimer = settings.disclaimer || '';
     var appAdLayoutDensity = settings.layout_density || 'comfortable';
     var appAdButtonStyle = settings.button_style || 'solid';
+    var fullscreenBgStyle = '';
+    if (presell.background_image_path) {
+      fullscreenBgStyle += 'background-image: url("/media/' + presell.background_image_path + '"); ';
+    }
   %>
-  <main class="app-ad-shell app-ad-density-<%= appAdLayoutDensity %>">
-    <article class="app-ad-card">
+  <div class="app-ad-fullscreen-overlay">
+    <div class="app-ad-fullscreen-card">
       <% if (appAdLabelText) { %>
         <p class="app-ad-label"><%= appAdLabelText %></p>
       <% } %>
@@ -93,12 +36,17 @@
         <% } %>
       </div>
 
-      <a class="app-ad-cta app-ad-button-<%= appAdButtonStyle %>" href="<%= appAdCtaHref %>"><%= presell.cta_text %></a>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'app-ad-cta app-ad-button-' + appAdButtonStyle
+      }) %>
 
       <% if (appAdDisclaimer) { %>
         <p class="app-ad-disclaimer"><%= appAdDisclaimer %></p>
       <% } %>
-    </article>
-  </main>
+    </div>
+  </div>
 </body>
 </html>

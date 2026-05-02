@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body device-frame-body">
   <%
     var deviceCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
@@ -32,11 +24,7 @@
         </header>
 
         <div class="device-frame-content">
-          <% if (presell.image_path) { %>
-            <figure class="device-frame-media">
-              <img class="device-frame-image" src="/media/<%= presell.image_path %>" alt="">
-            </figure>
-          <% } %>
+          <%- include('includes/hero-image', { presell: presell, imageClass: 'device-frame-image' }) %>
 
           <section class="device-frame-copy">
             <% if (deviceOfferNote) { %>
@@ -47,13 +35,14 @@
               <p class="device-frame-subtitle"><%= presell.subtitle %></p>
             <% } %>
             <% if (deviceBullets.length) { %>
-              <ul class="device-frame-bullets">
-                <% deviceBullets.forEach(function(item) { %>
-                  <li class="device-frame-bullet"><%= item %></li>
-                <% }) %>
-              </ul>
+              <%- include('includes/benefits', { bullets: deviceBullets, listClass: 'device-frame-bullets' }) %>
             <% } %>
-            <a class="device-frame-cta" href="<%= deviceCtaHref %>"><%= presell.cta_text %></a>
+            <%- include('includes/cta-button', { 
+              presell: presell,
+              preview: preview,
+              trackingQuery: trackingQuery,
+              buttonClass: 'device-frame-cta'
+            }) %>
           </section>
         </div>
 

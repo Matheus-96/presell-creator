@@ -1,0 +1,4 @@
+<a class="<%= typeof buttonClass !== 'undefined' ? buttonClass : 'cta' %>" 
+   href="<%= (typeof preview !== 'undefined' && preview) ? '#' : '/go/' + presell.slug + (typeof trackingQuery !== 'undefined' ? trackingQuery : '') %>">
+  <%= (typeof ctaText !== 'undefined' && ctaText) ? ctaText : (presell.cta_text || 'Continuar') %>
+</a>

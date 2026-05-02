@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body official-simple-body">
   <%
     var officialBadgeText = settings.badge_text || 'Pagina oficial';
@@ -36,11 +28,12 @@
         </ul>
       <% } %>
 
-      <a class="official-simple-cta" href="<%= officialCtaHref %>">
-        <% if (officialShowArrows) { %><span class="official-simple-arrow" aria-hidden="true">&gt;</span><% } %>
-        <span class="official-simple-cta-text"><%= presell.cta_text %></span>
-        <% if (officialShowArrows) { %><span class="official-simple-arrow" aria-hidden="true">&lt;</span><% } %>
-      </a>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'official-simple-cta'
+      }) %>
     </section>
   </main>
 </body>

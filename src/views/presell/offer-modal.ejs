@@ -1,12 +1,4 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <%- pixelHtml %>
-</head>
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body offer-modal-body">
   <%
     var offerCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
@@ -47,7 +39,13 @@
         <p class="offer-modal-scarcity"><%= offerScarcityText %></p>
       <% } %>
 
-      <a class="offer-modal-cta" href="<%= offerCtaHref %>"><%= offerCtaText %></a>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'offer-modal-cta',
+        ctaText: offerCtaText
+      }) %>
     </section>
   </main>
 </body>

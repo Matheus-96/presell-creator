@@ -4,6 +4,7 @@ const {
   normalizeSettings,
   parseSettingsJson
 } = require("./presellTemplates");
+const { deleteUpload } = require("./uploadService");
 
 function listPresells() {
   return db
@@ -27,6 +28,15 @@ function getPublishedPresell(slug) {
 
 function savePresell(input, imagePath, backgroundImagePath) {
   const existingPresell = input.id ? getPresellById(input.id) : null;
+
+  // Delete old images if removing
+  if (imagePath === null && existingPresell && existingPresell.image_path) {
+    deleteUpload(existingPresell.image_path);
+  }
+  if (backgroundImagePath === null && existingPresell && existingPresell.background_image_path) {
+    deleteUpload(existingPresell.background_image_path);
+  }
+
   const data = normalizePresellInput(input, imagePath, backgroundImagePath, existingPresell);
 
   if (input.id) {
@@ -168,8 +178,8 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     bullets: String(input.bullets || "").trim(),
     ctaText: String(input.cta_text || "Continuar").trim(),
     affiliateUrl,
-    imagePath: imagePath || input.current_image_path || "",
-    backgroundImagePath: backgroundImagePath || input.current_background_image_path || "",
+    imagePath: imagePath === null ? null : (imagePath !== undefined ? imagePath : (input.current_image_path || "")),
+    backgroundImagePath: backgroundImagePath === null ? null : (backgroundImagePath !== undefined ? backgroundImagePath : (input.current_background_image_path || "")),
     settingsJson: JSON.stringify(settings),
     googlePixel: googlePixel || null
   };

@@ -139,6 +139,9 @@
                           <a class="btn btn-outline-primary" href="/p/<%= presell.slug %>" target="_blank" title="Abrir página" data-bs-toggle="tooltip">
                             <i class="bi bi-box-arrow-up-right"></i>
                           </a>
+                          <button class="btn btn-outline-warning" onclick="copyToClipboard(window.location.origin + '/p/<%= presell.slug %>', this)" title="Copiar link" data-bs-toggle="tooltip">
+                            <i class="bi bi-clipboard"></i>
+                          </button>
                         <% } %>
                         <a class="btn btn-outline-info" href="/admin/presells/<%= presell.id %>/preview" target="_blank" title="Preview" data-bs-toggle="tooltip">
                           <i class="bi bi-eye"></i>

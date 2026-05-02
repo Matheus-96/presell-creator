@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const multer = require("multer");
 const { db } = require("../db/connection");
 
@@ -41,4 +42,18 @@ function registerUpload(file) {
   return file.filename;
 }
 
-module.exports = { upload, uploadMultiple, registerUpload, uploadDir };
+function deleteUpload(filename) {
+  if (!filename) return false;
+  try {
+    const filePath = path.join(uploadDir, filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return true;
+    }
+  } catch (error) {
+    console.error('Error deleting upload:', error);
+  }
+  return false;
+}
+
+module.exports = { upload, uploadMultiple, registerUpload, uploadDir, deleteUpload };

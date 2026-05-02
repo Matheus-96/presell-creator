@@ -1,3 +1,36 @@
+/**
+ * Presell Template Registry
+ * 
+ * How to add a new template:
+ * 1. Add an entry to the templateRegistry object below with:
+ *    - id: Unique identifier (must match the EJS filename without .ejs)
+ *    - name: Human-readable name for the UI
+ *    - description: Short description shown in the template selector
+ *    - fields: Array of field definitions (optional, see examples below)
+ * 
+ * 2. Create the EJS file in src/views/presell/ with the same id as filename
+ *    Example: if id is "my-template", create "my-template.ejs"
+ * 
+ * 3. Use the shared partials in your template:
+ *    - <%- include('includes/head', { title, pixelHtml }) %>
+ *    - <%- include('includes/eyebrow-headline', { eyebrow, headlineClass, subtitle, subtitleClass }) %>
+ *    - <%- include('includes/hero-image', { presell, imageClass }) %>
+ *    - <%- include('includes/benefits', { bullets, listClass }) %>
+ *    - <%- include('includes/cta-button', { presell, preview, trackingQuery, buttonClass }) %>
+ * 
+ * Field types supported:
+ * - text: Simple text input
+ * - textarea: Multi-line text input
+ * - select: Dropdown with options array
+ * - checkbox: Boolean checkbox
+ * - color: Color picker
+ * - range: Slider with min/max/step
+ * 
+ * Example field: { name: "my_field", label: "My Field", type: "text", defaultValue: "default" }
+ */
+const fs = require('fs');
+const path = require('path');
+
 const templateRegistry = {
   advertorial: {
     id: "advertorial",
@@ -243,6 +276,15 @@ const templateDefinitions = Object.values(templateRegistry);
 const allowedTemplates = templateDefinitions.map((template) => template.id);
 
 function getTemplateDefinition(templateId) {
+  if (!templateId || !templateRegistry[templateId]) {
+    console.warn(`Template "${templateId}" not found, falling back to "advertorial"`);
+    templateId = 'advertorial';
+  }
+  
+  if (!validateTemplateFile(templateId)) {
+    console.warn(`Template file "${templateId}.ejs" not found in views/presell/`);
+  }
+  
   return templateRegistry[templateId] || templateRegistry.advertorial;
 }
 
@@ -322,6 +364,21 @@ function normalizeFieldValue(field, value) {
   return String(value ?? field.defaultValue ?? "").trim();
 }
 
+function validateTemplateFile(templateId) {
+  const templatePath = path.join(__dirname, '../views/presell', templateId + '.ejs');
+  return fs.existsSync(templatePath);
+}
+
+function getAvailableTemplates() {
+  return Object.keys(templateRegistry)
+    .filter(id => validateTemplateFile(id))
+    .map(id => ({
+      id,
+      name: templateRegistry[id].name,
+      description: templateRegistry[id].description
+    }));
+}
+
 module.exports = {
   templateRegistry,
   templateDefinitions,
@@ -330,5 +387,7 @@ module.exports = {
   getDefaultSettings,
   parseSettingsJson,
   normalizeSettings,
-  parsePresellSettings
+  parsePresellSettings,
+  getAvailableTemplates,
+  validateTemplateFile
 };
