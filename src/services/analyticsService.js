@@ -129,4 +129,85 @@ function addCtr(row) {
   return { ...row, views, clicks, redirects: Number(row.redirects || 0), ctr: views > 0 ? (clicks / views) * 100 : 0 };
 }
 
-module.exports = { getOrCreateSession, recordEvent, getOverview };
+function getPresellStatistics(presellId) {
+  // 1. Summary
+  const summary = db.prepare(`
+    SELECT
+      SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS views,
+      SUM(CASE WHEN event_type = 'cta_click' THEN 1 ELSE 0 END) AS clicks,
+      SUM(CASE WHEN event_type = 'redirect' THEN 1 ELSE 0 END) AS redirects
+    FROM events
+    WHERE presell_id = ?
+  `).get(presellId);
+
+  // 2. Time series (last 30 days)
+  const timeSeries = db.prepare(`
+    SELECT 
+      DATE(created_at) AS date,
+      SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS views,
+      SUM(CASE WHEN event_type = 'cta_click' THEN 1 ELSE 0 END) AS clicks
+    FROM events
+    WHERE presell_id = ? AND created_at >= datetime('now', '-30 days')
+    GROUP BY DATE(created_at)
+    ORDER BY date ASC
+  `).all(presellId);
+
+  // 3. GCLID stats
+  const gclidStats = db.prepare(`
+    SELECT 
+      json_extract(params_json, '$.gclid') AS gclid,
+      COUNT(*) AS total_events,
+      SUM(CASE WHEN event_type = 'page_view' THEN 1 ELSE 0 END) AS views,
+      SUM(CASE WHEN event_type = 'cta_click' THEN 1 ELSE 0 END) AS clicks,
+      SUM(CASE WHEN event_type = 'redirect' THEN 1 ELSE 0 END) AS redirects
+    FROM events
+    WHERE presell_id = ? AND json_extract(params_json, '$.gclid') IS NOT NULL
+    GROUP BY gclid
+    ORDER BY total_events DESC
+    LIMIT 100
+  `).all(presellId);
+
+  // 4. UTM Sources
+  const utmSources = db.prepare(`
+    SELECT 
+      json_extract(params_json, '$.utm_source') AS source,
+      COUNT(*) AS total
+    FROM events
+    WHERE presell_id = ? AND event_type = 'page_view' AND json_extract(params_json, '$.utm_source') IS NOT NULL
+    GROUP BY source
+    ORDER BY total DESC
+    LIMIT 20
+  `).all(presellId);
+
+  // 5. Top Referrers
+  const referrers = db.prepare(`
+    SELECT 
+      referrer,
+      COUNT(*) AS total
+    FROM events
+    WHERE presell_id = ? AND referrer != ''
+    GROUP BY referrer
+    ORDER BY total DESC
+    LIMIT 20
+  `).all(presellId);
+
+  // 6. Recent events
+  const recentEvents = db.prepare(`
+    SELECT *
+    FROM events
+    WHERE presell_id = ?
+    ORDER BY created_at DESC
+    LIMIT 50
+  `).all(presellId);
+
+  return {
+    summary: normalizeTotals(summary),
+    timeSeries,
+    gclidStats: gclidStats.filter(item => item.gclid),
+    utmSources: utmSources.filter(item => item.source),
+    referrers: referrers.filter(item => item.referrer),
+    recentEvents
+  };
+}
+
+module.exports = { getOrCreateSession, recordEvent, getOverview, getPresellStatistics };

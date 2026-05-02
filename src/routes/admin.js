@@ -133,6 +133,29 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
   });
 });
 
+router.get("/presells/:id/statistics", requireAuth, (req, res) => {
+  const presell = getPresellById(req.params.id);
+  if (!presell) return res.status(404).send("Presell nao encontrada.");
+  
+  const { getPresellStatistics } = require("../services/analyticsService");
+  const stats = getPresellStatistics(req.params.id);
+  
+  // Prepare chart data as JSON strings for EJS
+  const timeSeriesLabels = JSON.stringify(stats.timeSeries.map(d => d.date));
+  const timeSeriesViews = JSON.stringify(stats.timeSeries.map(d => d.views));
+  const timeSeriesClicks = JSON.stringify(stats.timeSeries.map(d => d.clicks));
+  
+  res.render("admin/presell-statistics", {
+    title: `Estatísticas - ${presell.title}`,
+    presell,
+    stats,
+    timeSeriesLabels,
+    timeSeriesViews,
+    timeSeriesClicks,
+    csrfToken: req.session.csrfToken
+  });
+});
+
 // API endpoint para preview de presell NOVO (sem ID na URL)
 router.post("/api/presells/preview", requireAuth, verifyCsrf, (req, res) => {
   // Cria presell vazio e faz merge com dados do form

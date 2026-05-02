@@ -1358,3 +1358,28 @@ select[name="template"] {
     max-width: 100% !important;
   }
 }
+
+/* ===========================
+   Statistics Page Styles
+   =========================== */
+
+.event-list .badge {
+  font-weight: 500;
+  padding: 0.4rem 0.6rem;
+}
+
+.gclid-table small {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+#timeSeriesChart {
+  max-height: 300px;
+}
+
+/* Chart container */
+.chart-container {
+  position: relative;
+  height: 300px;
+}

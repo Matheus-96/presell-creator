@@ -1,30 +1,4 @@
 <%- include('_header') %>
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-    <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold text-success" href="/admin/dashboard">
-        📊 Presell Server
-      </a>
-      <span class="text-muted small">gestão server-side</span>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <div class="ms-auto d-flex gap-2">
-          <a class="btn btn-sm btn-success" href="/admin/presells/new">
-            <i class="bi bi-plus-circle"></i> Nova Presell
-          </a>
-          <form method="post" action="/admin/logout" style="display: inline;">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn btn-sm btn-outline-secondary" type="submit">
-              <i class="bi bi-box-arrow-right"></i> Sair
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </nav>
-
   <main class="admin-main">
     <!-- Top Metrics Section -->
     <div class="container-fluid px-4 py-5">
@@ -146,10 +120,13 @@
                         <a class="btn btn-outline-info" href="/admin/presells/<%= presell.id %>/preview" target="_blank" title="Preview" data-bs-toggle="tooltip">
                           <i class="bi bi-eye"></i>
                         </a>
-                        <a class="btn btn-primary" href="/admin/presells/<%= presell.id %>/edit" title="Editar" data-bs-toggle="tooltip">
-                          <i class="bi bi-pencil"></i>
-                        </a>
-                        <form method="post" action="/admin/presells/<%= presell.id %>/duplicate" style="display: inline;">
+  <a class="btn btn-primary" href="/admin/presells/<%= presell.id %>/edit" title="Editar" data-bs-toggle="tooltip">
+    <i class="bi bi-pencil"></i>
+  </a>
+  <a class="btn btn-outline-success" href="/admin/presells/<%= presell.id %>/statistics" title="Estatísticas" data-bs-toggle="tooltip">
+    <i class="bi bi-bar-chart"></i>
+  </a>
+  <form method="post" action="/admin/presells/<%= presell.id %>/duplicate" style="display: inline;">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <button class="btn btn-outline-success" type="submit" title="Duplicar" data-bs-toggle="tooltip">
                             <i class="bi bi-files"></i>

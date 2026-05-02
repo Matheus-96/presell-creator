@@ -1,5 +1,6 @@
 <%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 <body class="public-body device-frame-body">
+
   <%
     var deviceCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var deviceFrameType = settings.frame_type || 'browser';
