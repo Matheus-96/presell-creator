@@ -1,8 +1,6 @@
 <%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
 
 
-<body class="public-body app-ad-body app-ad-fullscreen-bg" style="<%= fullscreenBgStyle %>">
-
   <%
     var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
     var appAdLabelText = settings.label_text || 'Anuncio';
@@ -15,6 +13,8 @@
       fullscreenBgStyle += 'background-image: url("/media/' + presell.background_image_path + '"); ';
     }
   %>
+
+<body class="public-body app-ad-body app-ad-fullscreen-shell" style="<%= fullscreenBgStyle %>">
   <div class="app-ad-fullscreen-overlay">
     <div class="app-ad-fullscreen-card">
       <% if (appAdLabelText) { %>
