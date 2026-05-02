@@ -1383,3 +1383,13 @@ select[name="template"] {
   position: relative;
   height: 300px;
 }
+
+/* ===========================
+   Preview Highlight Style
+   =========================== */
+.preview-highlight-active {
+  outline: 2px solid #176b5b;
+  outline-offset: 4px;
+  box-shadow: 0 0 12px rgba(23, 107, 91, 0.5);
+  transition: outline 0.2s ease, box-shadow 0.2s ease;
+}

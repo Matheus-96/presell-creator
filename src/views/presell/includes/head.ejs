@@ -6,4 +6,81 @@
   <title><%= typeof title !== 'undefined' ? title : 'Presell' %></title>
   <link rel="stylesheet" href="/static/styles.css">
   <% if (typeof pixelHtml !== 'undefined') { %><%- pixelHtml %><% } %>
+  <% if (preview) { %>
+  <script>
+  const selectorToFieldMap = {
+    '.official-simple-badge': 'settings[badge_text]',
+    '.official-simple-trust-list': 'settings[trust_badges]',
+    '.official-simple-cta': 'settings[accent_color]',
+    '.offer-modal-discount': 'settings[discount_text]',
+    '.offer-modal-scarcity': 'settings[scarcity_text]',
+    '.offer-modal-rating-value': 'settings[rating]',
+    '.offer-modal-rating': 'settings[stars_text]',
+    '.offer-modal-cta': 'settings[modal_cta_text_override]',
+    '.offer-modal-overlay': 'settings[overlay_strength]',
+    '.device-frame-window': 'settings[frame_type]',
+    '.device-frame-top-bar': 'settings[top_bar_text]',
+    '.device-frame-footer': ['settings[footer_left_text]', 'settings[footer_right_text]'],
+    '.device-frame-offer-note': 'settings[offer_note]',
+    '.app-ad-label': 'settings[label_text]',
+    '.app-ad-microcopy': 'settings[microcopy]',
+    '.app-ad-disclaimer': 'settings[disclaimer]',
+    '.app-ad-shell': 'settings[layout_density]',
+    '.app-ad-fullscreen-shell': 'settings[layout_density]',
+    '.app-ad-cta': 'settings[button_style]',
+    'h1': 'headline',
+    '.lead, .subtitle, .app-ad-subtitle': 'subtitle',
+    '.copy, .app-ad-body-copy': 'body',
+    '.benefits li, .app-ad-benefits li': 'bullets',
+    '.cta, .app-ad-cta, .official-simple-cta, .offer-modal-cta, .device-frame-cta': 'cta_text'
+  };
+
+  document.addEventListener('click', function(e) {
+    for (const [selector, fieldName] of Object.entries(selectorToFieldMap)) {
+      const elements = document.querySelectorAll(selector);
+      for (const el of elements) {
+        if (el.contains(e.target)) {
+          window.parent.postMessage({
+            type: 'preview-click',
+            fieldName: Array.isArray(fieldName) ? fieldName[0] : fieldName
+          }, '*');
+          return;
+        }
+      }
+    }
+  });
+
+  // Escutar mensagens de highlight do parent
+  window.addEventListener('message', function(event) {
+    // Verificar origem se necessário
+    if (event.source !== window.parent) return;
+    
+    const data = event.data;
+    if (!data || typeof data !== 'object') return;
+    
+    if (data.type === 'highlight' && data.selector) {
+      // Remover highlight anterior
+      document.querySelectorAll('.preview-highlight-active').forEach(el => {
+        el.classList.remove('preview-highlight-active');
+      });
+      
+      // Aplicar novo highlight
+      try {
+        const target = document.querySelector(data.selector);
+        if (target) {
+          target.classList.add('preview-highlight-active');
+        }
+      } catch(e) {
+        console.warn('Erro ao aplicar highlight:', e);
+      }
+    }
+    
+    if (data.type === 'unhighlight') {
+      document.querySelectorAll('.preview-highlight-active').forEach(el => {
+        el.classList.remove('preview-highlight-active');
+      });
+    }
+  });
+  </script>
+  <% } %>
 </head>

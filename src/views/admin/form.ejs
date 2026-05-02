@@ -56,6 +56,7 @@
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <input type="hidden" name="current_image_path" value="<%= presell.image_path || '' %>">
           <input type="hidden" name="current_background_image_path" value="<%= presell.background_image_path || '' %>">
+          <input type="hidden" id="selected-template" name="selected_template" value="<%= presell.template || '' %>">
 
           <!-- Card 1: Informações Básicas -->
           <div class="card shadow-sm border-0 mb-4" id="info-basicas">
@@ -275,25 +276,97 @@
 
       </div>
 
-      <!-- Right Column: Preview -->
-      <div class="col-12 col-md-5">
-        <div class="preview-container">
-          <h3 class="mb-3">Preview</h3>
-          <div id="preview-pane" class="preview-pane">
-            <% if (previewHtml) { %>
-              <%- previewHtml %>
-            <% } else { %>
-              <div class="text-center text-muted py-5">
-                <p>Carregando preview...</p>
-              </div>
-            <% } %>
-          </div>
-        </div>
-      </div>
+       <!-- Right Column: Preview -->
+       <div class="col-12 col-md-5">
+         <div class="preview-container">
+           <h3 class="mb-3">Preview</h3>
+
+           <!-- Template Selector -->
+           <style>
+             .template-selector {
+               display: grid;
+               grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+               gap: 12px;
+               margin-bottom: 20px;
+             }
+             .template-card {
+               border: 2px solid #dee2e6;
+               border-radius: 8px;
+               padding: 8px;
+               cursor: pointer;
+               transition: all 0.2s ease;
+               text-align: center;
+               background: white;
+             }
+             .template-card:hover {
+               border-color: #0d6efd;
+               box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+             }
+             .template-card.selected {
+               border-color: #0d6efd;
+               background-color: #e7f1ff;
+               box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+             }
+             .template-card img {
+               width: 100%;
+               height: 80px;
+               object-fit: cover;
+               border-radius: 4px;
+               margin-bottom: 6px;
+               background: #f8f9fa;
+             }
+             .template-card .template-name {
+               font-size: 12px;
+               font-weight: 500;
+               color: #495057;
+               overflow: hidden;
+               text-overflow: ellipsis;
+               white-space: nowrap;
+             }
+             .preview-iframe-container {
+               resize: horizontal;
+               overflow: auto;
+               min-width: 300px;
+               max-width: 100%;
+               border: 1px solid #dee2e6;
+               border-radius: 8px;
+               height: 600px;
+             }
+           </style>
+
+           <div class="template-selector">
+             <% var templateOptions = templateDefinitions && templateDefinitions.length ? templateDefinitions : templates.map(function(template) { return { id: template, name: template, description: '', fields: [] }; }); %>
+             <% templateOptions.forEach(function(template) { %>
+                <% const cardClass = 'template-card' + (presell.template === template.id ? ' selected' : ''); %>
+                <div class="<%= cardClass %>" data-template-id="<%= template.id %>">
+                 <img src="/images/templates/<%= template.id %>.png" alt="<%= template.name || template.id %>" onerror="this.onerror=null;this.src='/images/templates/placeholder.png';this.onerror=function(){this.style.display='none';};">
+                 <div class="template-name"><%= template.name || template.id %></div>
+               </div>
+             <% }) %>
+           </div>
+
+           <div class="preview-iframe-container">
+              <iframe id="preview-iframe" name="preview-iframe" style="width:100%; height:100%; border:none;">
+              </iframe>
+           </div>
+         </div>
+       </div>
     </div>
   </div>
 </main>
 
 <script src="/static/js/form-preview.js"></script>
 <script src="/static/js/form-media.js"></script>
+<script>
+document.querySelectorAll('.template-card').forEach(card => {
+  card.addEventListener('click', function() {
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    this.classList.add('selected');
+    document.querySelector('select[name="template"]').value = this.dataset.templateId;
+    document.getElementById('selected-template').value = this.dataset.templateId;
+    // Disparar evento change para atualizar preview
+    document.querySelector('select[name="template"]').dispatchEvent(new Event('change'));
+  });
+});
+</script>
 <%- include('_footer') %>

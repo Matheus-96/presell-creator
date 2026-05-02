@@ -65,26 +65,30 @@ const templateRegistry = {
         name: "badge_text",
         label: "Selo superior",
         type: "text",
-        defaultValue: "Oferta oficial"
+        defaultValue: "Oferta oficial",
+        previewSelector: ".official-simple-badge"
       },
       {
         name: "trust_badges",
         label: "Selos de confianca",
         type: "textarea",
         defaultValue: "Compra segura\nSatisfacao garantida\nPrivacidade protegida",
-        helpText: "Um selo por linha."
+        helpText: "Um selo por linha.",
+        previewSelector: ".official-simple-trust-list"
       },
       {
         name: "accent_color",
         label: "Cor de destaque",
         type: "color",
-        defaultValue: "#0f766e"
+        defaultValue: "#0f766e",
+        previewSelector: ".official-simple-cta"
       },
       {
         name: "show_arrows",
         label: "Mostrar setas no CTA",
         type: "checkbox",
-        defaultValue: true
+        defaultValue: true,
+        previewSelector: ".official-simple-cta"
       }
     ]
   },
@@ -97,31 +101,36 @@ const templateRegistry = {
         name: "discount_text",
         label: "Texto de desconto",
         type: "text",
-        defaultValue: "Up to 43% OFF"
+        defaultValue: "Up to 43% OFF",
+        previewSelector: ".offer-modal-discount"
       },
       {
         name: "scarcity_text",
         label: "Texto de escassez",
         type: "text",
-        defaultValue: "Oferta por tempo limitado"
+        defaultValue: "Oferta por tempo limitado",
+        previewSelector: ".offer-modal-scarcity"
       },
       {
         name: "rating",
         label: "Nota",
         type: "text",
-        defaultValue: "9.0"
+        defaultValue: "9.0",
+        previewSelector: ".offer-modal-rating-value"
       },
       {
         name: "stars_text",
         label: "Texto das estrelas",
         type: "text",
-        defaultValue: "5 estrelas"
+        defaultValue: "5 estrelas",
+        previewSelector: ".offer-modal-rating"
       },
       {
         name: "modal_cta_text_override",
         label: "CTA do modal",
         type: "text",
-        defaultValue: ""
+        defaultValue: "",
+        previewSelector: ".offer-modal-cta"
       },
       {
         name: "overlay_strength",
@@ -130,7 +139,8 @@ const templateRegistry = {
         defaultValue: 0.65,
         min: 0,
         max: 0.9,
-        step: 0.05
+        step: 0.05,
+        previewSelector: ".offer-modal-overlay"
       }
     ]
   },
@@ -148,31 +158,36 @@ const templateRegistry = {
           { value: "browser", label: "Navegador" },
           { value: "phone", label: "Celular" },
           { value: "laptop", label: "Laptop" }
-        ]
+        ],
+        previewSelector: ".device-frame-window"
       },
       {
         name: "top_bar_text",
         label: "Texto da barra superior",
         type: "text",
-        defaultValue: "official-site.com"
+        defaultValue: "official-site.com",
+        previewSelector: ".device-frame-top-bar"
       },
       {
         name: "footer_left_text",
         label: "Texto do rodape esquerdo",
         type: "text",
-        defaultValue: "Termos"
+        defaultValue: "Termos",
+        previewSelector: ".device-frame-footer"
       },
       {
         name: "footer_right_text",
         label: "Texto do rodape direito",
         type: "text",
-        defaultValue: "Privacidade"
+        defaultValue: "Privacidade",
+        previewSelector: ".device-frame-footer"
       },
       {
         name: "offer_note",
         label: "Nota da oferta",
         type: "textarea",
-        defaultValue: "Verifique a disponibilidade no site oficial."
+        defaultValue: "Verifique a disponibilidade no site oficial.",
+        previewSelector: ".device-frame-offer-note"
       }
     ]
   },
@@ -185,19 +200,22 @@ const templateRegistry = {
         name: "label_text",
         label: "Rotulo",
         type: "text",
-        defaultValue: "Publicidade"
+        defaultValue: "Publicidade",
+        previewSelector: ".app-ad-label"
       },
       {
         name: "microcopy",
         label: "Microcopy",
         type: "text",
-        defaultValue: "Toque para continuar no site oficial."
+        defaultValue: "Toque para continuar no site oficial.",
+        previewSelector: ".app-ad-microcopy"
       },
       {
         name: "disclaimer",
         label: "Aviso",
         type: "textarea",
-        defaultValue: "Voce sera redirecionado para uma pagina externa."
+        defaultValue: "Voce sera redirecionado para uma pagina externa.",
+        previewSelector: ".app-ad-disclaimer"
       },
       {
         name: "layout_density",
@@ -208,7 +226,8 @@ const templateRegistry = {
           { value: "compact", label: "Compacta" },
           { value: "comfortable", label: "Confortavel" },
           { value: "spacious", label: "Espacosa" }
-        ]
+        ],
+        previewSelector: ".app-ad-shell"
       },
       {
         name: "button_style",
@@ -219,7 +238,8 @@ const templateRegistry = {
           { value: "solid", label: "Solido" },
           { value: "outline", label: "Contorno" },
           { value: "soft", label: "Suave" }
-        ]
+        ],
+        previewSelector: ".app-ad-cta"
       }
     ]
   },
@@ -232,19 +252,22 @@ const templateRegistry = {
         name: "label_text",
         label: "Rotulo",
         type: "text",
-        defaultValue: "Anuncio"
+        defaultValue: "Anuncio",
+        previewSelector: ".app-ad-label"
       },
       {
         name: "microcopy",
         label: "Microcopy",
         type: "text",
-        defaultValue: "Toque para continuar no site oficial."
+        defaultValue: "Toque para continuar no site oficial.",
+        previewSelector: ".app-ad-microcopy"
       },
       {
         name: "disclaimer",
         label: "Aviso",
         type: "textarea",
-        defaultValue: "Voce sera redirecionado para uma pagina externa."
+        defaultValue: "Voce sera redirecionado para uma pagina externa.",
+        previewSelector: ".app-ad-disclaimer"
       },
       {
         name: "layout_density",
@@ -255,7 +278,8 @@ const templateRegistry = {
           { value: "compact", label: "Compacta" },
           { value: "comfortable", label: "Confortavel" },
           { value: "spacious", label: "Espacosa" }
-        ]
+        ],
+        previewSelector: ".app-ad-fullscreen-shell"
       },
       {
         name: "button_style",
@@ -266,7 +290,8 @@ const templateRegistry = {
           { value: "solid", label: "Solido" },
           { value: "outline", label: "Contorno" },
           { value: "soft", label: "Suave" }
-        ]
+        ],
+        previewSelector: ".app-ad-cta"
       }
     ]
   }
