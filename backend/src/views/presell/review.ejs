@@ -1,0 +1,32 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body">
+
+  <main class="review-shell">
+    <section class="review-hero">
+      <div>
+        <%- include('includes/eyebrow-headline', { 
+          eyebrow: 'Análise rápida',
+          headlineClass: '',
+          subtitle: presell.subtitle,
+          subtitleClass: 'lead'
+        }) %>
+      </div>
+      <%- include('includes/hero-image', { presell: presell, imageClass: 'hero-img' }) %>
+    </section>
+    <section class="article">
+      <div class="copy"><%- nl2br(presell.body) %></div>
+      <div class="review-box">
+        <h2>Resumo</h2>
+        <%- include('includes/benefits', { bullets: bullets, listClass: 'benefits' }) %>
+      </div>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'cta'
+      }) %>
+      <p class="disclaimer">Esta pagina pode conter link de afiliado.</p>
+    </section>
+  </main>
+</body>
+</html>

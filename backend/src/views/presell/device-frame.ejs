@@ -1,0 +1,60 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body device-frame-body">
+
+  <%
+    var deviceCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
+    var deviceFrameType = settings.frame_type || 'browser';
+    var deviceTopBarText = settings.top_bar_text || '';
+    var deviceFooterLeftText = settings.footer_left_text || '';
+    var deviceFooterRightText = settings.footer_right_text || '';
+    var deviceOfferNote = settings.offer_note || '';
+    var deviceBullets = bullets.slice(0, 3);
+  %>
+  <main class="device-frame-shell device-frame-shell-<%= deviceFrameType %>">
+    <section class="device-frame-stage">
+      <article class="device-frame-window device-frame-window-<%= deviceFrameType %>">
+        <header class="device-frame-top-bar">
+          <div class="device-frame-controls" aria-hidden="true">
+            <span class="device-frame-control"></span>
+            <span class="device-frame-control"></span>
+            <span class="device-frame-control"></span>
+          </div>
+          <% if (deviceTopBarText) { %>
+            <p class="device-frame-top-text"><%= deviceTopBarText %></p>
+          <% } %>
+        </header>
+
+        <div class="device-frame-content">
+          <%- include('includes/hero-image', { presell: presell, imageClass: 'device-frame-image' }) %>
+
+          <section class="device-frame-copy">
+            <% if (deviceOfferNote) { %>
+              <p class="device-frame-offer-note"><%= deviceOfferNote %></p>
+            <% } %>
+            <h1 class="device-frame-headline"><%= presell.headline %></h1>
+            <% if (presell.subtitle) { %>
+              <p class="device-frame-subtitle"><%= presell.subtitle %></p>
+            <% } %>
+            <% if (deviceBullets.length) { %>
+              <%- include('includes/benefits', { bullets: deviceBullets, listClass: 'device-frame-bullets' }) %>
+            <% } %>
+            <%- include('includes/cta-button', { 
+              presell: presell,
+              preview: preview,
+              trackingQuery: trackingQuery,
+              buttonClass: 'device-frame-cta'
+            }) %>
+          </section>
+        </div>
+
+        <% if (deviceFooterLeftText || deviceFooterRightText) { %>
+          <footer class="device-frame-footer">
+            <span class="device-frame-footer-left"><%= deviceFooterLeftText %></span>
+            <span class="device-frame-footer-right"><%= deviceFooterRightText %></span>
+          </footer>
+        <% } %>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

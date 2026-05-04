@@ -1,0 +1,34 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body official-simple-body">
+
+  <main class="official-simple-shell" style="--official-simple-accent: <%= templateData.accentColor %>;">
+    <section class="official-simple-panel">
+      <% if (templateData.badgeText) { %>
+        <p class="official-simple-badge"><%= templateData.badgeText %></p>
+      <% } %>
+
+      <div class="official-simple-copy">
+        <h1 class="official-simple-headline"><%= presell.headline %></h1>
+        <% if (presell.subtitle) { %>
+          <p class="official-simple-subtitle"><%= presell.subtitle %></p>
+        <% } %>
+      </div>
+
+      <% if (templateData.trustBadges.length) { %>
+        <ul class="official-simple-trust-list">
+          <% templateData.trustBadges.forEach(function(item) { %>
+            <li class="official-simple-trust-item"><%= item %></li>
+          <% }) %>
+        </ul>
+      <% } %>
+
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        href: templateData.ctaHref,
+        ctaText: templateData.ctaTextWithArrow,
+        buttonClass: 'official-simple-cta'
+      }) %>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+import type { ReactNode } from 'react'
+
+type PageHeaderProps = {
+  eyebrow: string
+  title: string
+  description: string
+  aside?: ReactNode
+}
+
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  aside,
+}: PageHeaderProps) {
+  return (
+    <header className="page-header">
+      <div>
+        <p className="eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
+        <p className="page-description">{description}</p>
+      </div>
+
+      {aside ? <div className="page-header__aside">{aside}</div> : null}
+    </header>
+  )
+}

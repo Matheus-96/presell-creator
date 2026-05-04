@@ -1,0 +1,47 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body app-ad-body">
+
+  <%
+    var appAdCtaHref = preview ? '#' : '/go/' + presell.slug + trackingQuery;
+    var appAdLabelText = settings.label_text || 'Anuncio';
+    var appAdMicrocopy = settings.microcopy || '';
+    var appAdDisclaimer = settings.disclaimer || '';
+    var appAdLayoutDensity = settings.layout_density || 'comfortable';
+    var appAdButtonStyle = settings.button_style || 'solid';
+  %>
+  <main class="app-ad-shell app-ad-density-<%= appAdLayoutDensity %>">
+    <article class="app-ad-card">
+      <% if (appAdLabelText) { %>
+        <p class="app-ad-label"><%= appAdLabelText %></p>
+      <% } %>
+
+      <% if (presell.image_path) { %>
+        <figure class="app-ad-media">
+          <img class="app-ad-image" src="<%= mediaUrl(presell.image_path) %>" alt="">
+        </figure>
+      <% } %>
+
+      <div class="app-ad-copy">
+        <h1 class="app-ad-headline"><%= presell.headline %></h1>
+        <% if (presell.subtitle) { %>
+          <p class="app-ad-subtitle"><%= presell.subtitle %></p>
+        <% } %>
+        <% if (appAdMicrocopy) { %>
+          <p class="app-ad-microcopy"><%= appAdMicrocopy %></p>
+        <% } %>
+      </div>
+
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'app-ad-cta app-ad-button-' + appAdButtonStyle
+      }) %>
+
+      <% if (appAdDisclaimer) { %>
+        <p class="app-ad-disclaimer"><%= appAdDisclaimer %></p>
+      <% } %>
+    </article>
+  </main>
+</body>
+</html>

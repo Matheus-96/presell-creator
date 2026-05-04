@@ -1,0 +1,23 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body">
+
+  <main class="quiz-shell">
+    <section class="quiz-card">
+      <%- include('includes/eyebrow-headline', { 
+        eyebrow: 'Quiz rápido',
+        headlineClass: '',
+        subtitle: presell.subtitle,
+        subtitleClass: 'lead'
+      }) %>
+      <%- include('includes/hero-image', { presell: presell, imageClass: 'hero-img' }) %>
+      <div class="copy"><%- nl2br(presell.body) %></div>
+      <div class="quiz-options">
+        <% (bullets.length ? bullets : ['Sim, quero ver a recomendacao', 'Quero entender melhor']).forEach(function(item) { %>
+          <a href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= item %></a>
+        <% }) %>
+      </div>
+      <a class="cta secondary" href="<%= preview ? '#' : '/go/' + presell.slug + trackingQuery %>"><%= presell.cta_text %></a>
+    </section>
+  </main>
+</body>
+</html>

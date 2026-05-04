@@ -1,0 +1,7 @@
+<% if (typeof eyebrow !== 'undefined' && eyebrow) { %>
+  <p class="eyebrow"><%= eyebrow %></p>
+<% } %>
+<h1 class="<%= typeof headlineClass !== 'undefined' ? headlineClass : 'article h1' %>"><%= presell.headline %></h1>
+<% if (typeof subtitle !== 'undefined' && subtitle) { %>
+  <p class="<%= typeof subtitleClass !== 'undefined' ? subtitleClass : 'lead' %>"><%= subtitle %></p>
+<% } %>

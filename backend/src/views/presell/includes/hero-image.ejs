@@ -1,0 +1,5 @@
+<% if (typeof presell !== 'undefined' && presell.image_path) { %>
+  <figure class="<%= typeof imageClass !== 'undefined' ? imageClass : 'hero-img' %>">
+    <img src="<%= mediaUrl(presell.image_path) %>" alt="">
+  </figure>
+<% } %>

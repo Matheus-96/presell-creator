@@ -1,0 +1,253 @@
+<%- include('_header') %>
+  <main class="admin-main">
+    <!-- Top Metrics Section -->
+    <div class="container-fluid px-4 py-5">
+      <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1">📈 Views</p>
+                  <h3 class="mb-0 text-dark"><%= analytics.totals.views %></h3>
+                </div>
+                <div class="text-success" style="font-size: 2.5rem; opacity: 0.2;">📊</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1">🖱️ Cliques</p>
+                  <h3 class="mb-0 text-dark"><%= analytics.totals.clicks %></h3>
+                </div>
+                <div class="text-primary" style="font-size: 2.5rem; opacity: 0.2;">👆</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1">🔗 Redirects</p>
+                  <h3 class="mb-0 text-dark"><%= analytics.totals.redirects %></h3>
+                </div>
+                <div class="text-info" style="font-size: 2.5rem; opacity: 0.2;">↗️</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted small mb-1">📊 CTR</p>
+                  <h3 class="mb-0 text-dark"><%= analytics.totals.ctr.toFixed(1) %>%</h3>
+                </div>
+                <div class="text-warning" style="font-size: 2.5rem; opacity: 0.2;">%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Presells Table Section -->
+    <div class="container-fluid px-4 py-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="mb-0 text-dark">📄 Presells</h5>
+            </div>
+            <a class="btn btn-sm btn-success" href="<%= adminUrl('/presells/new') %>">
+              <i class="bi bi-plus-circle"></i> Criar Página
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="px-4">Título</th>
+                  <th>Status</th>
+                  <th>Template</th>
+                  <th class="text-center">Views</th>
+                  <th class="text-center">Cliques</th>
+                  <th class="text-center">CTR</th>
+                  <th class="text-end px-4">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% presells.forEach(function(presell) { 
+                  const row = analytics.byPresell.find(function(item) { return item.id === presell.id; }) || { views: 0, clicks: 0, ctr: 0 };
+                %>
+                  <tr>
+                    <td class="px-4">
+                      <div>
+                        <p class="mb-0 fw-bold text-dark"><%= presell.title %></p>
+                        <small class="text-muted">/p/<%= presell.slug %></small>
+                      </div>
+                    </td>
+                    <td>
+                      <% if (presell.status === 'published') { %>
+                        <span class="badge bg-success">Publicado</span>
+                      <% } else { %>
+                        <span class="badge bg-secondary">Rascunho</span>
+                      <% } %>
+                    </td>
+                    <td><span class="text-muted"><%= presell.template %></span></td>
+                    <td class="text-center"><strong><%= row.views %></strong></td>
+                    <td class="text-center"><strong><%= row.clicks %></strong></td>
+                    <td class="text-center"><strong class="text-primary"><%= row.ctr.toFixed(1) %>%</strong></td>
+                    <td class="text-end px-4">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <% if (presell.status === 'published') { %>
+                          <a class="btn btn-outline-primary" href="/p/<%= presell.slug %>" target="_blank" title="Abrir página" data-bs-toggle="tooltip">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                          </a>
+                          <button class="btn btn-outline-warning" onclick="copyToClipboard(window.location.origin + '/p/<%= presell.slug %>', this)" title="Copiar link" data-bs-toggle="tooltip">
+                            <i class="bi bi-clipboard"></i>
+                          </button>
+                        <% } %>
+                        <a class="btn btn-outline-info" href="<%= adminUrl('/presells/' + presell.id + '/preview') %>" target="_blank" title="Preview" data-bs-toggle="tooltip">
+                          <i class="bi bi-eye"></i>
+                        </a>
+  <a class="btn btn-primary" href="<%= adminUrl('/presells/' + presell.id + '/edit') %>" title="Editar" data-bs-toggle="tooltip">
+    <i class="bi bi-pencil"></i>
+  </a>
+  <a class="btn btn-outline-success" href="<%= adminUrl('/presells/' + presell.id + '/statistics') %>" title="Estatísticas" data-bs-toggle="tooltip">
+    <i class="bi bi-bar-chart"></i>
+  </a>
+  <form method="post" action="<%= adminUrl('/presells/' + presell.id + '/duplicate') %>" style="display: inline;">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-outline-success" type="submit" title="Duplicar" data-bs-toggle="tooltip">
+                            <i class="bi bi-files"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (presells.length === 0) { %>
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                      <p class="mb-0">Nenhuma presell cadastrada ainda.</p>
+                      <small><a href="<%= adminUrl('/presells/new') %>" class="text-success">Criar primeira página →</a></small>
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UTM & Events Section -->
+    <div class="container-fluid px-4 py-5">
+      <div class="row g-4">
+        <!-- UTM Sources -->
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom py-3">
+              <h5 class="mb-0 text-dark">🌐 Origens UTM</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="px-4">Origem</th>
+                      <th class="text-end px-4">Views</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% analytics.sources.forEach(function(source) { %>
+                      <tr>
+                        <td class="px-4">
+                          <span class="badge bg-light text-dark"><%= source.source || '(sem utm_source)' %></span>
+                        </td>
+                        <td class="text-end px-4"><strong class="text-success"><%= source.total %></strong></td>
+                      </tr>
+                    <% }) %>
+                    <% if (analytics.sources.length === 0) { %>
+                      <tr>
+                        <td colspan="2" class="text-center text-muted py-3">Sem dados de origem</td>
+                      </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Events -->
+        <div class="col-12 col-lg-6">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom py-3">
+              <h5 class="mb-0 text-dark">⏱️ Últimos Eventos</h5>
+            </div>
+            <div class="card-body">
+              <div class="event-list">
+                <% analytics.recent.forEach(function(event) { %>
+                  <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                    <div class="flex-grow-1">
+                      <p class="mb-1">
+                        <span class="badge bg-info text-dark"><%= event.event_type %></span>
+                      </p>
+                      <p class="mb-0 small text-muted"><%= event.title || 'sem página' %></p>
+                    </div>
+                    <small class="text-muted ms-2"><%= event.created_at %></small>
+                  </div>
+                <% }) %>
+                <% if (analytics.recent.length === 0) { %>
+                  <p class="text-center text-muted py-3">Nenhum evento registrado</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .card {
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .btn {
+      transition: all 0.2s ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+    .table tbody tr:hover {
+      background-color: rgba(25, 135, 84, 0.05);
+    }
+    .badge {
+      font-weight: 500;
+      padding: 0.4rem 0.6rem;
+    }
+    .btn-group .btn {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.875rem;
+    }
+  </style>
+
+<%- include('_footer') %>

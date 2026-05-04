@@ -1,0 +1,25 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body">
+
+  <main class="article-shell">
+    <article class="article">
+      <%- include('includes/eyebrow-headline', { 
+        eyebrow: 'Especial',
+        headlineClass: 'article h1',
+        subtitle: presell.subtitle,
+        subtitleClass: 'lead'
+      }) %>
+      <%- include('includes/hero-image', { presell: presell, imageClass: 'hero-img' }) %>
+      <div class="copy"><%- nl2br(presell.body) %></div>
+      <%- include('includes/benefits', { bullets: bullets, listClass: 'benefits' }) %>
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        preview: preview,
+        trackingQuery: trackingQuery,
+        buttonClass: 'cta'
+      }) %>
+      <p class="disclaimer">Conteudo informativo. Ao continuar, voce sera direcionado para a pagina oficial da oferta.</p>
+    </article>
+  </main>
+</body>
+</html>

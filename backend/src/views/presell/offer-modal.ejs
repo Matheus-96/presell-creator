@@ -1,0 +1,43 @@
+<%- include('includes/head', { title: title, pixelHtml: pixelHtml }) %>
+<body class="public-body offer-modal-body">
+
+  <main class="offer-modal-shell" style="--offer-modal-overlay-strength: <%= templateData.overlayStrength %>;">
+    <section class="offer-modal-backdrop">
+      <% if (templateData.backgroundImageUrl) { %>
+        <img class="offer-modal-hero-image" src="<%= templateData.backgroundImageUrl %>" alt="">
+      <% } %>
+      <div class="offer-modal-overlay" aria-hidden="true"></div>
+    </section>
+
+    <section class="offer-modal-card" aria-labelledby="offer-modal-title">
+      <% if (templateData.discountText) { %>
+        <p class="offer-modal-discount"><%= templateData.discountText %></p>
+      <% } %>
+
+      <h1 id="offer-modal-title" class="offer-modal-headline"><%= presell.headline %></h1>
+
+      <% if (presell.subtitle) { %>
+        <p class="offer-modal-subtitle"><%= presell.subtitle %></p>
+      <% } %>
+
+      <% if (templateData.ratingLabel) { %>
+        <div class="offer-modal-rating" aria-label="<%= templateData.ratingLabel %>">
+          <% if (templateData.starsText) { %><span class="offer-modal-stars"><%= templateData.starsText %></span><% } %>
+          <% if (templateData.rating) { %><span class="offer-modal-rating-value"><%= templateData.rating %></span><% } %>
+        </div>
+      <% } %>
+
+      <% if (templateData.scarcityText) { %>
+        <p class="offer-modal-scarcity"><%= templateData.scarcityText %></p>
+      <% } %>
+
+      <%- include('includes/cta-button', { 
+        presell: presell,
+        href: templateData.ctaHref,
+        buttonClass: 'offer-modal-cta',
+        ctaText: templateData.ctaText
+      }) %>
+    </section>
+  </main>
+</body>
+</html>

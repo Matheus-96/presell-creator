@@ -1,0 +1,5 @@
+<% if (typeof bullets !== 'undefined' && bullets && bullets.length > 0) { %>
+  <ul class="<%= typeof listClass !== 'undefined' ? listClass : 'benefits' %>">
+    <% bullets.forEach(function(item) { %><li><%= item %></li><% }) %>
+  </ul>
+<% } %>
