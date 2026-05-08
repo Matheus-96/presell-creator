@@ -6,6 +6,7 @@ const {
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
+  deserializePresellListQuery,
   serializePresellListResponse,
   serializePreviewDocument,
   serializeTemplateCatalog,
@@ -16,7 +17,7 @@ const {
 } = require("../contracts");
 const { templateDefinitions } = require("../services/presellTemplates");
 const {
-  listPresells,
+  listPresellCollection,
   getPresellById,
   savePresell,
   duplicatePresell,
@@ -127,7 +128,9 @@ async function postPreview(req, res, next) {
 }
 
 function getPresellCollection(req, res) {
-  res.json(serializePresellListResponse(listPresells(), req.query));
+  const query = deserializePresellListQuery(req.query);
+
+  res.json(serializePresellListResponse(listPresellCollection(query)));
 }
 
 function getPresell(req, res) {

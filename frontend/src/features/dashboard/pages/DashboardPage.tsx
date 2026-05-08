@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
@@ -87,9 +87,21 @@ export function DashboardPage() {
     }
   }, [])
 
-  const totalPresells = state.presells.length
-  const publishedPresells = state.presells.filter((item) => item.published).length
-  const draftPresells = totalPresells - publishedPresells
+  const { draftPresells, publishedPresells, totalPresells } = useMemo(() => {
+    let nextPublishedPresells = 0
+
+    for (const item of state.presells) {
+      if (item.published) {
+        nextPublishedPresells += 1
+      }
+    }
+
+    return {
+      draftPresells: state.presells.length - nextPublishedPresells,
+      publishedPresells: nextPublishedPresells,
+      totalPresells: state.presells.length,
+    }
+  }, [state.presells])
   const overview = state.overview
   const summary = state.summary
 

@@ -46,16 +46,14 @@ function deleteUpload(filename) {
   const normalizedFilename = normalizeMediaPath(filename);
   if (!normalizedFilename) return false;
 
-  try {
-    const filePath = path.join(uploadDir, normalizedFilename);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      return true;
-    }
-  } catch (error) {
-    console.error('Error deleting upload:', error);
-  }
-  return false;
+  const filePath = path.join(uploadDir, normalizedFilename);
+
+  fs.promises.rm(filePath, { force: true })
+    .catch((error) => {
+      console.error("Error deleting upload:", error);
+    });
+
+  return true;
 }
 
 module.exports = { upload, uploadMultiple, registerUpload, uploadDir, deleteUpload };

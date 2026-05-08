@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 
+const { getAdminFrontendCacheHeaders, setAdminFrontendCacheHeaders } = require("../config/cacheControl");
 const { frontendDistDir, frontendDistIndexFile } = require("../config/paths");
 
 function hasBuiltAdminFrontend() {
@@ -13,7 +14,8 @@ function createAdminFrontendRouter() {
 
   router.use(express.static(frontendDistDir, {
     fallthrough: true,
-    index: false
+    index: false,
+    setHeaders: setAdminFrontendCacheHeaders
   }));
 
   router.get("*", (req, res, next) => {
@@ -21,7 +23,9 @@ function createAdminFrontendRouter() {
       return next();
     }
 
-    return res.sendFile(frontendDistIndexFile);
+    return res.sendFile(frontendDistIndexFile, {
+      headers: getAdminFrontendCacheHeaders(frontendDistIndexFile)
+    });
   });
 
   return router;

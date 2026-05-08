@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { PresellSummaryCard } from '@/features/presells/components/PresellSummaryCard.tsx'
 import type {
   PresellStatus,
@@ -20,6 +21,11 @@ type PresellWorkspaceSidebarProps = {
   onTemplateChange: (value: string) => void
 }
 
+const sidebarTimestampFormatter = new Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+
 function formatTimestamp(value: string | null) {
   if (!value) {
     return 'Never updated'
@@ -31,10 +37,7 @@ function formatTimestamp(value: string | null) {
     return value
   }
 
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(date)
+  return sidebarTimestampFormatter.format(date)
 }
 
 export function PresellWorkspaceSidebar({
@@ -51,22 +54,48 @@ export function PresellWorkspaceSidebar({
   onStatusChange,
   onTemplateChange,
 }: PresellWorkspaceSidebarProps) {
-  const filteredItems = items.filter((item) => {
-    const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus
-    const matchesTemplate = !selectedTemplateId || item.templateId === selectedTemplateId
+  const { draftCount, filteredItems, publishedCount } = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
-    const matchesSearch =
-      normalizedSearch.length === 0
-      || [item.title, item.headline, item.slug]
-        .join(' ')
-        .toLowerCase()
-        .includes(normalizedSearch)
+    const filteredPresells: PresellSummary[] = []
+    let nextDraftCount = 0
+    let nextPublishedCount = 0
 
-    return matchesStatus && matchesTemplate && matchesSearch
-  })
+    for (const item of items) {
+      if (item.status === 'draft') {
+        nextDraftCount += 1
+      }
 
-  const draftCount = items.filter((item) => item.status === 'draft').length
-  const publishedCount = items.filter((item) => item.status === 'published').length
+      if (item.status === 'published') {
+        nextPublishedCount += 1
+      }
+
+      const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus
+      const matchesTemplate = !selectedTemplateId || item.templateId === selectedTemplateId
+
+      if (!matchesStatus || !matchesTemplate) {
+        continue
+      }
+
+      if (normalizedSearch.length > 0) {
+        const matchesSearch = [item.title, item.headline, item.slug]
+          .join(' ')
+          .toLowerCase()
+          .includes(normalizedSearch)
+
+        if (!matchesSearch) {
+          continue
+        }
+      }
+
+      filteredPresells.push(item)
+    }
+
+    return {
+      draftCount: nextDraftCount,
+      filteredItems: filteredPresells,
+      publishedCount: nextPublishedCount,
+    }
+  }, [items, searchTerm, selectedStatus, selectedTemplateId])
 
   return (
     <aside className="presell-sidebar">

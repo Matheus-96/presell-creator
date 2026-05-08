@@ -1,5 +1,7 @@
-import type { AdminRouteDefinition } from '@/app/routes/route-definition.ts'
-import { PresellsPage } from '@/features/presells/pages/PresellsPage.tsx'
+import {
+  createLazyAdminRouteElement,
+  type AdminRouteDefinition,
+} from '@/app/routes/route-definition.ts'
 
 export const presellsRoute = {
   id: 'presells',
@@ -7,5 +9,9 @@ export const presellsRoute = {
   description: 'Browse the collection and open the CRUD editor.',
   to: '/presells',
   path: 'presells',
-  element: <PresellsPage />,
+  element: createLazyAdminRouteElement(async () => {
+    const module = await import('@/features/presells/pages/PresellsPage.tsx')
+
+    return { default: module.PresellsPage }
+  }),
 } satisfies AdminRouteDefinition

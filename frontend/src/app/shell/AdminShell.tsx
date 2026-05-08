@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { adminRoutes } from '@/app/routes/admin-routes.tsx'
+import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
 import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
 import { useAuth } from '@/features/auth/use-auth.ts'
@@ -13,6 +14,20 @@ function getNavLinkClassName(isActive: boolean) {
 
 function getLegacyLoginUrl() {
   return joinConfigUrl(appConfig.legacyAdminUrl, '/login')
+}
+
+function AdminRouteFallback() {
+  return (
+    <div className="page">
+      <SectionCard
+        eyebrow="Loading section"
+        title="Preparing the admin workspace"
+        description="Fetching the selected admin bundle without interrupting the current shell."
+      >
+        <p className="page-description">The selected section will be ready in a moment.</p>
+      </SectionCard>
+    </div>
+  )
 }
 
 export function AdminShell() {
@@ -140,7 +155,9 @@ export function AdminShell() {
           />
         </div>
 
-        <Outlet />
+        <Suspense fallback={<AdminRouteFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

@@ -1,6 +1,8 @@
 const express = require("express");
 const session = require("express-session");
+const compression = require("compression");
 
+const { setStaticAssetCacheHeaders } = require("../config/cacheControl");
 const { getEnv } = require("../config/env");
 const { publicDir, viewsDir } = require("../config/paths");
 const { getHealth } = require("../controllers/healthController");
@@ -55,6 +57,10 @@ function createApp() {
   if (trustProxy !== false) {
     app.set("trust proxy", trustProxy);
   }
+  app.use(compression({
+    filter: compression.filter,
+    threshold: "1kb"
+  }));
 
   app.use(session({
     name: "presell.sid",
@@ -72,7 +78,9 @@ function createApp() {
   }));
 
   app.get("/health", getHealth);
-  app.use("/static", express.static(publicDir));
+  app.use("/static", express.static(publicDir, {
+    setHeaders: setStaticAssetCacheHeaders
+  }));
   app.use("/media", assetRoutes);
   if (adminFrontendBuilt) {
     app.use(adminPathConfig.adminFrontendPath, createAdminFrontendRouter());

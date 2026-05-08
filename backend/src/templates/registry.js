@@ -326,24 +326,42 @@ const templateRegistry = Object.fromEntries(
   ])
 );
 
-function validateTemplateFile(templateId) {
-  const template = templateRegistry[templateId];
-  if (!template) return false;
-
+function getTemplateFilePath(template) {
   if (template.renderer.engine === "react") {
-    const reactRendererPath = path.join(__dirname, "../runtime/react", template.renderer.fileName);
-    return fs.existsSync(reactRendererPath);
+    return path.join(__dirname, "../runtime/react", template.renderer.fileName);
   }
 
-  const templatePath = path.join(__dirname, "../views/presell", template.renderer.fileName);
-  return fs.existsSync(templatePath);
+  return path.join(__dirname, "../views/presell", template.renderer.fileName);
+}
+
+const templateManifestRegistry = Object.freeze(
+  Object.fromEntries(
+    Object.entries(templateRegistry).map(([id, manifest]) => [
+      id,
+      Object.freeze({
+        ...manifest,
+        availability: Object.freeze({
+          templateFile: fs.existsSync(getTemplateFilePath(manifest))
+        })
+      })
+    ])
+  )
+);
+
+const templateManifestList = Object.freeze(Object.values(templateManifestRegistry));
+
+function validateTemplateFile(templateId) {
+  const template = templateManifestRegistry[templateId];
+  return Boolean(template && template.availability && template.availability.templateFile);
 }
 
 function addAvailability(manifest) {
-  return {
+  if (!manifest) return templateManifestRegistry.advertorial;
+
+  return templateManifestRegistry[manifest.id] || {
     ...manifest,
     availability: {
-      templateFile: validateTemplateFile(manifest.id)
+      templateFile: false
     }
   };
 }
@@ -355,9 +373,9 @@ function getTemplateManifest(templateId) {
 function listTemplateManifests(options = {}) {
   const { availableOnly = false } = options;
 
-  return Object.values(templateRegistry)
-    .map(addAvailability)
-    .filter((manifest) => (availableOnly ? manifest.availability.templateFile : true));
+  return availableOnly
+    ? templateManifestList.filter((manifest) => manifest.availability.templateFile)
+    : templateManifestList;
 }
 
 function listTemplateIds(options = {}) {

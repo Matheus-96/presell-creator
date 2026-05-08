@@ -1,5 +1,7 @@
-import type { AdminRouteDefinition } from '@/app/routes/route-definition.ts'
-import { SettingsPage } from '@/features/settings/pages/SettingsPage.tsx'
+import {
+  createLazyAdminRouteElement,
+  type AdminRouteDefinition,
+} from '@/app/routes/route-definition.ts'
 
 export const settingsRoute = {
   id: 'settings',
@@ -7,5 +9,9 @@ export const settingsRoute = {
   description: 'Review runtime config, auth, and API contract metadata.',
   to: '/settings',
   path: 'settings',
-  element: <SettingsPage />,
+  element: createLazyAdminRouteElement(async () => {
+    const module = await import('@/features/settings/pages/SettingsPage.tsx')
+
+    return { default: module.SettingsPage }
+  }),
 } satisfies AdminRouteDefinition

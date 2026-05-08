@@ -1,4 +1,9 @@
-import type { ReactElement } from 'react'
+import {
+  createElement,
+  lazy,
+  type ComponentType,
+  type ReactElement,
+} from 'react'
 
 type BaseAdminRouteDefinition = {
   id: string
@@ -21,3 +26,9 @@ type AdminPathRouteDefinition = BaseAdminRouteDefinition & {
 export type AdminRouteDefinition =
   | AdminIndexRouteDefinition
   | AdminPathRouteDefinition
+
+export function createLazyAdminRouteElement<T extends ComponentType>(
+  load: () => Promise<{ default: T }>,
+) {
+  return createElement(lazy(load))
+}

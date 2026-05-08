@@ -1,12 +1,47 @@
 const { db } = require("../db/connection");
 
-const listPresellsStmt = db.prepare(
-  "SELECT * FROM presells ORDER BY updated_at DESC, id DESC"
-);
+const presellSummarySelect = `
+  id,
+  slug,
+  status,
+  template,
+  title,
+  headline,
+  subtitle,
+  cta_text,
+  affiliate_url,
+  image_path,
+  google_pixel,
+  background_image_path,
+  created_at,
+  updated_at
+`;
+
+const listPresellsStmt = db.prepare(`
+  SELECT ${presellSummarySelect}
+  FROM presells
+  ORDER BY updated_at DESC, id DESC
+`);
+const listPresellCollectionStmt = db.prepare(`
+  SELECT ${presellSummarySelect}
+  FROM presells
+  WHERE (? IS NULL OR status = ?)
+    AND (? IS NULL OR template = ?)
+    AND (
+      ? IS NULL
+      OR updated_at < ?
+      OR (updated_at = ? AND id < ?)
+    )
+  ORDER BY updated_at DESC, id DESC
+  LIMIT ?
+`);
 const getPresellByIdStmt = db.prepare("SELECT * FROM presells WHERE id = ?");
 const getPresellBySlugStmt = db.prepare("SELECT * FROM presells WHERE slug = ?");
 const getPublishedPresellStmt = db.prepare(
   "SELECT * FROM presells WHERE slug = ? AND status = 'published'"
+);
+const listDuplicateSlugsStmt = db.prepare(
+  "SELECT slug FROM presells WHERE slug = ? OR slug LIKE ?"
 );
 const updatePresellStmt = db.prepare(`
   UPDATE presells
@@ -31,6 +66,34 @@ const deletePresellStmt = db.prepare("DELETE FROM presells WHERE id = ?");
 
 function listPresells() {
   return listPresellsStmt.all();
+}
+
+function listPresellCollection({
+  status = null,
+  templateId = null,
+  cursor = null,
+  limit = 20
+} = {}) {
+  const cursorUpdatedAt = cursor && cursor.updatedAt ? String(cursor.updatedAt) : null;
+  const cursorId = cursor && Number.isInteger(cursor.id) ? cursor.id : null;
+  const rows = listPresellCollectionStmt.all(
+    status,
+    status,
+    templateId,
+    templateId,
+    cursorUpdatedAt,
+    cursorUpdatedAt,
+    cursorUpdatedAt,
+    cursorId,
+    limit + 1
+  );
+  const hasMore = rows.length > limit;
+
+  return {
+    items: hasMore ? rows.slice(0, limit) : rows,
+    hasMore,
+    limit
+  };
 }
 
 function getPresellById(id) {
@@ -107,17 +170,25 @@ function duplicatePresell(source, { slug, title }) {
   return getPresellById(result.lastInsertRowid);
 }
 
+function listDuplicateSlugs(baseSlug) {
+  return listDuplicateSlugsStmt
+    .all(baseSlug, `${baseSlug}-%`)
+    .map((row) => String(row.slug || ""));
+}
+
 function deletePresell(id) {
   deletePresellStmt.run(id);
 }
 
 module.exports = {
   listPresells,
+  listPresellCollection,
   getPresellById,
   getPresellBySlug,
   getPublishedPresell,
   updatePresell,
   createPresell,
   duplicatePresell,
+  listDuplicateSlugs,
   deletePresell
 };

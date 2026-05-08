@@ -20,6 +20,7 @@ const {
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
+  deserializePresellListQuery,
   serializePresellListResponse
 } = require("./presells");
 const {
@@ -88,6 +89,7 @@ module.exports = {
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
+  deserializePresellListQuery,
   serializePresellListResponse,
   previewRequestSchema,
   previewResponseSchema,

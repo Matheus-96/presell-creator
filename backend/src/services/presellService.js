@@ -10,6 +10,10 @@ function listPresells() {
   return presellRepository.listPresells();
 }
 
+function listPresellCollection(query) {
+  return presellRepository.listPresellCollection(query);
+}
+
 function getPresellById(id) {
   return presellRepository.getPresellById(id);
 }
@@ -118,20 +122,31 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
 
 function buildDuplicateSlug(slug) {
   const baseSlug = `${String(slug || "presell").replace(/-copia-\d+$|-copia$/, "")}-copia`;
-  let candidate = baseSlug;
-  let index = 2;
+  const existingSlugs = presellRepository.listDuplicateSlugs(baseSlug);
 
-  while (getPresellBySlug(candidate)) {
-    candidate = `${baseSlug}-${index}`;
-    index += 1;
+  if (!existingSlugs.includes(baseSlug)) {
+    return baseSlug;
   }
 
-  return candidate;
+  const basePattern = new RegExp(`^${escapeRegExp(baseSlug)}-(\\d+)$`);
+  const nextIndex = existingSlugs.reduce((highestIndex, candidate) => {
+    const match = candidate.match(basePattern);
+    if (!match) return highestIndex;
+
+    return Math.max(highestIndex, Number(match[1]) || 0);
+  }, 1) + 1;
+
+  return `${baseSlug}-${nextIndex}`;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 module.exports = {
   allowedTemplates,
   listPresells,
+  listPresellCollection,
   getPresellById,
   getPresellBySlug,
   getPublishedPresell,

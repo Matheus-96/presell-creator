@@ -253,26 +253,29 @@ function readMediaReferencePath(reference) {
   );
 }
 
-function serializePresellListResponse(presells, query = {}) {
-  const limit = getPageLimit(query.limit);
-  const cursor = decodeCursor(query.cursor);
-  let items = Array.isArray(presells) ? [...presells] : [];
+function deserializePresellListQuery(query = {}) {
+  const rawCursor = decodeCursor(query.cursor);
+  const cursorId = toInteger(rawCursor && rawCursor.id, null);
+  const templateId = String(query.templateId || "").trim();
 
-  if (query.status && presellStatusValues.includes(query.status)) {
-    items = items.filter((presell) => presell.status === query.status);
-  }
+  return {
+    limit: getPageLimit(query.limit),
+    status: presellStatusValues.includes(query.status) ? query.status : null,
+    templateId: templateId || null,
+    cursor: rawCursor && rawCursor.updatedAt && Number.isInteger(cursorId)
+      ? {
+        updatedAt: String(rawCursor.updatedAt),
+        id: cursorId
+      }
+      : null
+  };
+}
 
-  if (query.templateId) {
-    items = items.filter((presell) => presell.template === query.templateId);
-  }
-
-  if (cursor && cursor.updatedAt && Number.isInteger(cursor.id)) {
-    items = items.filter((presell) => compareCursor(presell, cursor) < 0);
-  }
-
-  const slice = items.slice(0, limit);
-  const hasMore = items.length > slice.length;
-  const lastItem = slice[slice.length - 1];
+function serializePresellListResponse(result = {}) {
+  const items = Array.isArray(result.items) ? result.items : [];
+  const limit = getPageLimit(result.limit);
+  const hasMore = Boolean(result.hasMore);
+  const lastItem = items[items.length - 1];
   const nextCursor = hasMore && lastItem
     ? encodeCursor({
       updatedAt: lastItem.updated_at || null,
@@ -281,22 +284,9 @@ function serializePresellListResponse(presells, query = {}) {
     : null;
 
   return {
-    items: slice.map(serializePresellSummary),
+    items: items.map(serializePresellSummary),
     pageInfo: createPageInfo({ limit, nextCursor, hasMore })
   };
-}
-
-function compareCursor(presell, cursor) {
-  const presellUpdatedAt = String(presell.updated_at || "");
-  const cursorUpdatedAt = String(cursor.updatedAt || "");
-
-  if (presellUpdatedAt < cursorUpdatedAt) return -1;
-  if (presellUpdatedAt > cursorUpdatedAt) return 1;
-
-  const presellId = Number(presell.id);
-  if (presellId < cursor.id) return -1;
-  if (presellId > cursor.id) return 1;
-  return 0;
 }
 
 module.exports = {
@@ -310,5 +300,6 @@ module.exports = {
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
+  deserializePresellListQuery,
   serializePresellListResponse
 };

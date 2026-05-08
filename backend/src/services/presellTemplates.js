@@ -8,7 +8,6 @@ const {
   normalizeTemplateSettings,
   parsePresellTemplateSettings,
   normalizeTemplateFieldValue,
-  validateTemplateFile,
   buildTemplatePreviewContract,
   getTemplatePreviewContracts
 } = require("../templates");
@@ -28,11 +27,13 @@ function getTemplateDefinition(templateId) {
     resolvedTemplateId = "advertorial";
   }
 
-  if (!validateTemplateFile(resolvedTemplateId)) {
-    console.warn(`Template file "${resolvedTemplateId}.ejs" not found in views/presell/`);
+  const manifest = getTemplateManifest(resolvedTemplateId);
+
+  if (!manifest.availability.templateFile) {
+    console.warn(`Template file "${manifest.renderer.fileName}" not found for "${manifest.id}"`);
   }
 
-  return getTemplateManifest(resolvedTemplateId);
+  return manifest;
 }
 
 function getDefaultSettings(templateId) {
@@ -66,7 +67,6 @@ module.exports = {
   parsePresellSettings,
   normalizeFieldValue: normalizeTemplateFieldValue,
   getAvailableTemplates,
-  validateTemplateFile,
   getTemplateRenderer,
   listTemplateRenderers,
   getTemplatePreviewContract: buildTemplatePreviewContract,
