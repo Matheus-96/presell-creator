@@ -9,11 +9,13 @@ fi
 
 REPO_DIR="${REPO_DIR:-/home/pi/presell-creator}"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-feat/refactor}"
-PM2_APP_NAME="${PM2_APP_NAME:-presell-server}"
-BACKEND_ENTRY="${BACKEND_ENTRY:-src/server.js}"
+PM2_APP_NAME="${PM2_APP_NAME:-presell-backend}"
+LEGACY_PM2_APP_NAME="${LEGACY_PM2_APP_NAME:-presell-server}"
+BACKEND_ENTRY="${BACKEND_ENTRY:-backend/src/server.js}"
 ADMIN_FRONTEND_PATH="${ADMIN_FRONTEND_PATH:-/admin-app}"
 LIGHTTPD_DOCROOT="${LIGHTTPD_DOCROOT:-/var/www/html}"
-BACKEND_HEALTHCHECK_URL="${BACKEND_HEALTHCHECK_URL:-http://127.0.0.1:${PORT:-3000}/health}"
+ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
+BACKEND_INTERNAL_HOST="${BACKEND_INTERNAL_HOST:-127.0.0.1}"
 
 if [ "$ADMIN_FRONTEND_PATH" = "/" ]; then
   FRONTEND_TARGET_DIR_DEFAULT="$LIGHTTPD_DOCROOT"
@@ -43,8 +45,35 @@ sync_directory() {
   $SUDO cp -a "$source_dir"/. "$target_dir"/
 }
 
+read_env_file_var() {
+  local key="$1"
+  local env_file="$2"
+
+  if [ ! -f "$env_file" ]; then
+    return 1
+  fi
+
+  bash -lc '
+    set -a
+    source "$1" >/dev/null 2>&1
+    eval "printf %s \"\${$2-}\""
+  ' _ "$env_file" "$key"
+}
+
 echo "📁 Entrando em $REPO_DIR"
 cd "$REPO_DIR"
+
+ENV_BACKEND_PORT="$(read_env_file_var BACKEND_PORT "$ENV_FILE" || true)"
+ENV_PORT="$(read_env_file_var PORT "$ENV_FILE" || true)"
+BACKEND_INTERNAL_PORT="${BACKEND_INTERNAL_PORT:-${BACKEND_PORT:-${ENV_BACKEND_PORT:-${PORT:-${ENV_PORT:-3002}}}}}"
+BACKEND_HEALTHCHECK_URL="${BACKEND_HEALTHCHECK_URL:-http://${BACKEND_INTERNAL_HOST}:${BACKEND_INTERNAL_PORT}/health}"
+
+if ! [[ "$BACKEND_INTERNAL_PORT" =~ ^[1-9][0-9]*$ ]]; then
+  echo "❌ Porta interna do backend inválida: $BACKEND_INTERNAL_PORT"
+  exit 1
+fi
+
+export BACKEND_PORT="${BACKEND_PORT:-$BACKEND_INTERNAL_PORT}"
 
 echo "🔍 Verificando atualizações em origin/$DEPLOY_BRANCH..."
 git fetch origin "$DEPLOY_BRANCH"
@@ -81,16 +110,33 @@ if [ -n "$LIGHTTPD_OWNER" ]; then
 fi
 
 echo "♻️ Reiniciando backend no PM2..."
-if pm2 describe "$PM2_APP_NAME" >/dev/null 2>&1; then
-  pm2 restart "$PM2_APP_NAME" --update-env
-else
-  pm2 start "$BACKEND_ENTRY" --name "$PM2_APP_NAME" --cwd "$REPO_DIR"
+echo "   Processo: $PM2_APP_NAME"
+echo "   Entry: $BACKEND_ENTRY"
+echo "   Porta interna: ${BACKEND_INTERNAL_HOST}:${BACKEND_INTERNAL_PORT}"
+if [ "$PM2_APP_NAME" = "presell-backend" ] && [ "$LEGACY_PM2_APP_NAME" != "$PM2_APP_NAME" ] \
+  && pm2 describe "$LEGACY_PM2_APP_NAME" >/dev/null 2>&1; then
+  echo "🧹 Removendo processo legado do PM2: $LEGACY_PM2_APP_NAME"
+  pm2 delete "$LEGACY_PM2_APP_NAME"
 fi
+
+if pm2 describe "$PM2_APP_NAME" >/dev/null 2>&1; then
+  pm2 delete "$PM2_APP_NAME"
+fi
+
+pm2 start "$BACKEND_ENTRY" --name "$PM2_APP_NAME" --cwd "$REPO_DIR"
 pm2 save
 
 echo "🩺 Validando healthcheck do backend..."
-curl --fail --silent --show-error "$BACKEND_HEALTHCHECK_URL" >/dev/null
+curl \
+  --fail \
+  --silent \
+  --show-error \
+  --retry 15 \
+  --retry-delay 1 \
+  --retry-connrefused \
+  "$BACKEND_HEALTHCHECK_URL" >/dev/null
 
 echo "✅ Deploy concluído"
 echo "   Frontend: $FRONTEND_TARGET_DIR"
 echo "   Backend PM2: $PM2_APP_NAME"
+echo "   Backend healthcheck: $BACKEND_HEALTHCHECK_URL"
