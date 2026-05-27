@@ -2,6 +2,20 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Workflow
+
+Each GitHub issue gets its own branch cut from `feat/refactor`. When done, open a PR targeting `feat/refactor` (not `master`). Never close an issue directly — the merge closes it.
+
+```
+git checkout feat/refactor
+git checkout -b feat/issue-N-short-description
+# implement...
+git push -u origin feat/issue-N-short-description
+gh pr create --base feat/refactor --title "..." --body "Closes #N\n..."
+```
+
+---
+
 ## Commands
 
 This is an npm workspace monorepo. All commands run from the repo root unless noted.

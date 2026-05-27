@@ -1,4 +1,5 @@
 import { appConfig } from '@/config/app-config.ts'
+import { getCsrfToken } from './csrf-store.ts'
 
 type ApiPrimitive = string | number | boolean
 
@@ -155,6 +156,14 @@ export class ApiClient {
 
     if (!headers.has('Accept')) {
       headers.set('Accept', 'application/json, text/plain, text/html')
+    }
+
+    const method = (options.method ?? 'GET').toUpperCase()
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+      const token = getCsrfToken()
+      if (token !== null && !headers.has('x-csrf-token')) {
+        headers.set('x-csrf-token', token)
+      }
     }
 
     const response = await fetch(
