@@ -127,19 +127,15 @@ function getEnv() {
     process.env.TRUST_PROXY,
     sessionCookieSecure === true || sessionCookieSecure === "auto" ? 1 : false
   );
-  const adminFrontendPath = normalizeRoutePath(process.env.ADMIN_FRONTEND_PATH, "/admin-app");
-  const legacyAdminPath = normalizeRoutePath(process.env.LEGACY_ADMIN_PATH, "/admin");
-  const adminEntryPath = adminFrontendPath === "/admin" ? adminFrontendPath : legacyAdminPath;
+  const adminFrontendPath = normalizeRoutePath(process.env.ADMIN_FRONTEND_PATH, "/admin");
 
   return {
     adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || "",
-    adminEntryPath,
     adminFrontendPath,
     adminUser: process.env.ADMIN_USER || "admin",
     backendPort: parsePort(process.env.BACKEND_PORT || process.env.PORT, 3002),
     compatibilityPort: parsePort(process.env.PORT, 3001),
     forceHttps,
-    legacyAdminPath,
     nodeEnv,
     sessionSecret: process.env.SESSION_SECRET || "development-secret",
     sessionCookieSameSite,
