@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 const proxiedPaths = ['/api', '/admin', '/p', '/go', '/media', '/health', '/static']
 
@@ -32,7 +33,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: normalizeBasePath(env.ADMIN_FRONTEND_PATH),
     envDir,
-    plugins: [react()],
+    plugins: [tailwindcss(), react()],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
