@@ -1,5 +1,3 @@
-const { getAdminPathConfig } = require("../services/adminPathService");
-
 const loginRequestSchema = {
   type: "object",
   required: ["username", "password"],
@@ -45,7 +43,6 @@ const sessionSchema = {
 
 function serializeAdminSession({ authenticated, username, csrfToken }) {
   const isAuthenticated = Boolean(authenticated);
-  const { buildLegacyAdminPath } = getAdminPathConfig();
 
   return {
     authenticated: isAuthenticated,
@@ -64,8 +61,8 @@ function serializeAdminSession({ authenticated, username, csrfToken }) {
       : [],
     links: {
       session: "/api/admin/session",
-      login: buildLegacyAdminPath("/login"),
-      logout: buildLegacyAdminPath("/logout"),
+      login: "/api/admin/login",
+      logout: "/api/admin/logout",
       contracts: "/api/admin/contracts",
       templates: "/api/admin/templates",
       previews: "/api/admin/previews",

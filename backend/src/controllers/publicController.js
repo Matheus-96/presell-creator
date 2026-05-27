@@ -8,11 +8,10 @@ const {
   renderPresellPage,
   renderPresellNotFound
 } = require("./presellViewController");
-const { getAdminPathConfig } = require("../services/adminPathService");
+const { getEnv } = require("../config/env");
 
 function redirectToAdmin(req, res) {
-  const { adminEntryPath } = getAdminPathConfig();
-  res.redirect(adminEntryPath);
+  res.redirect(getEnv().adminFrontendPath);
 }
 
 function getPublishedPresellPage(req, res) {

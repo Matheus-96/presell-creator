@@ -1,4 +1,4 @@
-const { getAdminPathConfig } = require("../services/adminPathService");
+const { getEnv } = require("../config/env");
 const { hasBuiltAdminFrontend } = require("../routes/adminFrontend");
 
 function getScaffoldStatus(req, res) {
@@ -10,14 +10,12 @@ function getScaffoldStatus(req, res) {
 }
 
 function getHealth(req, res) {
-  const { adminEntryPath, adminFrontendPath, legacyAdminPath } = getAdminPathConfig();
+  const { adminFrontendPath } = getEnv();
 
   res.json({
     admin: {
-      entryPath: adminEntryPath,
       frontendBuilt: hasBuiltAdminFrontend(),
-      frontendPath: adminFrontendPath,
-      legacyPath: legacyAdminPath
+      frontendPath: adminFrontendPath
     },
     ok: true,
     service: "presell-backend"
