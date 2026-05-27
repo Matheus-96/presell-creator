@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 import type { AuthMode } from '@/config/app-config.ts'
-import type { AdminSession, LoginPayload } from '@/lib/api/admin-api.ts'
+import type { AdminSession, LoginPayload } from '@/features/auth/auth-api.ts'
 
 export type AuthStatus =
   | 'loading'

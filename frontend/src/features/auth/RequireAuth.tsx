@@ -1,6 +1,9 @@
+import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
+import { ADMIN_AUTH_REQUIRED_EVENT } from '@/lib/api/api-client.ts'
 import { useAuth } from '@/features/auth/use-auth.ts'
 
 function getLegacyLoginUrl() {
@@ -10,21 +13,18 @@ function getLegacyLoginUrl() {
 export function RequireAuth() {
   const auth = useAuth()
   const location = useLocation()
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    function handle() {
+      void queryClient.invalidateQueries({ queryKey: ['session'] })
+    }
+    window.addEventListener(ADMIN_AUTH_REQUIRED_EVENT, handle)
+    return () => window.removeEventListener(ADMIN_AUTH_REQUIRED_EVENT, handle)
+  }, [queryClient])
 
   if (auth.status === 'loading') {
-    return (
-      <div className="page page--centered">
-        <SectionCard
-          eyebrow="Auth boundary"
-          title="Checking admin session"
-          description={auth.message}
-        >
-          <p className="page-description">
-            Expected session path: <strong>{appConfig.auth.sessionPath}</strong>
-          </p>
-        </SectionCard>
-      </div>
-    )
+    return null
   }
 
   if (auth.status === 'error') {
@@ -39,9 +39,7 @@ export function RequireAuth() {
             <button
               className="button-link"
               type="button"
-              onClick={() => {
-                void auth.refresh()
-              }}
+              onClick={() => { void auth.refresh() }}
             >
               Retry session check
             </button>
