@@ -48,6 +48,7 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    resetField,
     formState: { isSubmitting },
   } = useForm<LoginFields>({ resolver: zodResolver(loginSchema) })
 
@@ -60,12 +61,13 @@ export function LoginPage() {
       await auth.login(data)
       navigate(redirectTo, { replace: true })
     } catch (err) {
+      resetField('password')
       toast.error(err instanceof Error ? err.message : 'Falha ao autenticar.')
     }
   }
 
   return (
-    <div className="page page--centered auth-page">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Presell Creator</CardTitle>
