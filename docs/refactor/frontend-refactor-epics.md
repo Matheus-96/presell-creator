@@ -19,18 +19,18 @@ Decisões arquiteturais tomadas em sessão de planejamento (2026-05-27).
 
 ---
 
-## Epic 1 — Foundation ✅ CONCLUÍDO (2026-05-27)
+## Epic 1 — Foundation
 
-Issues: [#1](https://github.com/Matheus-96/presell-creator/issues/1) · [#2](https://github.com/Matheus-96/presell-creator/issues/2) | PRs: [#3](https://github.com/Matheus-96/presell-creator/pull/3) · [#4](https://github.com/Matheus-96/presell-creator/pull/4)
+Instalar e configurar todas as dependências antes de tocar em qualquer feature.
 
-- [x] Ativar `strict: true` no `tsconfig.app.json` (zero erros no código existente)
-- [x] Instalar e configurar Tailwind CSS via `@tailwindcss/vite`
-- [x] Instalar e configurar shadcn/ui (`components.json` + `Button` + `cn()` utility)
-- [x] Instalar Sonner e adicionar `<Toaster>` no `AppProviders`
-- [x] Instalar TanStack Query e adicionar `QueryClientProvider`
-- [x] Instalar React Hook Form + Zod
-- [x] Instalar e configurar Vitest (jsdom + `passWithNoTests`)
-- [x] Instalar e configurar Playwright (aponta para `localhost:5173`)
+- [ ] Ativar `strict: true` no `tsconfig.json` e corrigir erros resultantes
+- [ ] Instalar e configurar Tailwind CSS
+- [ ] Instalar e configurar shadcn/ui (tema base)
+- [ ] Instalar Sonner e adicionar `<Toaster>` no `AppProviders`
+- [ ] Instalar TanStack Query e adicionar `QueryClientProvider`
+- [ ] Instalar React Hook Form + Zod
+- [ ] Instalar e configurar Vitest
+- [ ] Instalar e configurar Playwright
 
 ---
 
