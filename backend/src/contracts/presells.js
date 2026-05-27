@@ -8,7 +8,6 @@ const {
   toInteger
 } = require("./shared");
 const { mediaReferenceSchema, serializeMediaReference } = require("./uploads");
-const { getAdminPathConfig } = require("../services/adminPathService");
 const { normalizeMediaPath } = require("../services/mediaPathService");
 
 const presellStatusValues = ["draft", "published"];
@@ -115,8 +114,7 @@ const presellDetailSchema = {
       type: "object",
       properties: {
         publicPage: { type: "string" },
-        redirect: { type: "string" },
-        adminPreview: { type: "string" }
+        redirect: { type: "string" }
       }
     }
   }
@@ -168,8 +166,6 @@ function serializePresellSummary(presell) {
 }
 
 function serializePresellDetail(presell) {
-  const { buildLegacyAdminPath } = getAdminPathConfig();
-
   return {
     ...serializePresellSummary(presell),
     body: String(presell.body || ""),
@@ -177,10 +173,7 @@ function serializePresellDetail(presell) {
     settings: parsePresellSettings(presell),
     urls: {
       publicPage: `/p/${encodeURIComponent(presell.slug || "")}`,
-      redirect: `/go/${encodeURIComponent(presell.slug || "")}`,
-      adminPreview: buildLegacyAdminPath(
-        `/presells/${encodeURIComponent(String(presell.id || ""))}/preview`
-      )
+      redirect: `/go/${encodeURIComponent(presell.slug || "")}`
     }
   };
 }

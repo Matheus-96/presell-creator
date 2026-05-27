@@ -1,11 +1,9 @@
 const crypto = require("crypto");
 const { buildApiError } = require("../contracts/shared");
-const { getAdminPathConfig } = require("../services/adminPathService");
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
-  const { buildLegacyAdminPath } = getAdminPathConfig();
-  res.redirect(buildLegacyAdminPath("/login"));
+  res.status(401).json(buildApiError("auth_required", "Authentication is required."));
 }
 
 function requireApiAuth(req, res, next) {

@@ -12,7 +12,6 @@ const { SQLiteSessionStore } = require("../db/sessionStore");
 const errorHandler = require("../middleware/errorHandler");
 const notFound = require("../middleware/notFound");
 const { buildMediaUrl } = require("../services/mediaPathService");
-const adminRoutes = require("../routes/admin");
 const apiAdminRoutes = require("../routes/apiAdmin");
 const apiPublicRoutes = require("../routes/apiPublic");
 const {
@@ -21,10 +20,10 @@ const {
 } = require("../routes/adminFrontend");
 const assetRoutes = require("../routes/assets");
 const publicRoutes = require("../routes/public");
-const { getAdminPathConfig } = require("../services/adminPathService");
 
 function createApp() {
   const {
+    adminFrontendPath,
     sessionCookieSameSite,
     sessionCookieSecure,
     sessionSecret,
@@ -34,7 +33,6 @@ function createApp() {
   migrate();
 
   const app = express();
-  const adminPathConfig = getAdminPathConfig();
   const adminFrontendBuilt = hasBuiltAdminFrontend();
 
   app.set("view engine", "ejs");
@@ -44,12 +42,6 @@ function createApp() {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\r?\n/g, "<br>");
-  app.locals.adminEntryPath = adminPathConfig.adminEntryPath;
-  app.locals.adminFrontendBuilt = adminFrontendBuilt;
-  app.locals.adminFrontendPath = adminPathConfig.adminFrontendPath;
-  app.locals.adminFrontendUrl = adminPathConfig.buildAdminFrontendPath;
-  app.locals.adminUrl = adminPathConfig.buildLegacyAdminPath;
-  app.locals.legacyAdminPath = adminPathConfig.legacyAdminPath;
   app.locals.mediaUrl = buildMediaUrl;
 
   app.use(express.urlencoded({ extended: true }));
@@ -83,10 +75,9 @@ function createApp() {
   }));
   app.use("/media", assetRoutes);
   if (adminFrontendBuilt) {
-    app.use(adminPathConfig.adminFrontendPath, createAdminFrontendRouter());
+    app.use(adminFrontendPath, createAdminFrontendRouter());
   }
   app.use("/", publicRoutes);
-  app.use(adminPathConfig.legacyAdminPath, adminRoutes);
   app.use("/api/admin", apiAdminRoutes);
   app.use("/api/public", apiPublicRoutes);
   app.get("/api/admin/summary", getAdminSummary);
