@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
-import { adminApi, type TemplateMetadata } from '@/lib/api/admin-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
+import type { TemplateMetadata } from '@/features/presells/types.ts'
 
 type TemplateState = {
   isLoading: boolean
@@ -26,7 +27,7 @@ export function TemplatesPage() {
 
     async function loadTemplates() {
       try {
-        const response = await adminApi.listTemplates()
+        const response = await listTemplates()
         if (!isCancelled) {
           setState({ isLoading: false, error: null, items: response.items })
         }

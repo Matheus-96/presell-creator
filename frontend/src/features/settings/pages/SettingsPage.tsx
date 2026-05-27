@@ -4,7 +4,7 @@ import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { appConfig } from '@/config/app-config.ts'
 import { useAuth } from '@/features/auth/use-auth.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
-import { adminApi, type AdminContract } from '@/lib/api/admin-api.ts'
+import { getContracts, type AdminContract } from '@/features/settings/lib/settings-api.ts'
 
 type ContractState = {
   isLoading: boolean
@@ -29,7 +29,7 @@ export function SettingsPage() {
 
     async function loadContract() {
       try {
-        const contract = await adminApi.getContracts()
+        const contract = await getContracts()
         if (!isCancelled) {
           setState({ isLoading: false, error: null, contract })
         }

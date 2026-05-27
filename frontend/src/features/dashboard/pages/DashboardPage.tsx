@@ -3,13 +3,11 @@ import { Link } from 'react-router-dom'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
-import {
-  adminApi,
-  type AnalyticsOverview,
-  type AnalyticsSummary,
-  type PresellSummary,
-  type TemplateMetadata,
-} from '@/lib/api/admin-api.ts'
+import { getAnalyticsOverview, getAnalyticsSummary } from '@/features/analytics/lib/analytics-api.ts'
+import type { AnalyticsOverview, AnalyticsSummary } from '@/features/analytics/types.ts'
+import { listPresells } from '@/features/presells/lib/presells-api.ts'
+import type { PresellSummary, TemplateMetadata } from '@/features/presells/types.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 import {
   formatCompactNumber,
   formatDateTime,
@@ -49,10 +47,10 @@ export function DashboardPage() {
 
       try {
         const [summary, overview, presellsResponse, templatesResponse] = await Promise.all([
-          adminApi.getAnalyticsSummary(),
-          adminApi.getAnalyticsOverview(),
-          adminApi.listPresells({ limit: 6 }),
-          adminApi.listTemplates(),
+          getAnalyticsSummary(),
+          getAnalyticsOverview(),
+          listPresells(6),
+          listTemplates(),
         ])
 
         if (isCancelled) {

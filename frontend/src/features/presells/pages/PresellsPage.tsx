@@ -26,7 +26,6 @@ import {
   createPresell,
   deletePresell,
   duplicatePresell,
-  fetchWorkspaceBootstrap,
   getApiErrorMessage,
   getPresell,
   listPresells,
@@ -64,9 +63,6 @@ function createInitialWorkspaceState(): WorkspaceState {
   }
 }
 
-function resolveListLimit(contract: AdminApiContract | null) {
-  return contract?.pagination?.maxLimit ?? 100
-}
 
 function buildLegacyLoginUrl(session: AdminSession | null) {
   return session?.links.login || joinConfigUrl(appConfig.legacyAdminUrl, '/login')
@@ -179,19 +175,14 @@ export function PresellsPage() {
     return createPresellSnapshot(draft) !== initialSnapshot
   }, [draft, initialSnapshot])
 
-  const refreshPresellCollection = useCallback(
-    async (contract: AdminApiContract, session: AdminSession) => {
-      const response = await listPresells(resolveListLimit(contract))
-      setWorkspace((current) => ({
-        ...current,
-        contract,
-        presells: response.items,
-        session,
-      }))
-      return response.items
-    },
-    [],
-  )
+  const refreshPresellCollection = useCallback(async () => {
+    const response = await listPresells(100)
+    setWorkspace((current) => ({
+      ...current,
+      presells: response.items,
+    }))
+    return response.items
+  }, [])
 
   const reloadWorkspace = useCallback(async () => {
     setWorkspace((current) => ({
@@ -201,13 +192,13 @@ export function PresellsPage() {
     }))
 
     try {
-      const { contract, session } = await fetchWorkspaceBootstrap()
+      const session = auth.session
 
-      if (!session.authenticated) {
+      if (!session?.authenticated) {
         setWorkspace({
           status: 'ready',
           error: null,
-          contract,
+          contract: null,
           session,
           templates: [],
           presells: [],
@@ -217,13 +208,13 @@ export function PresellsPage() {
 
       const [templateCatalog, presellList] = await Promise.all([
         listTemplates(),
-        listPresells(resolveListLimit(contract)),
+        listPresells(100),
       ])
 
       setWorkspace({
         status: 'ready',
         error: null,
-        contract,
+        contract: null,
         session,
         templates: templateCatalog.items,
         presells: presellList.items,
@@ -238,61 +229,54 @@ export function PresellsPage() {
         presells: [],
       })
     }
-  }, [])
+  }, [auth.session])
 
   useEffect(() => {
     let ignore = false
+    const session = auth.session
 
     async function bootstrapWorkspace() {
       try {
-        const { contract, session } = await fetchWorkspaceBootstrap()
-
-        if (ignore) {
-          return
-        }
-
-        if (!session.authenticated) {
-          setWorkspace({
-            status: 'ready',
-            error: null,
-            contract,
-            session,
-            templates: [],
-            presells: [],
-          })
+        if (!session?.authenticated) {
+          if (!ignore) {
+            setWorkspace({
+              status: 'ready',
+              error: null,
+              contract: null,
+              session,
+              templates: [],
+              presells: [],
+            })
+          }
           return
         }
 
         const [templateCatalog, presellList] = await Promise.all([
           listTemplates(),
-          listPresells(resolveListLimit(contract)),
+          listPresells(100),
         ])
 
-        if (ignore) {
-          return
+        if (!ignore) {
+          setWorkspace({
+            status: 'ready',
+            error: null,
+            contract: null,
+            session,
+            templates: templateCatalog.items,
+            presells: presellList.items,
+          })
         }
-
-        setWorkspace({
-          status: 'ready',
-          error: null,
-          contract,
-          session,
-          templates: templateCatalog.items,
-          presells: presellList.items,
-        })
       } catch (error) {
-        if (ignore) {
-          return
+        if (!ignore) {
+          setWorkspace({
+            status: 'error',
+            error: getApiErrorMessage(error, 'Unable to load the presell workspace.'),
+            contract: null,
+            session: null,
+            templates: [],
+            presells: [],
+          })
         }
-
-        setWorkspace({
-          status: 'error',
-          error: getApiErrorMessage(error, 'Unable to load the presell workspace.'),
-          contract: null,
-          session: null,
-          templates: [],
-          presells: [],
-        })
       }
     }
 
@@ -301,7 +285,7 @@ export function PresellsPage() {
     return () => {
       ignore = true
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (workspace.status !== 'ready' || !workspace.session?.authenticated) {
@@ -402,7 +386,7 @@ export function PresellsPage() {
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault()
 
-      if (!draft || !workspace.contract || !workspace.session?.authenticated) {
+      if (!draft || !workspace.session?.authenticated) {
         return
       }
 
@@ -412,13 +396,8 @@ export function PresellsPage() {
       try {
         const payload = buildPresellPayload(draft, selectedTemplate)
         const savedPresell = draft.id
-          ? await updatePresell(
-            draft.id,
-            payload,
-            workspace.contract,
-            workspace.session.csrfToken,
-          )
-          : await createPresell(payload, workspace.contract, workspace.session.csrfToken)
+          ? await updatePresell(draft.id, payload)
+          : await createPresell(payload)
 
         const nextForm = createPresellForm(
           savedPresell,
@@ -437,7 +416,7 @@ export function PresellsPage() {
               : 'The new presell is now available in the collection.',
         })
 
-        await refreshPresellCollection(workspace.contract, workspace.session)
+        await refreshPresellCollection()
       } catch (error) {
         setNotice({
           tone: 'warning',
@@ -448,11 +427,11 @@ export function PresellsPage() {
         setIsSaving(false)
       }
     },
-    [draft, refreshPresellCollection, selectedTemplate, workspace.contract, workspace.session, workspace.templates],
+    [draft, refreshPresellCollection, selectedTemplate, workspace.session, workspace.templates],
   )
 
   const handleDuplicate = useCallback(async () => {
-    if (!draft?.id || !workspace.contract || !workspace.session?.authenticated) {
+    if (!draft?.id || !workspace.session?.authenticated) {
       return
     }
 
@@ -460,11 +439,7 @@ export function PresellsPage() {
     setNotice(null)
 
     try {
-      const duplicatedPresell = await duplicatePresell(
-        draft.id,
-        workspace.contract,
-        workspace.session.csrfToken,
-      )
+      const duplicatedPresell = await duplicatePresell(draft.id)
 
       setIsCreating(false)
       setActivePresellId(duplicatedPresell.id)
@@ -473,7 +448,7 @@ export function PresellsPage() {
         description: 'A copy was created and opened in the editor.',
       })
 
-      await refreshPresellCollection(workspace.contract, workspace.session)
+      await refreshPresellCollection()
     } catch (error) {
       setNotice({
         tone: 'warning',
@@ -483,10 +458,10 @@ export function PresellsPage() {
     } finally {
       setIsDuplicating(false)
     }
-  }, [draft, refreshPresellCollection, workspace.contract, workspace.session])
+  }, [draft, refreshPresellCollection, workspace.session])
 
   const handleDelete = useCallback(async () => {
-    if (!draft?.id || !workspace.contract || !workspace.session?.authenticated) {
+    if (!draft?.id || !workspace.session?.authenticated) {
       return
     }
 
@@ -498,8 +473,8 @@ export function PresellsPage() {
     setNotice(null)
 
     try {
-      await deletePresell(draft.id, workspace.contract, workspace.session.csrfToken)
-      const updatedCollection = await refreshPresellCollection(workspace.contract, workspace.session)
+      await deletePresell(draft.id)
+      const updatedCollection = await refreshPresellCollection()
 
       setNotice({
         title: 'Presell deleted',
@@ -526,7 +501,7 @@ export function PresellsPage() {
     } finally {
       setIsDeleting(false)
     }
-  }, [draft, refreshPresellCollection, workspace.contract, workspace.session, workspace.templates])
+  }, [draft, refreshPresellCollection, workspace.session, workspace.templates])
 
   async function handleCopyPublicLink() {
     const publicPageUrl = draft?.urls?.publicPage
@@ -726,8 +701,6 @@ export function PresellsPage() {
           ) : null}
 
           <PresellLivePreview
-            contract={workspace.contract}
-            csrfToken={workspace.session.csrfToken}
             detailStatus={detailStatus}
             draft={draft}
             highlightSelector={previewHighlightSelector}
