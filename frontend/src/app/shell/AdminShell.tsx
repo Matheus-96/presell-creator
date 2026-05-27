@@ -1,54 +1,18 @@
-import { Suspense, useMemo, useState } from 'react'
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { adminRoutes } from '@/app/routes/admin-routes.tsx'
-import { SectionCard } from '@/components/ui/SectionCard.tsx'
-import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
-import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
+import { Button } from '@/components/ui/button.tsx'
+import { appConfig } from '@/config/app-config.ts'
 import { useAuth } from '@/features/auth/use-auth.ts'
-
-function getNavLinkClassName(isActive: boolean) {
-  return isActive
-    ? 'admin-shell__nav-link admin-shell__nav-link--active'
-    : 'admin-shell__nav-link'
-}
-
-function getLegacyLoginUrl() {
-  return joinConfigUrl(appConfig.legacyAdminUrl, '/login')
-}
-
-function AdminRouteFallback() {
-  return (
-    <div className="page">
-      <SectionCard
-        eyebrow="Loading section"
-        title="Preparing the admin workspace"
-        description="Fetching the selected admin bundle without interrupting the current shell."
-      >
-        <p className="page-description">The selected section will be ready in a moment.</p>
-      </SectionCard>
-    </div>
-  )
-}
+import { cn } from '@/lib/utils.ts'
 
 export function AdminShell() {
   const auth = useAuth()
-  const location = useLocation()
   const navigate = useNavigate()
   const [isSigningOut, setIsSigningOut] = useState(false)
 
-  const activeRoute = useMemo(
-    () =>
-      adminRoutes.find((route) =>
-        route.to === '/'
-          ? location.pathname === '/'
-          : location.pathname === route.to || location.pathname.startsWith(`${route.to}/`),
-      ) ?? adminRoutes[0],
-    [location.pathname],
-  )
-
   async function handleSignOut() {
     setIsSigningOut(true)
-
     try {
       await auth.logout()
       navigate('/login', { replace: true })
@@ -58,106 +22,49 @@ export function AdminShell() {
   }
 
   return (
-    <div className="admin-shell">
-      <aside className="admin-shell__sidebar">
-        <div className="admin-shell__brand-block">
-          <span className="tag">Admin shell</span>
-          <h1>{appConfig.appName}</h1>
-          <p>
-            Live auth, navigation, listings, and analytics now sit on top of the
-            split backend without pulling the editor into this slice.
-          </p>
+    <div className="flex flex-col h-dvh overflow-hidden">
+      <nav className="flex items-center h-14 px-6 border-b border-slate-200/70 bg-white/90 backdrop-blur-sm shrink-0 gap-0">
+        <div className="flex items-center gap-2 mr-5 shrink-0">
+          <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-400 shrink-0" aria-hidden="true" />
+          <span className="text-[0.95rem] font-bold text-slate-800">{appConfig.appName}</span>
         </div>
 
-        <section className="admin-shell__sidebar-card admin-shell__sidebar-card--highlight">
-          <p className="eyebrow">Signed in</p>
-          <h2>{auth.session?.user?.username ?? 'Admin session'}</h2>
-          <p>{auth.message}</p>
-          <ul className="list list--compact admin-shell__capabilities">
-            {(auth.session?.capabilities ?? []).slice(0, 4).map((capability) => (
-              <li key={capability}>{capability}</li>
-            ))}
-          </ul>
-        </section>
-
-        <nav aria-label="Admin sections" className="admin-shell__nav">
-          {adminRoutes.map((item) => (
-            <NavLink
-              key={item.id}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) => getNavLinkClassName(isActive)}
-            >
-              <span className="admin-shell__nav-label">{item.label}</span>
-              <span className="admin-shell__nav-description">{item.description}</span>
-            </NavLink>
+        <ul className="flex items-center gap-1 flex-1 list-none m-0 p-0">
+          {adminRoutes.map((route) => (
+            <li key={route.id}>
+              <NavLink
+                to={route.to}
+                end={route.to === '/'}
+                aria-label={route.label}
+                className={({ isActive }) =>
+                  cn(
+                    'inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-indigo-100/80 text-indigo-800 font-semibold border border-indigo-200/60'
+                      : 'text-slate-500 hover:bg-indigo-50 hover:text-indigo-800 border border-transparent',
+                  )
+                }
+              >
+                {route.label}
+              </NavLink>
+            </li>
           ))}
-        </nav>
+        </ul>
 
-        <div className="admin-shell__sidebar-card">
-          <h2>Runtime</h2>
-          <p>
-            API requests use <strong>{appConfig.apiBaseUrl}</strong> and inherit the
-            backend session cookie automatically.
-          </p>
-          <div className="button-row">
-            <button
-              className="button-link button-link--secondary"
-              type="button"
-              onClick={() => {
-                void auth.refresh()
-              }}
-            >
-              Refresh session
-            </button>
-            {appConfig.legacyAdminUrl !== appConfig.adminBaseUrl ? (
-              <a className="button-link button-link--secondary" href={getLegacyLoginUrl()}>
-                Legacy admin
-              </a>
-            ) : null}
-          </div>
+        <div className="flex items-center gap-3 ml-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => void handleSignOut()}
+            disabled={isSigningOut}
+          >
+            {isSigningOut ? 'Signing out…' : 'Sign out'}
+          </Button>
         </div>
-      </aside>
+      </nav>
 
-      <main className="admin-shell__content">
-        <header className="admin-shell__topbar">
-          <div>
-            <p className="eyebrow">{activeRoute.label}</p>
-            <h2>{activeRoute.description}</h2>
-          </div>
-
-          <div className="button-row">
-            <button
-              className="button-link button-link--secondary"
-              type="button"
-              onClick={() => {
-                void auth.refresh()
-              }}
-            >
-              Refresh data
-            </button>
-            <button className="button-link" type="button" onClick={() => void handleSignOut()}>
-              {isSigningOut ? 'Signing out…' : 'Sign out'}
-            </button>
-          </div>
-        </header>
-
-        <div className="admin-shell__status">
-          <StatusBanner
-            tone={auth.messageTone}
-            title="Admin session is active"
-            description="Protected routes are enforced, and the frontend can bootstrap links, CSRF, and capabilities from the backend session endpoint."
-            meta={[
-              `Environment: ${appConfig.environment}`,
-              `API base: ${appConfig.apiBaseUrl}`,
-              `CSRF token: ${auth.session?.csrfToken ? 'available' : 'missing'}`,
-            ]}
-          />
-        </div>
-
-        <Suspense fallback={<AdminRouteFallback />}>
-          <Outlet />
-        </Suspense>
+      <main className="flex-1 overflow-y-auto min-w-0">
+        <Outlet />
       </main>
     </div>
   )
