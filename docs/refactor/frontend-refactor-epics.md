@@ -68,13 +68,29 @@ Eliminar duplicação, centralizar HTTP e garantir auth em toda mutação.
 
 ## Epic 3 — Auth Feature
 
-Simplificar o `AuthProvider` de 293 linhas.
+Nota: `AuthProvider` (migration para React Query) e `RequireAuth` (spinner + invalidateQueries) são cobertos pelo **Epic 2.2 (issue #6)**. Este épico foca no toast de sessão expirada e na refatoração da `LoginPage`.
 
-- [ ] Migrar `getSession` para React Query (`useQuery`)
-- [ ] Reduzir `AuthProvider` para gerenciar apenas estado derivado da query
-- [ ] Implementar redirect automático para `/login` ao detectar `ADMIN_AUTH_REQUIRED_EVENT`
-- [ ] Toast Sonner para sessão expirada
-- [ ] Remover `useReducer` manual — estado vem da query
+### Decisões arquiteturais (2026-05-27)
+
+| Decisão | Escolha |
+|---|---|
+| Estilo da LoginPage | shadcn/ui — `Card`, `Input`, `Label`, `Button` |
+| Form state | React Hook Form + Zod (schema: username required, password required) |
+| Feedback de erro de login | Toast Sonner (`toast.error(...)`) — remove `StatusBanner` da LoginPage |
+| Toast de sessão expirada | `toast.warning("Sua sessão expirou...")` no event handler do `RequireAuth`, antes do redirect |
+| Botão "Refresh session" | Removido — sem UX real, artefato de dev |
+| Heading | "Presell Creator" — remove "React admin shell" genérico |
+| Link do legacy admin | Removido na LoginPage (antecipa Epic 4) |
+
+### Tasks
+
+- [ ] Reescrever `LoginPage.tsx` com shadcn/ui (`Card`, `Input`, `Label`, `Button`)
+- [ ] Migrar form para React Hook Form + Zod (schema: username + password required)
+- [ ] Substituir `StatusBanner` por `toast.error()` no erro de login
+- [ ] Adicionar `toast.warning("Sua sessão expirou. Faça login novamente.")` no `RequireAuth` antes de invalidar a query
+- [ ] Remover botão "Refresh session"
+- [ ] Substituir heading "React admin shell" por "Presell Creator"
+- [ ] Remover link e condicional do legacy admin da LoginPage
 
 ---
 
