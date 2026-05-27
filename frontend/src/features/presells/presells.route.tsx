@@ -6,12 +6,12 @@ import {
 export const presellsRoute = {
   id: 'presells',
   label: 'Presells',
-  description: 'Browse the collection and open the CRUD editor.',
+  description: 'Browse, search, and filter the presell collection.',
   to: '/presells',
   path: 'presells',
   element: createLazyAdminRouteElement(async () => {
-    const module = await import('@/features/presells/pages/PresellsPage.tsx')
+    const module = await import('@/features/presells/pages/PresellListPage.tsx')
 
-    return { default: module.PresellsPage }
+    return { default: module.PresellListPage }
   }),
 } satisfies AdminRouteDefinition
