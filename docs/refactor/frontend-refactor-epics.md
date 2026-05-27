@@ -172,3 +172,4 @@ Rede de segurança antes de considerar o refactor concluído.
 ## Fases Futuras (fora deste refactor)
 
 - **Analytics de visitante**: tempo na presell, tempo de carregamento, pageviews. Backend já tem `analyticsRepository.js` como base.
+- **Upload de mídia**: substituir inputs de texto (`heroImageFileName`, `backgroundImageFileName`) por file picker com upload real. Requer endpoints de upload no backend (`/api/admin/uploads`) e integração com `uploadRepository.js` já existente.
