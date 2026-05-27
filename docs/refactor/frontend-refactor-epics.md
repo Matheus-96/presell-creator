@@ -38,13 +38,31 @@ Issues: [#1](https://github.com/Matheus-96/presell-creator/issues/1) · [#2](htt
 
 Eliminar duplicação, centralizar HTTP e garantir auth em toda mutação.
 
-- [ ] Refatorar `api-client.ts`: CSRF header injetado automaticamente em toda mutação, redirect automático no 401
-- [ ] Criar `features/auth/auth-api.ts` (session, login, logout) — absorve `admin-api.ts`
-- [ ] Criar `features/presells/lib/presells-api.ts` limpo (sem overlap com `admin-api.ts`)
+### Decisões arquiteturais (2026-05-27)
+
+| Decisão | Escolha |
+|---|---|
+| Injeção de CSRF | Token store global (`csrf-store.ts`: `getCsrfToken`/`setCsrfToken`) |
+| Header CSRF | `x-csrf-token` hardcoded no `api-client.ts` — não lê mais do contrato |
+| Quem atualiza o store | `AuthProvider` chama `setCsrfToken` após cada session check bem-sucedido |
+| CSRF retry em `csrf_invalid` | Removido — 401 (`auth_required`) já cobre expiração de sessão |
+| Fetch do contrato (`/admin/contracts`) | Removido do frontend — endpoint existe no backend, mas não é consumido |
+| Tipos | Feature-owned: `AdminSession`/`LoginPayload` em `auth-api.ts`, presell types em `features/presells/types.ts` |
+| Assinaturas das funções de mutação | `contract` e `csrfToken` removidos dos parâmetros — injeção automática via store |
+| `PresellsPage.tsx` no Epic 2 | Atualizado para remover threading de CSRF (god component permanece, apenas limpeza de params) |
+
+### Tasks
+
+- [ ] Criar `src/lib/api/csrf-store.ts` (`getCsrfToken` / `setCsrfToken`)
+- [ ] Refatorar `api-client.ts`: injeta `x-csrf-token` automaticamente em POST/PUT/PATCH/DELETE via store; dispara `invalidateQueries(['session'])` no 401 via store de queryClient
+- [ ] Criar `features/auth/auth-api.ts` (getSession, createSession, deleteSession) com tipos `AdminSession` e `LoginPayload`
+- [ ] Migrar `AuthProvider` para React Query: `useQuery(['session'])` + `useMutation` para login/logout; `AuthProvider` chama `setCsrfToken` após session bem-sucedida; remove `useReducer`, `executeSessionMutation` e event listener manual
+- [ ] Atualizar `RequireAuth`: spinner simples no loading; event listener `ADMIN_AUTH_REQUIRED_EVENT` chama `queryClient.invalidateQueries(['session'])` direto no componente
+- [ ] Limpar `features/presells/lib/presells-api.ts`: remover parâmetros `contract`/`csrfToken`, remover `fetchWorkspaceBootstrap`
 - [ ] Criar `features/templates/lib/templates-api.ts`
 - [ ] Criar `features/analytics/lib/analytics-api.ts`
-- [ ] Remover `lib/api/admin-api.ts` (substituído pelas de feature)
-- [ ] Auditar e reforçar `RequireAuth` — garantir que nenhuma rota protegida passa sem sessão válida
+- [ ] Atualizar `PresellsPage.tsx`: remover threading de `contract` e `csrfToken` nas chamadas de mutação
+- [ ] Remover `lib/api/admin-api.ts`
 
 ---
 
