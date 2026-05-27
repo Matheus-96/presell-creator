@@ -1,9 +1,22 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
-import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button.tsx'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card.tsx'
+import { Input } from '@/components/ui/input.tsx'
+import { Label } from '@/components/ui/label.tsx'
 import { useAuth } from '@/features/auth/use-auth.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
+
+const loginSchema = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+})
+
+type LoginFields = z.infer<typeof loginSchema>
 
 type LocationState = {
   from?: {
@@ -20,124 +33,73 @@ function getRedirectTarget(state: LocationState | null) {
   return `${pathname}${search}${hash}`
 }
 
-function getLegacyLoginUrl() {
-  return joinConfigUrl(appConfig.legacyAdminUrl, '/login')
-}
-
 export function LoginPage() {
   useDocumentTitle('Sign in')
 
   const auth = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const redirectTo = useMemo(
     () => getRedirectTarget((location.state as LocationState | null) ?? null),
     [location.state],
   )
 
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<LoginFields>({ resolver: zodResolver(loginSchema) })
+
   if (auth.status === 'authenticated') {
     return <Navigate replace to={redirectTo} />
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setIsSubmitting(true)
-
+  async function onSubmit(data: LoginFields) {
     try {
-      await auth.login({ username, password })
+      await auth.login(data)
       navigate(redirectTo, { replace: true })
-    } catch {
-      setPassword('')
-    } finally {
-      setIsSubmitting(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Falha ao autenticar.')
     }
   }
 
   return (
     <div className="page page--centered auth-page">
-      <section className="section-card auth-card">
-        <div className="section-card__header">
-          <p className="eyebrow">Admin sign-in</p>
-          <h2>React admin shell</h2>
-          <p className="section-card__description">
-            Sign in with the existing admin credentials to unlock the dashboard,
-            presell listings, and analytics snapshots powered by the split backend.
-          </p>
-        </div>
-
-        <div className="section-card__content auth-card__content">
-          {(auth.status === 'unauthenticated' || auth.status === 'error') && auth.message ? (
-            <StatusBanner
-              tone={auth.messageTone}
-              title={auth.status === 'error' ? 'Session bootstrap failed' : 'Ready to sign in'}
-              description={auth.message}
-              meta={[
-                `Environment: ${appConfig.environment}`,
-                `Session path: ${appConfig.auth.sessionPath}`,
-              ]}
-            />
-          ) : null}
-
-          <form className="auth-form" onSubmit={handleSubmit}>
-            <label className="field">
-              <span>Username</span>
-              <input
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Presell Creator</CardTitle>
+          <CardDescription>Acesse o painel administrativo</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
                 autoComplete="username"
-                name="username"
-                value={username}
-                onChange={(event) => {
-                  setUsername(event.target.value)
-                }}
                 placeholder="admin"
-                required
+                {...register('username')}
               />
-            </label>
-
-            <label className="field">
-              <span>Password</span>
-              <input
-                autoComplete="current-password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value)
-                }}
-                placeholder="••••••••"
-                required
-              />
-            </label>
-
-            <div className="button-row">
-              <button className="button-link" type="submit" disabled={isSubmitting}>
-                {isSubmitting || auth.status === 'loading' ? 'Signing in…' : 'Sign in'}
-              </button>
-              <button
-                className="button-link button-link--secondary"
-                type="button"
-                onClick={() => {
-                  void auth.refresh()
-                }}
-              >
-                Refresh session
-              </button>
             </div>
-          </form>
 
-          <div className="auth-card__footer">
-            {appConfig.legacyAdminUrl !== appConfig.adminBaseUrl ? (
-              <p>
-                Need the legacy workflow instead?{' '}
-                <a href={getLegacyLoginUrl()}>Open the server-rendered admin.</a>
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </section>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="••••••••"
+                {...register('password')}
+              />
+            </div>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

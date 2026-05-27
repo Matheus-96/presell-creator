@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
 import { ADMIN_AUTH_REQUIRED_EVENT } from '@/lib/api/api-client.ts'
@@ -17,6 +18,7 @@ export function RequireAuth() {
 
   useEffect(() => {
     function handle() {
+      toast.warning('Sua sessão expirou. Faça login novamente.')
       void queryClient.invalidateQueries({ queryKey: ['session'] })
     }
     window.addEventListener(ADMIN_AUTH_REQUIRED_EVENT, handle)
