@@ -7,7 +7,6 @@ import {
 } from '@/features/presells/lib/presell-editor.ts'
 import { getApiErrorMessage, renderPreview } from '@/features/presells/lib/presells-api.ts'
 import type {
-  AdminApiContract,
   PresellFormState,
   PreviewDocument,
   TemplateMetadata,
@@ -26,8 +25,6 @@ type PreviewState = {
 type PresellLivePreviewProps = {
   draft: PresellFormState | null
   template: TemplateMetadata | null
-  contract: AdminApiContract | null
-  csrfToken: string | null
   detailStatus: 'idle' | 'loading' | 'error'
   highlightSelector: string | null
 }
@@ -151,8 +148,6 @@ function resolvePreviewFieldInputId(
 export function PresellLivePreview({
   draft,
   template,
-  contract,
-  csrfToken,
   detailStatus,
   highlightSelector,
 }: PresellLivePreviewProps) {
@@ -183,20 +178,12 @@ export function PresellLivePreview({
       return 'This template is missing preview contract metadata.'
     }
 
-    if (!contract) {
-      return 'The admin API contract is not available yet.'
-    }
-
-    if (!csrfToken) {
-      return 'A CSRF token is required before the preview endpoint can render.'
-    }
-
     if (detailStatus === 'error') {
       return 'The selected presell could not be loaded, so the preview stayed frozen.'
     }
 
     return null
-  }, [contract, csrfToken, detailStatus, draft, template])
+  }, [detailStatus, draft, template])
 
   const syncPreviewHighlight = useCallback(() => {
     const iframeWindow = iframeRef.current?.contentWindow
@@ -214,7 +201,7 @@ export function PresellLivePreview({
   }, [highlightSelector])
 
   const requestPreview = useCallback(async () => {
-    if (!draft || !template || !template.renderer || !template.previewContract || !contract || !csrfToken) {
+    if (!draft || !template || !template.renderer || !template.previewContract) {
       return
     }
 
@@ -228,7 +215,7 @@ export function PresellLivePreview({
     }))
 
     try {
-      const previewDocument = await renderPreview(buildPreviewPayload(draft, template), contract, csrfToken)
+      const previewDocument = await renderPreview(buildPreviewPayload(draft, template))
 
       if (requestIdRef.current !== currentRequestId) {
         return
@@ -252,7 +239,7 @@ export function PresellLivePreview({
         error: getApiErrorMessage(error, 'Unable to render the latest preview.'),
       }))
     }
-  }, [backendOrigin, contract, csrfToken, draft, template])
+  }, [backendOrigin, draft, template])
 
   useEffect(() => {
     if (!draft) {
