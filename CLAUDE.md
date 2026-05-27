@@ -64,7 +64,7 @@ The repo contains both the **legacy monolith** (`src/`) and the **refactored spl
 - `repositories/` — raw SQLite access using prepared statements (`presellRepository.js`, `analyticsRepository.js`, `uploadRepository.js`)
 - `services/` — business logic that orchestrates repositories
 - `controllers/` — route handlers (`adminApiController.js` for the React API, `publicController.js` for presell pages, etc.)
-- `routes/` — Express routers; `apiAdmin.js` mounts at `/api/admin`, `apiPublic.js` at `/api/public`, `admin.js` (legacy EJS) at `LEGACY_ADMIN_PATH`
+- `routes/` — Express routers; `apiAdmin.js` mounts at `/api/admin`, `apiPublic.js` at `/api/public`
 - `templates/` — template manifest registry (`registry.js`). Each template has an `id`, `fields`, and a `renderer` object that specifies the rendering engine
 - `runtime/` — template rendering engine: `templateRuntime.js` is the main entry. Supports two engines:
   - `ejs` — renders via `res.render()` with EJS views in `backend/src/views/presell/`
@@ -72,11 +72,7 @@ The repo contains both the **legacy monolith** (`src/`) and the **refactored spl
 
 **Auth model (refactored API):** Session-based only (no JWT). CSRF token is sent as `x-csrf-token` header (not hidden form field). Session state is exposed at `GET /api/admin/session`. The `verifyApiCsrf` middleware checks the header.
 
-**Admin path routing:** Controlled by two env vars:
-- `ADMIN_FRONTEND_PATH` (default `/admin-app`) — where the React SPA is served
-- `LEGACY_ADMIN_PATH` (default `/admin`) — where the EJS admin is served
-
-To cut over entirely to the React SPA, set `ADMIN_FRONTEND_PATH=/admin` and `LEGACY_ADMIN_PATH=/admin-legacy`. The backend serves the built frontend dist from `frontend/dist/` only when it exists.
+**Admin path routing:** Controlled by `ADMIN_FRONTEND_PATH` (default `/admin`) — where the React SPA is served. The backend serves the built frontend dist from `frontend/dist/` only when it exists.
 
 ---
 
@@ -88,7 +84,7 @@ React 19 + TypeScript + Vite 8 + React Router 7. No Bootstrap — custom CSS onl
 
 **Auth**: Session cookie (set by backend). The frontend calls `GET /api/admin/session` on load to check auth state, reads a `csrfToken` from the response, and passes that token as `x-csrf-token` on all mutating requests.
 
-**Vite config**: The `base` path matches `ADMIN_FRONTEND_PATH`. In dev, Vite proxies `/api`, `/admin`, `/p`, `/go`, `/media`, `/health`, `/static` to `DEV_PROXY_TARGET` (default `http://127.0.0.1:3001`).
+**Vite config**: The `base` path matches `ADMIN_FRONTEND_PATH`. In dev, Vite proxies `/api`, `/p`, `/go`, `/media`, `/health`, `/static` to `DEV_PROXY_TARGET` (default `http://127.0.0.1:3001`).
 
 **Frontend env vars** (set at build time via `.env` in the repo root):
 
@@ -113,8 +109,7 @@ React 19 + TypeScript + Vite 8 + React Router 7. No Bootstrap — custom CSS onl
 | `SESSION_COOKIE_SECURE` | `true`, `false`, or `auto` (auto = true when HTTPS detected) |
 | `SESSION_COOKIE_SAME_SITE` | `lax` (default), `strict`, or `none` |
 | `TRUST_PROXY` | Express trust proxy level; set to `1` when behind nginx/Cloudflare |
-| `ADMIN_FRONTEND_PATH` | Route where the React SPA is served (default `/admin-app`) |
-| `LEGACY_ADMIN_PATH` | Route where the EJS admin is served (default `/admin`) |
+| `ADMIN_FRONTEND_PATH` | Route where the React SPA is served (default `/admin`) |
 
 ---
 
