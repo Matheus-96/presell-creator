@@ -18,7 +18,7 @@ function normalizeBasePath(value: string | undefined, fallback = '/admin-app/') 
 export default defineConfig(({ mode }) => {
   const envDir = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '..')
   const env = loadEnv(mode, envDir, '')
-  const proxyTarget = env.DEV_PROXY_TARGET || 'http://127.0.0.1:3001'
+  const proxyTarget = env.DEV_PROXY_TARGET || 'http://127.0.0.1:3002'
   const proxy = Object.fromEntries(
     proxiedPaths.map((path) => [
       path,
