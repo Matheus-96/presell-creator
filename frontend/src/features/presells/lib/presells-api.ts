@@ -7,12 +7,17 @@ import type {
   PresellWritePayload,
   TemplateCatalogResponse,
 } from '@/features/presells/types.ts'
+import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 
 const adminApiPaths = {
   presells: '/admin/presells',
   previews: '/admin/previews',
   templates: '/admin/templates',
 } as const
+
+export function getPublicPresell(slug: string) {
+  return apiClient.get<PresellPublicData>(`/public/presells/${slug}`)
+}
 
 export function listTemplates() {
   return apiClient.get<TemplateCatalogResponse>(adminApiPaths.templates)
