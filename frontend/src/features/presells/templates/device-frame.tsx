@@ -1,5 +1,6 @@
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
+import { buildAffiliateUrl } from '@/lib/affiliate'
 
 function DeviceFrame({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, bullets, settings } = presell
@@ -14,7 +15,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
 
   function handleCta() {
     fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = affiliateUrl
+    window.location.href = buildAffiliateUrl(affiliateUrl)
   }
 
   return (

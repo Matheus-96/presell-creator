@@ -1,5 +1,6 @@
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
+import { buildAffiliateUrl } from '@/lib/affiliate'
 
 function OfferModal({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, backgroundImageUrl, settings } = presell
@@ -11,7 +12,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
 
   function handleCta() {
     fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = affiliateUrl
+    window.location.href = buildAffiliateUrl(affiliateUrl)
   }
 
   return (
