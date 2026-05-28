@@ -5,6 +5,12 @@ import { ApiClientError } from '@/lib/api/api-client.ts'
 import { getPublicPresell } from '@/features/presells/lib/presells-api.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 
+const PIXEL_ID_RE = /^[A-Z]+-[A-Z0-9]+$/
+
+function isValidPixelId(id: string): boolean {
+  return PIXEL_ID_RE.test(id)
+}
+
 export function PresellPage() {
   const { slug } = useParams<{ slug: string }>()
 
@@ -16,11 +22,12 @@ export function PresellPage() {
   })
 
   useEffect(() => {
-    if (!presell?.googlePixelId) return
+    const pixelId = presell?.googlePixelId
+    if (!pixelId || !isValidPixelId(pixelId)) return
 
     const tagScript = document.createElement('script')
     tagScript.async = true
-    tagScript.src = `https://www.googletagmanager.com/gtag/js?id=${presell.googlePixelId}`
+    tagScript.src = `https://www.googletagmanager.com/gtag/js?id=${pixelId}`
     document.head.appendChild(tagScript)
 
     const inlineScript = document.createElement('script')
@@ -28,9 +35,14 @@ export function PresellPage() {
       'window.dataLayer=window.dataLayer||[];',
       'function gtag(){dataLayer.push(arguments)}',
       "gtag('js',new Date());",
-      `gtag('config','${presell.googlePixelId}');`,
+      `gtag('config','${pixelId}');`,
     ].join('')
     document.head.appendChild(inlineScript)
+
+    return () => {
+      tagScript.remove()
+      inlineScript.remove()
+    }
   }, [presell?.googlePixelId])
 
   if (isLoading) {
@@ -54,12 +66,12 @@ export function PresellPage() {
 
   if (!presell) return null
 
-  const Template = getTemplate(presell.template)
+  const Template = getTemplate(presell.templateId)
 
   if (!Template) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-gray-600">Template "{presell.template}" não disponível.</p>
+        <p className="text-sm text-gray-600">Template "{presell.templateId}" não disponível.</p>
       </div>
     )
   }

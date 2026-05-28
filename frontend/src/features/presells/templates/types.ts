@@ -1,8 +1,9 @@
 import type React from 'react'
 
 export type PresellPublicData = {
+  id: number
   slug: string
-  template: string
+  templateId: string
   headline: string
   subtitle: string
   body: string
