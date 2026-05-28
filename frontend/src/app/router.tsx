@@ -12,13 +12,6 @@ export const router = createBrowserRouter(
       element: <LoginPage />,
     },
     {
-      path: '/p/:slug',
-      lazy: async () => {
-        const { PresellPage } = await import('@/features/presells/pages/PresellPage.tsx')
-        return { Component: PresellPage }
-      },
-    },
-    {
       path: '/',
       element: <RequireAuth />,
       children: [
