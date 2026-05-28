@@ -1,6 +1,6 @@
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
-import { buildAffiliateUrl } from '@/lib/affiliate'
+import { handlePresellCta } from '@/features/presells/lib/presell-cta.ts'
 
 function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, backgroundImageUrl, settings } = presell
@@ -9,11 +9,6 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const microcopy = settings.microcopy as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
-
-  function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = buildAffiliateUrl(affiliateUrl)
-  }
 
   const buttonClass =
     buttonStyle === 'outline'
@@ -49,7 +44,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
         {microcopy && (
           <p className="mb-4 text-sm text-white/60">{microcopy}</p>
         )}
-        <button type="button" onClick={handleCta} className={buttonClass}>
+        <button type="button" onClick={() => handlePresellCta(slug, affiliateUrl)} className={buttonClass}>
           {ctaText}
         </button>
         {disclaimer && (

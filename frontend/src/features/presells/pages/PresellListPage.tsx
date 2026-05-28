@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
@@ -18,6 +18,15 @@ export function PresellListPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<'all' | PresellStatus>('all')
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
+
+  const handleCopyLink = useCallback((slug: string) => {
+    const url = `${window.location.origin}/p/${slug}`
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedSlug(slug)
+      setTimeout(() => setCopiedSlug(null), 2000)
+    })
+  }, [])
 
   const { data: presellData, isError, error } = useQuery({
     queryKey: ['presells', { limit: 100 }],
@@ -124,24 +133,50 @@ export function PresellListPage() {
         ) : (
           <ul className="divide-y divide-border">
             {filteredPresells.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  className="w-full text-left px-2 py-3 rounded-md hover:bg-accent transition-colors flex items-center justify-between gap-4"
-                  onClick={() => navigate(`/presells/${item.id}/edit`)}
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium truncate">
-                      {item.title || item.headline || item.slug}
-                    </p>
-                    <p className="text-sm text-muted-foreground truncate">
-                      /{item.slug} · {item.templateId}
-                    </p>
-                  </div>
-                  <span className={`status-pill status-pill--${item.status} shrink-0`}>
-                    {item.status}
-                  </span>
-                </button>
+              <li key={item.id} className="flex items-center gap-4 px-2 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">
+                    {item.title || item.headline || item.slug}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    /{item.slug} · {item.templateId}
+                  </p>
+                </div>
+                <span className={`status-pill status-pill--${item.status} shrink-0`}>
+                  {item.status}
+                </span>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    asChild
+                  >
+                    <a href={`/p/${item.slug}`} target="_blank" rel="noopener noreferrer">
+                      Ver
+                    </a>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleCopyLink(item.slug)}
+                  >
+                    {copiedSlug === item.slug ? 'Copiado!' : 'Copiar link'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => navigate(`/presells/${item.id}/edit`)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => navigate(`/presells/${item.id}/analytics`)}
+                  >
+                    Analytics
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>

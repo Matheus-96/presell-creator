@@ -1,6 +1,6 @@
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
-import { buildAffiliateUrl } from '@/lib/affiliate'
+import { handlePresellCta } from '@/features/presells/lib/presell-cta.ts'
 
 function OfferModal({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, backgroundImageUrl, settings } = presell
@@ -9,11 +9,6 @@ function OfferModal({ presell }: TemplateComponentProps) {
   const rating = settings.rating as string | undefined
   const starsText = settings.stars_text as string | undefined
   const scarcityText = settings.scarcity_text as string | undefined
-
-  function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = buildAffiliateUrl(affiliateUrl)
-  }
 
   return (
     <div
@@ -43,7 +38,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
         )}
         <button
           type="button"
-          onClick={handleCta}
+          onClick={() => handlePresellCta(slug, affiliateUrl)}
           className="w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600 active:bg-green-700"
         >
           {ctaText}
