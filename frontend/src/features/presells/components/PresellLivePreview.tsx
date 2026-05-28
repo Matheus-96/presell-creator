@@ -36,7 +36,7 @@ function formStateToPublicData(draft: PresellFormState): PresellPublicData {
 export function PresellLivePreview({ draft, template, detailStatus }: PresellLivePreviewProps) {
   const publicData = useMemo(() => (draft ? formStateToPublicData(draft) : null), [draft])
   const TemplateComponent = template ? getTemplate(template.id) : null
-  const openSavedPreviewUrl = draft?.urls?.adminPreview ?? null
+  const openSavedPreviewUrl = draft?.urls?.publicPage ?? null
 
   if (!draft || detailStatus === 'loading') {
     return (
@@ -69,7 +69,7 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
               rel="noreferrer"
               target="_blank"
             >
-              Open saved preview
+              Open public page
             </a>
           </div>
         )}

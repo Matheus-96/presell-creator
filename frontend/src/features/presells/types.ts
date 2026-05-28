@@ -78,7 +78,6 @@ export type PresellDetail = PresellSummary & {
   urls: {
     publicPage: string
     redirect: string
-    adminPreview: string
   }
 }
 
