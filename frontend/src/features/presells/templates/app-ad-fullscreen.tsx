@@ -10,7 +10,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
+    navigator.sendBeacon(`/api/public/presells/${slug}/redirect`)
     window.location.href = affiliateUrl
   }
 

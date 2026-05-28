@@ -13,7 +13,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
   const isPhone = frameType === 'phone'
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
+    navigator.sendBeacon(`/api/public/presells/${slug}/redirect`)
     window.location.href = affiliateUrl
   }
 

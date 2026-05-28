@@ -10,7 +10,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
   const scarcityText = settings.scarcity_text as string | undefined
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
+    navigator.sendBeacon(`/api/public/presells/${slug}/redirect`)
     window.location.href = affiliateUrl
   }
 
