@@ -87,6 +87,24 @@ const getPresellGclidStatsStmt = db.prepare(`
   ORDER BY total_events DESC
   LIMIT 100
 `);
+const getPresellGclidDwellTimeStmt = db.prepare(`
+  SELECT
+    json_extract(pv.params_json, '$.gclid') AS gclid,
+    ROUND(AVG(
+      (julianday(cc.created_at) - julianday(pv.created_at)) * 86400
+    )) AS avg_dwell_seconds,
+    COUNT(*) AS sessions_with_click
+  FROM events pv
+  JOIN events cc
+    ON pv.session_key = cc.session_key
+    AND pv.presell_id = cc.presell_id
+    AND cc.event_type = 'cta_click'
+  WHERE pv.event_type = 'page_view'
+    AND pv.presell_id = ?
+    AND json_extract(pv.params_json, '$.gclid') IS NOT NULL
+  GROUP BY gclid
+  ORDER BY sessions_with_click DESC
+`);
 const getPresellUtmSourcesStmt = db.prepare(`
   SELECT
     json_extract(params_json, '$.utm_source') AS source,
@@ -165,6 +183,7 @@ function getPresellStatistics(presellId) {
     summary: getPresellSummaryStmt.get(presellId),
     timeSeries: getPresellTimeSeriesStmt.all(presellId),
     gclidStats: getPresellGclidStatsStmt.all(presellId),
+    gclidDwellTime: getPresellGclidDwellTimeStmt.all(presellId),
     utmSources: getPresellUtmSourcesStmt.all(presellId),
     referrers: getPresellReferrersStmt.all(presellId),
     recentEvents: getPresellRecentEventsStmt.all(presellId)
