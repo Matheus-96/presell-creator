@@ -1,5 +1,6 @@
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
+import { handlePresellCta } from '@/features/presells/lib/presell-cta.ts'
 
 function DeviceFrame({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, bullets, settings } = presell
@@ -11,11 +12,6 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
   const frameType = settings.frame_type as string | undefined
 
   const isPhone = frameType === 'phone'
-
-  function handleCta() {
-    navigator.sendBeacon(`/api/public/presells/${slug}/redirect`)
-    window.location.href = affiliateUrl
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
@@ -57,7 +53,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
             )}
             <button
               type="button"
-              onClick={handleCta}
+              onClick={() => handlePresellCta(slug, affiliateUrl)}
               className="w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600 active:bg-green-700"
             >
               {ctaText}
