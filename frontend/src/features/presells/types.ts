@@ -194,27 +194,6 @@ export type PresellWritePayload = {
   }
 }
 
-export type PreviewRequest = {
-  basePresellId?: number
-  presell: PresellWritePayload
-}
-
-export type PreviewRuntime = {
-  schemaVersion: number
-  mode: 'preview' | 'public'
-  templateId: string
-  renderer: NonNullable<TemplateMetadata['renderer']>
-  previewContract: NonNullable<TemplateMetadata['previewContract']>
-}
-
-export type PreviewDocument = {
-  html: string
-  contentType: 'text/html'
-  presell: PresellDetail
-  template: TemplateMetadata
-  runtime: PreviewRuntime
-}
-
 export type WorkspaceNotice = {
   title: string
   description: string

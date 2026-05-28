@@ -1,7 +1,6 @@
 import type {
   PresellDetail,
   PresellFormState,
-  PreviewRequest,
   PresellWritePayload,
   TemplateField,
   TemplateMetadata,
@@ -184,43 +183,6 @@ export function buildPresellPayload(
     settings: buildTemplateSettings(template, form.settings),
     ...(Object.keys(media).length > 0 ? { media } : {}),
   }
-}
-
-export function buildPreviewPayload(
-  form: PresellFormState,
-  template: TemplateMetadata | null,
-): PreviewRequest {
-  return {
-    ...(form.id ? { basePresellId: form.id } : {}),
-    presell: buildPresellPayload(form, template),
-  }
-}
-
-export function createPresellSnapshot(form: PresellFormState) {
-  const orderedSettings = Object.keys(form.settings)
-    .sort()
-    .reduce<Record<string, TemplateSettingValue>>((settings, key) => {
-      settings[key] = form.settings[key]
-      return settings
-    }, {})
-
-  return JSON.stringify({
-    id: form.id,
-    slug: form.slug,
-    status: form.status,
-    templateId: form.templateId,
-    title: form.title,
-    headline: form.headline,
-    subtitle: form.subtitle,
-    body: form.body,
-    bulletsText: form.bulletsText,
-    ctaText: form.ctaText,
-    affiliateUrl: form.affiliateUrl,
-    googlePixelId: form.googlePixelId,
-    settings: orderedSettings,
-    heroImageFileName: form.media.heroImageFileName,
-    backgroundImageFileName: form.media.backgroundImageFileName,
-  })
 }
 
 export function getTemplateById(

@@ -2,8 +2,6 @@ import { ApiClientError, apiClient } from '@/lib/api/api-client.ts'
 import type {
   PresellDetail,
   PresellListResponse,
-  PreviewDocument,
-  PreviewRequest,
   PresellWritePayload,
   TemplateCatalogResponse,
 } from '@/features/presells/types.ts'
@@ -11,7 +9,6 @@ import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 
 const adminApiPaths = {
   presells: '/admin/presells',
-  previews: '/admin/previews',
   templates: '/admin/templates',
 } as const
 
@@ -31,10 +28,6 @@ export function listPresells(limit: number) {
 
 export function getPresell(id: number) {
   return apiClient.get<PresellDetail>(`${adminApiPaths.presells}/${id}`)
-}
-
-export function renderPreview(payload: PreviewRequest) {
-  return apiClient.post<PreviewDocument>(adminApiPaths.previews, { body: payload })
 }
 
 export function createPresell(payload: PresellWritePayload) {
