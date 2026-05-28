@@ -4,6 +4,7 @@ import type {
   PresellListResponse,
   PresellWritePayload,
   TemplateCatalogResponse,
+  UploadResponse,
 } from '@/features/presells/types.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 
@@ -44,6 +45,12 @@ export function deletePresell(id: number) {
 
 export function duplicatePresell(id: number) {
   return apiClient.post<PresellDetail>(`${adminApiPaths.presells}/${id}/duplicate`)
+}
+
+export function uploadMedia(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return apiClient.post<UploadResponse>('/admin/uploads', { body: form })
 }
 
 export function getApiErrorMessage(error: unknown, fallbackMessage: string) {

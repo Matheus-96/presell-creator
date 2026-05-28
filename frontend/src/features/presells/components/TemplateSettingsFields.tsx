@@ -1,28 +1,13 @@
 import type { ChangeEvent } from 'react'
-import type {
-  TemplateMetadata,
-  TemplateSettingValue,
-} from '@/features/presells/types.ts'
+import { Input } from '@/components/ui/input.tsx'
+import { Label } from '@/components/ui/label.tsx'
+import type { TemplateMetadata, TemplateSettingValue } from '@/features/presells/types.ts'
 import { getDefaultFieldValue } from '@/features/presells/lib/presell-editor.ts'
 
 type TemplateSettingsFieldsProps = {
   template: TemplateMetadata | null
   settings: Record<string, TemplateSettingValue>
   onChange: (fieldName: string, value: TemplateSettingValue) => void
-}
-
-function renderHelpText(helpText: string | null, previewSelector: string | null) {
-  if (!helpText && !previewSelector) {
-    return null
-  }
-
-  return (
-    <p className="helper-text">
-      {helpText}
-      {helpText && previewSelector ? ' · ' : null}
-      {previewSelector ? `Preview selector: ${previewSelector}` : null}
-    </p>
-  )
 }
 
 export function TemplateSettingsFields({
@@ -32,120 +17,139 @@ export function TemplateSettingsFields({
 }: TemplateSettingsFieldsProps) {
   if (!template || template.fields.length === 0) {
     return (
-      <div className="empty-state empty-state--compact">
-        <strong>This template has no extra settings yet.</strong>
-        <p>Core content fields are enough for the current contract.</p>
-      </div>
+      <p className="text-sm text-muted-foreground">
+        Este template não possui configurações extras.
+      </p>
     )
   }
 
   return (
-    <div className="field-grid">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {template.fields.map((field) => {
         const rawValue = settings[field.name] ?? getDefaultFieldValue(field)
         const inputId = `template-setting-${field.name}`
 
         if (field.type === 'textarea') {
           return (
-            <label key={field.name} className="form-field" htmlFor={inputId}>
-              <span>{field.label}</span>
+            <div key={field.name} className="flex flex-col gap-1.5 sm:col-span-2">
+              <Label htmlFor={inputId}>{field.label}</Label>
+              {field.helpText ? (
+                <p className="text-xs text-muted-foreground">{field.helpText}</p>
+              ) : null}
               <textarea
                 id={inputId}
-                data-preview-selector={field.previewSelector ?? undefined}
-                rows={4}
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                rows={3}
                 value={String(rawValue)}
-                onChange={(event) => {
-                  onChange(field.name, event.currentTarget.value)
-                }}
+                onChange={(e) => onChange(field.name, e.currentTarget.value)}
               />
-              {renderHelpText(field.helpText, field.previewSelector)}
-            </label>
+            </div>
           )
         }
 
         if (field.type === 'select') {
           return (
-            <label key={field.name} className="form-field" htmlFor={inputId}>
-              <span>{field.label}</span>
+            <div key={field.name} className="flex flex-col gap-1.5">
+              <Label htmlFor={inputId}>{field.label}</Label>
+              {field.helpText ? (
+                <p className="text-xs text-muted-foreground">{field.helpText}</p>
+              ) : null}
               <select
                 id={inputId}
-                data-preview-selector={field.previewSelector ?? undefined}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={String(rawValue)}
-                onChange={(event) => {
-                  onChange(field.name, event.currentTarget.value)
-                }}
+                onChange={(e) => onChange(field.name, e.currentTarget.value)}
               >
-                {field.options.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
+                {field.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </select>
-              {renderHelpText(field.helpText, field.previewSelector)}
-            </label>
+            </div>
           )
         }
 
         if (field.type === 'checkbox') {
           return (
-            <div key={field.name} className="form-field form-field--checkbox">
-              <label className="checkbox-field" htmlFor={inputId}>
-                <input
-                  id={inputId}
-                  data-preview-selector={field.previewSelector ?? undefined}
-                  type="checkbox"
-                  checked={Boolean(rawValue)}
-                  onChange={(event) => {
-                    onChange(field.name, event.currentTarget.checked)
-                  }}
-                />
-                <span>{field.label}</span>
-              </label>
-              {renderHelpText(field.helpText, field.previewSelector)}
+            <div key={field.name} className="flex items-center gap-2 py-1">
+              <input
+                id={inputId}
+                type="checkbox"
+                className="h-4 w-4 rounded border-input"
+                checked={Boolean(rawValue)}
+                onChange={(e) => onChange(field.name, e.currentTarget.checked)}
+              />
+              <Label htmlFor={inputId}>{field.label}</Label>
+              {field.helpText ? (
+                <p className="text-xs text-muted-foreground">{field.helpText}</p>
+              ) : null}
             </div>
           )
         }
 
         if (field.type === 'range') {
           const numericValue = Number(rawValue)
-
           return (
-            <label key={field.name} className="form-field" htmlFor={inputId}>
-              <span className="form-field__split">
-                <span>{field.label}</span>
-                <strong>{numericValue}</strong>
-              </span>
+            <div key={field.name} className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor={inputId}>{field.label}</Label>
+                <span className="text-sm font-medium tabular-nums">{numericValue}</span>
+              </div>
+              {field.helpText ? (
+                <p className="text-xs text-muted-foreground">{field.helpText}</p>
+              ) : null}
               <input
                 id={inputId}
-                data-preview-selector={field.previewSelector ?? undefined}
                 type="range"
+                className="w-full accent-primary"
                 min={field.min ?? undefined}
                 max={field.max ?? undefined}
                 step={field.step ?? undefined}
                 value={Number.isFinite(numericValue) ? numericValue : Number(field.min ?? 0)}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                  onChange(field.name, Number(event.currentTarget.value))
-                }}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  onChange(field.name, Number(e.currentTarget.value))
+                }
               />
-              {renderHelpText(field.helpText, field.previewSelector)}
-            </label>
+            </div>
+          )
+        }
+
+        if (field.type === 'color') {
+          return (
+            <div key={field.name} className="flex flex-col gap-1.5">
+              <Label htmlFor={inputId}>{field.label}</Label>
+              {field.helpText ? (
+                <p className="text-xs text-muted-foreground">{field.helpText}</p>
+              ) : null}
+              <div className="flex items-center gap-2">
+                <input
+                  id={inputId}
+                  type="color"
+                  className="h-10 w-14 cursor-pointer rounded-md border border-input p-1"
+                  value={String(rawValue)}
+                  onChange={(e) => onChange(field.name, e.currentTarget.value)}
+                />
+                <span className="text-sm text-muted-foreground tabular-nums">
+                  {String(rawValue)}
+                </span>
+              </div>
+            </div>
           )
         }
 
         return (
-          <label key={field.name} className="form-field" htmlFor={inputId}>
-            <span>{field.label}</span>
-            <input
+          <div key={field.name} className="flex flex-col gap-1.5">
+            <Label htmlFor={inputId}>{field.label}</Label>
+            {field.helpText ? (
+              <p className="text-xs text-muted-foreground">{field.helpText}</p>
+            ) : null}
+            <Input
               id={inputId}
-              data-preview-selector={field.previewSelector ?? undefined}
-              type={field.type === 'color' ? 'color' : 'text'}
               value={String(rawValue)}
-              onChange={(event) => {
-                onChange(field.name, event.currentTarget.value)
-              }}
+              onChange={(e) => onChange(field.name, e.currentTarget.value)}
             />
-            {renderHelpText(field.helpText, field.previewSelector)}
-          </label>
+          </div>
         )
       })}
     </div>
