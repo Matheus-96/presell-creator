@@ -41,6 +41,12 @@ function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
   }
 }
 
+const defaultPageInfo = { limit: 50, nextCursor: null, hasMore: false }
+
+function makeListResponse(items: PresellSummary[]) {
+  return { items, pageInfo: defaultPageInfo }
+}
+
 function makeTemplate(overrides: Partial<TemplateMetadata> = {}): TemplateMetadata {
   return {
     id: 'advertorial',
@@ -76,7 +82,7 @@ describe('PresellListPage', () => {
   })
 
   it('renders presells returned by the API', async () => {
-    mockListPresells.mockResolvedValue({ items: [makePresell({ title: 'My Presell' })] })
+    mockListPresells.mockResolvedValue(makeListResponse([makePresell({ title: 'My Presell' })]))
     renderPage()
 
     await waitFor(() => {
@@ -85,7 +91,7 @@ describe('PresellListPage', () => {
   })
 
   it('navigates to /presells/new when "New presell" is clicked', async () => {
-    mockListPresells.mockResolvedValue({ items: [] })
+    mockListPresells.mockResolvedValue(makeListResponse([]))
     renderPage()
 
     await waitFor(() => expect(mockListPresells).toHaveBeenCalled())
@@ -96,7 +102,7 @@ describe('PresellListPage', () => {
   })
 
   it('navigates to /presells/:id/edit when a presell is clicked', async () => {
-    mockListPresells.mockResolvedValue({ items: [makePresell({ id: 42, title: 'Click Me' })] })
+    mockListPresells.mockResolvedValue(makeListResponse([makePresell({ id: 42, title: 'Click Me' })]))
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Click Me')).toBeDefined())
@@ -107,12 +113,10 @@ describe('PresellListPage', () => {
   })
 
   it('filters presells by search term', async () => {
-    mockListPresells.mockResolvedValue({
-      items: [
-        makePresell({ id: 1, title: 'Alpha Presell' }),
-        makePresell({ id: 2, title: 'Beta Presell' }),
-      ],
-    })
+    mockListPresells.mockResolvedValue(makeListResponse([
+      makePresell({ id: 1, title: 'Alpha Presell' }),
+      makePresell({ id: 2, title: 'Beta Presell' }),
+    ]))
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Alpha Presell')).toBeDefined())
@@ -124,12 +128,10 @@ describe('PresellListPage', () => {
   })
 
   it('filters presells by status', async () => {
-    mockListPresells.mockResolvedValue({
-      items: [
-        makePresell({ id: 1, title: 'Draft One', status: 'draft' }),
-        makePresell({ id: 2, title: 'Published One', status: 'published' }),
-      ],
-    })
+    mockListPresells.mockResolvedValue(makeListResponse([
+      makePresell({ id: 1, title: 'Draft One', status: 'draft' }),
+      makePresell({ id: 2, title: 'Published One', status: 'published' }),
+    ]))
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Draft One')).toBeDefined())
@@ -141,7 +143,7 @@ describe('PresellListPage', () => {
   })
 
   it('shows empty state when no presells match filters', async () => {
-    mockListPresells.mockResolvedValue({ items: [makePresell({ title: 'Only One' })] })
+    mockListPresells.mockResolvedValue(makeListResponse([makePresell({ title: 'Only One' })]))
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Only One')).toBeDefined())
