@@ -16,13 +16,8 @@ vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   listTemplates: vi.fn(),
 }))
 
-vi.mock('@/features/templates/lib/templates-api.ts', () => ({
-  listTemplates: vi.fn(),
-}))
-
 import { getAnalyticsSummary, getAnalyticsOverview } from '@/features/analytics/lib/analytics-api.ts'
-import { listPresells } from '@/features/presells/lib/presells-api.ts'
-import { listTemplates } from '@/features/templates/lib/templates-api.ts'
+import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
 
 const mockGetAnalyticsSummary = vi.mocked(getAnalyticsSummary)
 const mockGetAnalyticsOverview = vi.mocked(getAnalyticsOverview)
@@ -96,13 +91,14 @@ describe('DashboardPage', () => {
     vi.clearAllMocks()
     mockGetAnalyticsSummary.mockResolvedValue(makeSummary())
     mockGetAnalyticsOverview.mockResolvedValue(makeOverview())
-    mockListPresells.mockResolvedValue({ items: [] })
+    mockListPresells.mockResolvedValue({ items: [], pageInfo: { limit: 6, nextCursor: null, hasMore: false } })
     mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
   })
 
   it('renders presells returned by the API', async () => {
     mockListPresells.mockResolvedValue({
       items: [makePresell({ title: 'Featured Presell' })],
+      pageInfo: { limit: 6, nextCursor: null, hasMore: false },
     })
     renderPage()
 
