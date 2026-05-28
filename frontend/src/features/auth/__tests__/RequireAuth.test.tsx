@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { toast } from 'sonner'
 import { RequireAuth } from '@/features/auth/RequireAuth.tsx'

@@ -51,7 +51,7 @@ export function PresellListPage() {
   if (isError) {
     return (
       <div className="page">
-        <PageHeader eyebrow="Presells" title="Presell list" />
+        <PageHeader eyebrow="Presells" title="Presell list" description="Manage and publish your presell pages." />
         <StatusBanner
           tone="warning"
           title="Could not load the presell list"
