@@ -8,7 +8,7 @@ const {
   toInteger
 } = require("./shared");
 const { mediaReferenceSchema, serializeMediaReference } = require("./uploads");
-const { normalizeMediaPath } = require("../services/mediaPathService");
+const { normalizeMediaPath, buildMediaUrl } = require("../services/mediaPathService");
 
 const presellStatusValues = ["draft", "published"];
 
@@ -282,6 +282,44 @@ function serializePresellListResponse(result = {}) {
   };
 }
 
+const publicPresellSchema = {
+  type: "object",
+  required: ["id", "slug", "templateId", "headline", "ctaText", "affiliateUrl"],
+  properties: {
+    id: { type: "number" },
+    slug: { type: "string" },
+    templateId: { type: "string" },
+    headline: { type: "string" },
+    subtitle: { type: "string" },
+    body: { type: "string" },
+    bullets: { type: "array", items: { type: "string" } },
+    ctaText: { type: "string" },
+    affiliateUrl: { type: "string" },
+    googlePixelId: { type: ["string", "null"] },
+    imageUrl: { type: "string" },
+    backgroundImageUrl: { type: "string" },
+    settings: { type: "object", additionalProperties: true }
+  }
+};
+
+function serializePublicPresell(presell) {
+  return {
+    id: Number(presell.id),
+    slug: String(presell.slug || ""),
+    templateId: String(presell.template || "advertorial"),
+    headline: String(presell.headline || ""),
+    subtitle: String(presell.subtitle || ""),
+    body: String(presell.body || ""),
+    bullets: parseBullets(presell),
+    ctaText: String(presell.cta_text || ""),
+    affiliateUrl: String(presell.affiliate_url || ""),
+    googlePixelId: presell.google_pixel || null,
+    imageUrl: buildMediaUrl(presell.image_path),
+    backgroundImageUrl: buildMediaUrl(presell.background_image_path),
+    settings: parsePresellSettings(presell)
+  };
+}
+
 module.exports = {
   presellStatusValues,
   presellWriteSchema,
@@ -289,10 +327,12 @@ module.exports = {
   presellSummarySchema,
   presellDetailSchema,
   presellListResponseSchema,
+  publicPresellSchema,
   serializePresellSummary,
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
   deserializePresellListQuery,
-  serializePresellListResponse
+  serializePresellListResponse,
+  serializePublicPresell
 };

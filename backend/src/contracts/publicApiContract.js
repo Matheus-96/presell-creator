@@ -4,6 +4,7 @@ const {
   trackingEventResponseSchema
 } = require("./tracking");
 const { ADMIN_API_VERSION, apiErrorSchema } = require("./shared");
+const { publicPresellSchema } = require("./presells");
 
 const publicApiContract = {
   name: "presell-public-api",
@@ -20,7 +21,8 @@ const publicApiContract = {
   schemas: {
     trackingEventRequest: trackingEventRequestSchema,
     trackingEventResponse: trackingEventResponseSchema,
-    redirectResolution: redirectResolutionSchema
+    redirectResolution: redirectResolutionSchema,
+    publicPresell: publicPresellSchema
   },
   endpoints: [
     {
@@ -29,6 +31,13 @@ const publicApiContract = {
       path: "/contracts",
       auth: "optional",
       response: "self"
+    },
+    {
+      operationId: "getPublicPresell",
+      method: "GET",
+      path: "/presells/:slug",
+      auth: "optional",
+      response: "publicPresell"
     },
     {
       operationId: "recordPresellEvent",
