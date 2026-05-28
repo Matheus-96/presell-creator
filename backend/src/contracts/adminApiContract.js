@@ -6,7 +6,6 @@ const {
   presellWriteSchema,
   presellPatchSchema
 } = require("./presells");
-const { previewRequestSchema, previewResponseSchema } = require("./preview");
 const { apiErrorSchema, ADMIN_API_VERSION, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } = require("./shared");
 const { templateCatalogSchema, templateMetadataSchema } = require("./templates");
 const { uploadRequestSchema, uploadResponseSchema } = require("./uploads");
@@ -42,8 +41,6 @@ const adminApiContract = {
     presellDetail: presellDetailSchema,
     templateCatalog: templateCatalogSchema,
     templateMetadata: templateMetadataSchema,
-    previewRequest: previewRequestSchema,
-    previewResponse: previewResponseSchema,
     analyticsSummary: analyticsSummarySchema,
     analyticsOverview: analyticsOverviewSchema,
     presellStatistics: presellStatisticsSchema,
@@ -143,16 +140,6 @@ const adminApiContract = {
       path: "/templates",
       auth: "required",
       response: "templateCatalog"
-    },
-    {
-      operationId: "renderPreview",
-      method: "POST",
-      path: "/previews",
-      auth: "required",
-      csrf: "required",
-      note: "Renders HTML for unsaved drafts. When basePresellId is present, omitted fields fall back to the saved presell.",
-      request: "previewRequest",
-      response: "previewResponse"
     },
     {
       operationId: "getAnalyticsOverview",

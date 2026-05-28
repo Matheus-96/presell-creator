@@ -8,7 +8,6 @@ const {
   postSession,
   deleteSession,
   getTemplates,
-  postPreview,
   getPresellCollection,
   getPresell,
   createPresell,
@@ -29,7 +28,6 @@ router.get("/session", getSession);
 router.post("/session", verifyApiCsrf, postSession);
 router.delete("/session", verifyApiCsrf, deleteSession);
 router.get("/templates", requireApiAuth, getTemplates);
-router.post("/previews", requireApiAuth, verifyApiCsrf, postPreview);
 router.post("/uploads", requireApiAuth, verifyApiCsrf, upload.single("file"), postUpload);
 router.get("/presells", requireApiAuth, getPresellCollection);
 router.post("/presells", requireApiAuth, verifyApiCsrf, createPresell);

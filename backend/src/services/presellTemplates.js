@@ -7,33 +7,23 @@ const {
   parseSettingsJson,
   normalizeTemplateSettings,
   parsePresellTemplateSettings,
-  normalizeTemplateFieldValue,
-  buildTemplatePreviewContract,
-  getTemplatePreviewContracts
+  normalizeTemplateFieldValue
 } = require("../templates");
-const {
-  getTemplateRenderer,
-  listTemplateRenderers
-} = require("../runtime/rendererRegistry");
 
 const templateDefinitions = listTemplateManifests();
 const allowedTemplates = listTemplateIds();
 
 function getTemplateDefinition(templateId) {
-  let resolvedTemplateId = templateId;
+  const firstTemplateId = Object.keys(templateRegistry)[0];
+  const resolvedTemplateId = templateId && templateRegistry[templateId]
+    ? templateId
+    : firstTemplateId;
 
-  if (!resolvedTemplateId || !templateRegistry[resolvedTemplateId]) {
-    console.warn(`Template "${templateId}" not found, falling back to "advertorial"`);
-    resolvedTemplateId = "advertorial";
+  if (!templateRegistry[templateId]) {
+    console.warn(`Template "${templateId}" not found, falling back to "${firstTemplateId}"`);
   }
 
-  const manifest = getTemplateManifest(resolvedTemplateId);
-
-  if (!manifest.availability.templateFile) {
-    console.warn(`Template file "${manifest.renderer.fileName}" not found for "${manifest.id}"`);
-  }
-
-  return manifest;
+  return getTemplateManifest(resolvedTemplateId);
 }
 
 function getDefaultSettings(templateId) {
@@ -49,7 +39,7 @@ function parsePresellSettings(presell) {
 }
 
 function getAvailableTemplates() {
-  return listTemplateManifests({ availableOnly: true }).map((manifest) => ({
+  return listTemplateManifests().map((manifest) => ({
     id: manifest.id,
     name: manifest.name,
     description: manifest.description
@@ -66,9 +56,5 @@ module.exports = {
   normalizeSettings,
   parsePresellSettings,
   normalizeFieldValue: normalizeTemplateFieldValue,
-  getAvailableTemplates,
-  getTemplateRenderer,
-  listTemplateRenderers,
-  getTemplatePreviewContract: buildTemplatePreviewContract,
-  getTemplatePreviewContracts
+  getAvailableTemplates
 };

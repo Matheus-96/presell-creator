@@ -1,5 +1,3 @@
-const { buildTemplatePreviewContract } = require("../templates");
-const { getTemplateRenderer } = require("../runtime/rendererRegistry");
 const { templateDefinitions } = require("../services/presellTemplates");
 
 const templateFieldSchema = {
@@ -36,40 +34,6 @@ const templateMetadataSchema = {
     id: { type: "string" },
     name: { type: "string" },
     description: { type: "string" },
-    renderer: {
-      type: "object",
-      properties: {
-        templateId: { type: "string" },
-        kind: { type: "string" },
-        engine: { type: "string" },
-        entry: { type: "string" },
-        view: { type: "string" },
-        fileName: { type: "string" }
-      }
-    },
-    previewContract: {
-      type: "object",
-      properties: {
-        schemaVersion: { type: "number" },
-        templateId: { type: "string" },
-        selectors: {
-          type: "object",
-          additionalProperties: { type: "string" }
-        },
-        fields: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              key: { type: "string" },
-              inputName: { type: "string" },
-              selector: { type: "string" },
-              source: { type: "string" }
-            }
-          }
-        }
-      }
-    },
     fields: {
       type: "array",
       items: templateFieldSchema
@@ -113,8 +77,6 @@ function serializeTemplateMetadata(template) {
     id: String(template.id),
     name: String(template.name),
     description: String(template.description || ""),
-    renderer: getTemplateRenderer(template.id),
-    previewContract: buildTemplatePreviewContract(template.id),
     fields: Array.isArray(template.fields)
       ? template.fields.map(serializeTemplateField)
       : []
