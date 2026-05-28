@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { getAnalyticsOverview, getAnalyticsSummary } from '@/features/analytics/lib/analytics-api.ts'
-import type { AnalyticsOverview, AnalyticsSummary } from '@/features/analytics/types.ts'
 import { listPresells } from '@/features/presells/lib/presells-api.ts'
-import type { PresellSummary, TemplateMetadata } from '@/features/presells/types.ts'
 import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 import {
   formatCompactNumber,
@@ -16,92 +15,61 @@ import {
   formatTitle,
 } from '@/lib/formatters.ts'
 
-type DashboardState = {
-  isLoading: boolean
-  error: string | null
-  summary: AnalyticsSummary | null
-  overview: AnalyticsOverview | null
-  presells: PresellSummary[]
-  templates: TemplateMetadata[]
-}
-
-const initialState: DashboardState = {
-  isLoading: true,
-  error: null,
-  summary: null,
-  overview: null,
-  presells: [],
-  templates: [],
-}
-
 export function DashboardPage() {
   useDocumentTitle('Dashboard')
 
-  const [state, setState] = useState<DashboardState>(initialState)
+  const summaryQuery = useQuery({
+    queryKey: ['analytics', 'summary'],
+    queryFn: getAnalyticsSummary,
+    staleTime: 30_000,
+  })
 
-  useEffect(() => {
-    let isCancelled = false
+  const overviewQuery = useQuery({
+    queryKey: ['analytics', 'overview'],
+    queryFn: getAnalyticsOverview,
+    staleTime: 30_000,
+  })
 
-    async function loadDashboard() {
-      setState((current) => ({ ...current, isLoading: true, error: null }))
+  const presellsQuery = useQuery({
+    queryKey: ['presells', { limit: 6 }],
+    queryFn: () => listPresells(6),
+    staleTime: 30_000,
+  })
 
-      try {
-        const [summary, overview, presellsResponse, templatesResponse] = await Promise.all([
-          getAnalyticsSummary(),
-          getAnalyticsOverview(),
-          listPresells(6),
-          listTemplates(),
-        ])
+  const templatesQuery = useQuery({
+    queryKey: ['templates'],
+    queryFn: listTemplates,
+    staleTime: 60_000,
+  })
 
-        if (isCancelled) {
-          return
-        }
+  const isLoading =
+    summaryQuery.isLoading ||
+    overviewQuery.isLoading ||
+    presellsQuery.isLoading ||
+    templatesQuery.isLoading
 
-        setState({
-          isLoading: false,
-          error: null,
-          summary,
-          overview,
-          presells: presellsResponse.items,
-          templates: templatesResponse.items,
-        })
-      } catch (error) {
-        if (isCancelled) {
-          return
-        }
+  const anyError =
+    summaryQuery.error ?? overviewQuery.error ?? presellsQuery.error ?? templatesQuery.error
 
-        setState((current) => ({
-          ...current,
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Unable to load the dashboard.',
-        }))
-      }
-    }
-
-    void loadDashboard()
-
-    return () => {
-      isCancelled = true
-    }
-  }, [])
+  const presells = presellsQuery.data?.items ?? []
+  const summary = summaryQuery.data ?? null
+  const overview = overviewQuery.data ?? null
 
   const { draftPresells, publishedPresells, totalPresells } = useMemo(() => {
     let nextPublishedPresells = 0
 
-    for (const item of state.presells) {
+    for (const item of presells) {
       if (item.published) {
         nextPublishedPresells += 1
       }
     }
 
     return {
-      draftPresells: state.presells.length - nextPublishedPresells,
+      draftPresells: presells.length - nextPublishedPresells,
       publishedPresells: nextPublishedPresells,
-      totalPresells: state.presells.length,
+      totalPresells: presells.length,
     }
-  }, [state.presells])
-  const overview = state.overview
-  const summary = state.summary
+  }, [presells])
 
   return (
     <div className="page">
@@ -118,11 +86,11 @@ export function DashboardPage() {
         }
       />
 
-      {state.error ? (
+      {anyError ? (
         <SectionCard
           eyebrow="Load state"
           title="Dashboard data could not be loaded"
-          description={state.error}
+          description={anyError instanceof Error ? anyError.message : 'Unable to load the dashboard.'}
         >
           <p className="page-description">
             The admin shell can render without the data, but the backend endpoints need to
@@ -135,7 +103,7 @@ export function DashboardPage() {
         <article className="metric-card">
           <p className="metric-card__label">Total views</p>
           <strong className="metric-card__value">
-            {overview ? formatCompactNumber(overview.totals.views) : state.isLoading ? '…' : '0'}
+            {overview ? formatCompactNumber(overview.totals.views) : isLoading ? '…' : '0'}
           </strong>
           <p className="metric-card__helper">Across tracked presell visits.</p>
         </article>
@@ -143,7 +111,7 @@ export function DashboardPage() {
         <article className="metric-card">
           <p className="metric-card__label">CTR</p>
           <strong className="metric-card__value">
-            {overview ? formatPercent(overview.totals.ctr) : state.isLoading ? '…' : '0%'}
+            {overview ? formatPercent(overview.totals.ctr) : isLoading ? '…' : '0%'}
           </strong>
           <p className="metric-card__helper">Clicks divided by page views.</p>
         </article>
@@ -151,7 +119,7 @@ export function DashboardPage() {
         <article className="metric-card">
           <p className="metric-card__label">Published presells</p>
           <strong className="metric-card__value">
-            {state.isLoading ? '…' : formatNumber(publishedPresells)}
+            {isLoading ? '…' : formatNumber(publishedPresells)}
           </strong>
           <p className="metric-card__helper">{formatNumber(draftPresells)} draft pages still queued.</p>
         </article>
@@ -159,7 +127,7 @@ export function DashboardPage() {
         <article className="metric-card">
           <p className="metric-card__label">System health</p>
           <strong className="metric-card__value">
-            {summary ? summary.systemHealth : state.isLoading ? '…' : 'healthy'}
+            {summary ? summary.systemHealth : isLoading ? '…' : 'healthy'}
           </strong>
           <p className="metric-card__helper">
             {summary
@@ -192,7 +160,7 @@ export function DashboardPage() {
             </ul>
           ) : (
             <p className="empty-state">
-              {state.isLoading
+              {isLoading
                 ? 'Loading analytics overview…'
                 : 'No tracked presell analytics are available yet.'}
             </p>
@@ -209,7 +177,7 @@ export function DashboardPage() {
               <strong>{formatNumber(totalPresells)}</strong> presells loaded into the dashboard snapshot.
             </li>
             <li>
-              <strong>{formatNumber(state.templates.length)}</strong> templates returned by the template registry API.
+              <strong>{formatNumber(templatesQuery.data?.items.length ?? 0)}</strong> templates returned by the template registry API.
             </li>
             <li>
               <strong>{overview ? formatNumber(overview.sources.length) : '0'}</strong> traffic sources grouped by analytics.
@@ -229,9 +197,9 @@ export function DashboardPage() {
           title="Most recently updated pages"
           description="The dashboard uses the new listing endpoint to show where content work is happening right now."
         >
-          {state.presells.length > 0 ? (
+          {presells.length > 0 ? (
             <ul className="list list--spacious">
-              {state.presells.map((presell) => (
+              {presells.map((presell) => (
                 <li key={presell.id} className="list-row list-row--stacked">
                   <div>
                     <strong>{formatTitle(presell.title, presell.slug)}</strong>
@@ -247,7 +215,7 @@ export function DashboardPage() {
             </ul>
           ) : (
             <p className="empty-state">
-              {state.isLoading ? 'Loading presells…' : 'No presells are available yet.'}
+              {isLoading ? 'Loading presells…' : 'No presells are available yet.'}
             </p>
           )}
         </SectionCard>
@@ -275,7 +243,7 @@ export function DashboardPage() {
             </ul>
           ) : (
             <p className="empty-state">
-              {state.isLoading ? 'Loading event stream…' : 'No tracked events are available yet.'}
+              {isLoading ? 'Loading event stream…' : 'No tracked events are available yet.'}
             </p>
           )}
         </SectionCard>

@@ -20,7 +20,7 @@ export function PresellListPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
 
   const { data: presellData, isError, error } = useQuery({
-    queryKey: ['presells'],
+    queryKey: ['presells', { limit: 100 }],
     queryFn: () => listPresells(100),
     staleTime: 30_000,
   })
