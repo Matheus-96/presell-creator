@@ -33,10 +33,10 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
         </div>
 
         {/* Content */}
-        <div className={`p-6 ${isPhone ? '' : 'grid grid-cols-2 gap-8'}`}>
+        <div className={`p-6 ${imageUrl && !isPhone ? 'grid grid-cols-2 gap-8' : ''}`}>
           {imageUrl && (
             <div className="flex items-center justify-center">
-              <img src={imageUrl} alt={headline} className="max-h-64 w-full object-contain" />
+              <img src={imageUrl} alt="" className="max-h-64 w-full object-contain" />
             </div>
           )}
           <div>
@@ -56,6 +56,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
               </ul>
             )}
             <button
+              type="button"
               onClick={handleCta}
               className="w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600 active:bg-green-700"
             >

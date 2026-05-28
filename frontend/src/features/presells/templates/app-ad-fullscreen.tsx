@@ -38,7 +38,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
         {imageUrl && (
           <img
             src={imageUrl}
-            alt={headline}
+            alt=""
             className="mx-auto mb-4 object-contain"
             style={{ maxHeight: '180px' }}
           />
@@ -48,7 +48,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
         {microcopy && (
           <p className="mb-4 text-sm text-white/60">{microcopy}</p>
         )}
-        <button onClick={handleCta} className={buttonClass}>
+        <button type="button" onClick={handleCta} className={buttonClass}>
           {ctaText}
         </button>
         {disclaimer && (

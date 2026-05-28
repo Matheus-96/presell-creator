@@ -41,6 +41,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
           <p className="mb-4 text-sm font-semibold text-red-600">{scarcityText}</p>
         )}
         <button
+          type="button"
           onClick={handleCta}
           className="w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600 active:bg-green-700"
         >
