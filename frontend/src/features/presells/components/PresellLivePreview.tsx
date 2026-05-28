@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
+import '@/features/presells/templates/index.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
