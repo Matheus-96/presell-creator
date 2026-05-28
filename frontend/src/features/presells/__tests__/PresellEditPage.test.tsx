@@ -18,7 +18,7 @@ vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   updatePresell: vi.fn(),
   deletePresell: vi.fn(),
   duplicatePresell: vi.fn(),
-  renderPreview: vi.fn(),
+  uploadMedia: vi.fn(),
   getApiErrorMessage: (_err: unknown, fallback: string) => fallback,
 }))
 
@@ -36,7 +36,6 @@ import {
   updatePresell,
   deletePresell,
   duplicatePresell,
-  renderPreview,
 } from '@/features/presells/lib/presells-api.ts'
 
 const mockListTemplates = vi.mocked(listTemplates)
@@ -48,9 +47,9 @@ const mockDuplicatePresell = vi.mocked(duplicatePresell)
 
 function makeTemplate(overrides: Partial<TemplateMetadata> = {}): TemplateMetadata {
   return {
-    id: 'advertorial',
-    name: 'Advertorial',
-    description: 'Classic advertorial layout',
+    id: 'offer-modal',
+    name: 'Oferta com modal',
+    description: 'Oferta central em modal',
     fields: [],
     ...overrides,
   }
@@ -61,11 +60,11 @@ function makePresellDetail(overrides: Partial<PresellDetail> = {}): PresellDetai
     id: 1,
     slug: 'test-presell',
     status: 'draft',
-    templateId: 'advertorial',
+    templateId: 'offer-modal',
     title: 'Test Presell',
     headline: 'Test Headline',
     subtitle: '',
-    ctaText: 'Buy now',
+    ctaText: 'Continuar',
     affiliateUrl: 'https://example.com',
     published: false,
     body: 'Body text',
@@ -77,7 +76,6 @@ function makePresellDetail(overrides: Partial<PresellDetail> = {}): PresellDetai
     urls: {
       publicPage: '/p/test-presell',
       redirect: '/go/test-presell',
-      adminPreview: '/admin/presells/1/preview',
     },
     ...overrides,
   }
@@ -107,31 +105,6 @@ function renderPage(route: string) {
 describe('PresellEditPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(renderPreview).mockResolvedValue({
-      html: '<html><body>preview</body></html>',
-      contentType: 'text/html',
-      presell: makePresellDetail(),
-      template: makeTemplate(),
-      runtime: {
-        schemaVersion: 1,
-        mode: 'preview',
-        templateId: 'advertorial',
-        renderer: {
-          templateId: 'advertorial',
-          kind: 'react',
-          engine: 'react',
-          entry: 'advertorial.js',
-          view: 'advertorial',
-          fileName: 'advertorial.js',
-        },
-        previewContract: {
-          schemaVersion: 1,
-          templateId: 'advertorial',
-          selectors: {},
-          fields: [],
-        },
-      },
-    })
   })
 
   it('shows form loaded with presell data in edit mode at /presells/:id/edit', async () => {
@@ -141,7 +114,7 @@ describe('PresellEditPage', () => {
     renderPage('/presells/7/edit')
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /save changes/i })).toBeDefined()
+      expect(screen.getByRole('button', { name: /salvar/i })).toBeDefined()
     })
 
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('loaded-slug')
@@ -156,12 +129,12 @@ describe('PresellEditPage', () => {
     await waitFor(() => expect(screen.getByLabelText(/slug/i)).toBeDefined())
 
     await userEvent.type(screen.getByLabelText(/slug/i), 'new-slug')
-    await userEvent.type(screen.getByLabelText(/internal title/i), 'New Title')
-    await userEvent.type(screen.getByLabelText(/headline/i), 'New Headline')
-    await userEvent.type(screen.getByLabelText(/cta text/i), 'Click here')
-    await userEvent.type(screen.getByLabelText(/affiliate url/i), 'https://example.com')
+    await userEvent.type(screen.getByLabelText(/título interno/i), 'New Title')
+    await userEvent.type(screen.getByLabelText(/^título$/i), 'New Headline')
+    await userEvent.type(screen.getByLabelText(/texto do botão/i), 'Click here')
+    await userEvent.type(screen.getByLabelText(/url de destino/i), 'https://example.com')
 
-    await userEvent.click(screen.getByRole('button', { name: /create presell/i }))
+    await userEvent.click(screen.getByRole('button', { name: /criar presell/i }))
 
     await waitFor(() => {
       expect(mockCreatePresell).toHaveBeenCalledOnce()
@@ -176,13 +149,13 @@ describe('PresellEditPage', () => {
 
     renderPage('/presells/7/edit')
 
-    await waitFor(() => expect(screen.getByRole('button', { name: /save changes/i })).toBeDefined())
+    await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
 
-    await userEvent.click(screen.getByRole('button', { name: /save changes/i }))
+    await userEvent.click(screen.getByRole('button', { name: /^salvar$/i }))
 
     await waitFor(() => {
       expect(mockUpdatePresell).toHaveBeenCalledWith(7, expect.objectContaining({ slug: 'existing-slug' }))
-      expect(vi.mocked(toast.success)).toHaveBeenCalledWith('Presell updated')
+      expect(vi.mocked(toast.success)).toHaveBeenCalledWith('Presell salvo')
     })
   })
 
@@ -194,9 +167,9 @@ describe('PresellEditPage', () => {
 
     renderPage('/presells/7/edit')
 
-    await waitFor(() => expect(screen.getByRole('button', { name: /^delete$/i })).toBeDefined())
+    await waitFor(() => expect(screen.getByRole('button', { name: /excluir/i })).toBeDefined())
 
-    await userEvent.click(screen.getByRole('button', { name: /^delete$/i }))
+    await userEvent.click(screen.getByRole('button', { name: /excluir/i }))
 
     await waitFor(() => {
       expect(mockDeletePresell).toHaveBeenCalledWith(7)
@@ -211,9 +184,9 @@ describe('PresellEditPage', () => {
 
     renderPage('/presells/7/edit')
 
-    await waitFor(() => expect(screen.getByRole('button', { name: /duplicate/i })).toBeDefined())
+    await waitFor(() => expect(screen.getByRole('button', { name: /duplicar/i })).toBeDefined())
 
-    await userEvent.click(screen.getByRole('button', { name: /duplicate/i }))
+    await userEvent.click(screen.getByRole('button', { name: /duplicar/i }))
 
     await waitFor(() => {
       expect(mockDuplicatePresell).toHaveBeenCalledWith(7)
@@ -227,7 +200,7 @@ describe('PresellEditPage', () => {
     renderPage('/presells/new')
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /create presell/i })).toBeDefined()
+      expect(screen.getByRole('button', { name: /criar presell/i })).toBeDefined()
     })
 
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('')

@@ -193,6 +193,10 @@ export type PresellWritePayload = {
   }
 }
 
+export type UploadResponse = {
+  media: MediaReference
+}
+
 export type WorkspaceNotice = {
   title: string
   description: string
