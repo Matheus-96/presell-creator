@@ -31,11 +31,6 @@ function createAdminFrontendRouter() {
   return router;
 }
 
-/**
- * Returns an Express router that serves the SPA index.html for all GET
- * requests under /p/*. No static assets — only the entry point so the React
- * Router can take over client-side.
- */
 function createPublicPresellSpaHandler() {
   const router = express.Router();
 
