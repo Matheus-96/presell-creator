@@ -296,8 +296,8 @@ const publicPresellSchema = {
     ctaText: { type: "string" },
     affiliateUrl: { type: "string" },
     googlePixelId: { type: ["string", "null"] },
-    imageUrl: { type: "string" },
-    backgroundImageUrl: { type: "string" },
+    imageUrl: { type: ["string", "null"] },
+    backgroundImageUrl: { type: ["string", "null"] },
     settings: { type: "object", additionalProperties: true }
   }
 };
@@ -314,8 +314,8 @@ function serializePublicPresell(presell) {
     ctaText: String(presell.cta_text || ""),
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
-    imageUrl: buildMediaUrl(presell.image_path),
-    backgroundImageUrl: buildMediaUrl(presell.background_image_path),
+    imageUrl: buildMediaUrl(presell.image_path) || null,
+    backgroundImageUrl: buildMediaUrl(presell.background_image_path) || null,
     settings: parsePresellSettings(presell)
   };
 }
