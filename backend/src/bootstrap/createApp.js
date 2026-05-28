@@ -16,6 +16,7 @@ const apiAdminRoutes = require("../routes/apiAdmin");
 const apiPublicRoutes = require("../routes/apiPublic");
 const {
   createAdminFrontendRouter,
+  createPublicPresellSpaHandler,
   hasBuiltAdminFrontend
 } = require("../routes/adminFrontend");
 const assetRoutes = require("../routes/assets");
@@ -76,6 +77,7 @@ function createApp() {
   app.use("/media", assetRoutes);
   if (adminFrontendBuilt) {
     app.use(adminFrontendPath, createAdminFrontendRouter());
+    app.use("/p/", createPublicPresellSpaHandler());
   }
   app.use("/", publicRoutes);
   app.use("/api/admin", apiAdminRoutes);

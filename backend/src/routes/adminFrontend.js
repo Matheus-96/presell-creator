@@ -31,7 +31,20 @@ function createAdminFrontendRouter() {
   return router;
 }
 
+function createPublicPresellSpaHandler() {
+  const router = express.Router();
+
+  router.get("*", (req, res) => {
+    res.sendFile(frontendDistIndexFile, {
+      headers: getAdminFrontendCacheHeaders(frontendDistIndexFile)
+    });
+  });
+
+  return router;
+}
+
 module.exports = {
   createAdminFrontendRouter,
+  createPublicPresellSpaHandler,
   hasBuiltAdminFrontend
 };
