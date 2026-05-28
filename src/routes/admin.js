@@ -19,6 +19,11 @@ const {
 const { getOverview } = require("../services/analyticsService");
 const { upload, uploadMultiple, registerUpload } = require("../services/uploadService");
 const { generatePixelHtml } = require("../services/pixelService");
+const {
+  buildTemplatePreviewContract,
+  getTemplatePreviewContracts
+} = require("../../backend/src/templates");
+const { buildPreviewBridgeScript } = require("../../backend/src/runtime/previewBridge");
 
 const router = express.Router();
 
@@ -129,7 +134,8 @@ router.get("/presells/:id/preview", requireAuth, (req, res) => {
     bullets: parseBullets(presell),
     pixelHtml,
     trackingQuery: "",
-    preview: true
+    preview: true,
+    previewBridgeScript: buildPreviewBridgeScript(buildTemplatePreviewContract(selectedTemplate.id))
   });
 });
 
@@ -175,7 +181,8 @@ router.post("/api/presells/preview", requireAuth, verifyCsrf, (req, res) => {
     bullets: parseBullets(previewPresell),
     pixelHtml,
     trackingQuery: "",
-    preview: true
+    preview: true,
+    previewBridgeScript: buildPreviewBridgeScript(buildTemplatePreviewContract(selectedTemplate.id))
   });
 });
 
@@ -201,7 +208,8 @@ router.post("/api/presells/:id/preview", requireAuth, verifyCsrf, (req, res) => 
     bullets: parseBullets(previewPresell),
     pixelHtml,
     trackingQuery: "",
-    preview: true
+    preview: true,
+    previewBridgeScript: buildPreviewBridgeScript(buildTemplatePreviewContract(selectedTemplate.id))
   });
 });
 
@@ -263,6 +271,7 @@ function getFormTemplateLocals(presell, postedSettings = null, existingPresell =
       templates: allowedTemplates,
       templateDefinitions,
       selectedTemplate,
+      templatePreviewContracts: getTemplatePreviewContracts(),
       settings
     };
 

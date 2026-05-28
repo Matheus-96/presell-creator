@@ -7,6 +7,7 @@
   const DEBUG = true;
   const IFRAME_ID = 'preview-iframe';
   const HIDDEN_FORM_ID = 'preview-form-hidden';
+  const templatePreviewContracts = window.__TEMPLATE_PREVIEW_CONTRACTS__ || {};
 
   const iframe = document.getElementById(IFRAME_ID);
   
@@ -30,35 +31,36 @@
     return pathMatch ? pathMatch[1] : null;
   }
 
-  const fieldToSelectorMap = {
-    'settings[badge_text]': '.official-simple-badge',
-    'settings[trust_badges]': '.official-simple-trust-list',
-    'settings[accent_color]': '.official-simple-cta',
-    'settings[discount_text]': '.offer-modal-discount',
-    'settings[scarcity_text]': '.offer-modal-scarcity',
-    'settings[rating]': '.offer-modal-rating-value',
-    'settings[stars_text]': '.offer-modal-rating',
-    'settings[modal_cta_text_override]': '.offer-modal-cta',
-    'settings[overlay_strength]': '.offer-modal-overlay',
-    'settings[frame_type]': '.device-frame-window',
-    'settings[top_bar_text]': '.device-frame-top-bar',
-    'settings[footer_left_text]': '.device-frame-footer',
-    'settings[footer_right_text]': '.device-frame-footer',
-    'settings[offer_note]': '.device-frame-offer-note',
-    'settings[label_text]': '.app-ad-label',
-    'settings[microcopy]': '.app-ad-microcopy',
-    'settings[disclaimer]': '.app-ad-disclaimer',
-    'settings[layout_density]': '.app-ad-shell, .app-ad-fullscreen-shell',
-    'settings[button_style]': '.app-ad-cta',
-    'headline': 'h1',
-    'subtitle': '.lead, .subtitle, .app-ad-subtitle',
-    'body': '.copy, .app-ad-body-copy',
-    'bullets': '.benefits li, .app-ad-benefits li',
-    'cta_text': '.cta, .app-ad-cta, .official-simple-cta, .offer-modal-cta, .device-frame-cta'
-  };
+  const fallbackSelectorMap = Object.values(templatePreviewContracts).reduce((selectors, contract) => {
+    const contractSelectors = contract && contract.selectors ? contract.selectors : {};
+    const nextSelectors = { ...selectors };
+
+    Object.keys(contractSelectors).forEach((fieldName) => {
+      if (!nextSelectors[fieldName]) {
+        nextSelectors[fieldName] = contractSelectors[fieldName];
+      }
+    });
+
+    return nextSelectors;
+  }, {});
+
+  function getActiveTemplateId() {
+    const mainForm = document.querySelector('form');
+    if (!mainForm) return '';
+
+    const templateInput = mainForm.querySelector('select[name="template"]');
+    return templateInput ? templateInput.value : '';
+  }
+
+  function getActivePreviewSelectorMap() {
+    const activeTemplateId = getActiveTemplateId();
+    const contract = activeTemplateId ? templatePreviewContracts[activeTemplateId] : null;
+    return contract && contract.selectors ? contract.selectors : {};
+  }
 
   function getPreviewSelector(fieldName) {
-    return fieldToSelectorMap[fieldName] || `[name="${fieldName}"]`;
+    const selectorMap = getActivePreviewSelectorMap();
+    return selectorMap[fieldName] || fallbackSelectorMap[fieldName] || `[name="${fieldName}"]`;
   }
 
   /**

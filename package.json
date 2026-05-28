@@ -2,13 +2,35 @@
   "name": "presell-server",
   "version": "1.0.0",
   "description": "Server-side presell manager for affiliate bridge pages.",
+  "private": true,
   "main": "src/server.js",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "npm run start:monolith",
+    "start:monolith": "node src/server.js",
+    "start:backend": "npm run start --workspace backend --if-present --",
+    "start:frontend": "npm run start --workspace frontend --if-present --",
+    "start:split": "node scripts/run-split.js start",
+    "dev": "npm run dev:monolith",
+    "dev:monolith": "node --watch src/server.js",
+    "dev:backend": "npm run dev --workspace backend --if-present --",
+    "dev:frontend": "npm run dev --workspace frontend --if-present --",
+    "dev:split": "node scripts/run-split.js dev",
     "hash-password": "node scripts/hash-password.js",
     "smoke": "node scripts/smoke.js",
-    "lint": "eslint . --ext .js"
+    "build": "npm run build:monolith",
+    "build:monolith": "node -e \"console.log('The current monolith has no build step.')\"",
+    "build:backend": "npm run build --workspace backend --if-present --",
+    "build:frontend": "npm run build --workspace frontend --if-present --",
+    "build:split": "npm run build:backend && npm run build:frontend",
+    "lint": "npm run lint:monolith",
+    "lint:monolith": "eslint controllers routes scripts src/server.js --ext .js",
+    "lint:backend": "npm run lint --workspace backend --if-present --",
+    "lint:frontend": "npm run lint --workspace frontend --if-present --",
+    "lint:split": "npm run lint:backend && npm run lint:frontend"
   },
   "dependencies": {
     "dotenv": "^16.4.7",

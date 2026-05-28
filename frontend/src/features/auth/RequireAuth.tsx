@@ -1,0 +1,76 @@
+import { useEffect } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { SectionCard } from '@/components/ui/SectionCard.tsx'
+import { appConfig, joinConfigUrl } from '@/config/app-config.ts'
+import { ADMIN_AUTH_REQUIRED_EVENT } from '@/lib/api/api-client.ts'
+import { useAuth } from '@/features/auth/use-auth.ts'
+
+function getLegacyLoginUrl() {
+  return joinConfigUrl(appConfig.legacyAdminUrl, '/login')
+}
+
+export function RequireAuth() {
+  const auth = useAuth()
+  const location = useLocation()
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    function handle() {
+      toast.warning('Sua sessão expirou. Faça login novamente.')
+      void queryClient.invalidateQueries({ queryKey: ['session'] })
+    }
+    window.addEventListener(ADMIN_AUTH_REQUIRED_EVENT, handle)
+    return () => window.removeEventListener(ADMIN_AUTH_REQUIRED_EVENT, handle)
+  }, [queryClient])
+
+  if (auth.status === 'loading') {
+    return null
+  }
+
+  if (auth.status === 'error') {
+    return (
+      <div className="page page--centered">
+        <SectionCard
+          eyebrow="Auth boundary"
+          title="Unable to validate the admin session"
+          description={auth.message}
+        >
+          <div className="button-row">
+            <button
+              className="button-link"
+              type="button"
+              onClick={() => { void auth.refresh() }}
+            >
+              Retry session check
+            </button>
+            {appConfig.legacyAdminUrl !== appConfig.adminBaseUrl ? (
+              <a className="button-link button-link--secondary" href={getLegacyLoginUrl()}>
+                Open legacy admin
+              </a>
+            ) : null}
+          </div>
+        </SectionCard>
+      </div>
+    )
+  }
+
+  if (auth.status === 'unauthenticated') {
+    return (
+      <Navigate
+        replace
+        to="/login"
+        state={{
+          from: {
+            pathname: location.pathname,
+            search: location.search,
+            hash: location.hash,
+          },
+        }}
+      />
+    )
+  }
+
+  return <Outlet />
+}
