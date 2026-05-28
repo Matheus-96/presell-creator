@@ -16,12 +16,14 @@ const {
   presellSummarySchema,
   presellDetailSchema,
   presellListResponseSchema,
+  publicPresellSchema,
   serializePresellSummary,
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
   deserializePresellListQuery,
-  serializePresellListResponse
+  serializePresellListResponse,
+  serializePublicPresell
 } = require("./presells");
 const {
   previewRequestSchema,
@@ -85,12 +87,14 @@ module.exports = {
   presellSummarySchema,
   presellDetailSchema,
   presellListResponseSchema,
+  publicPresellSchema,
   serializePresellSummary,
   serializePresellDetail,
   serializePresellWriteInput,
   deserializePresellWriteInput,
   deserializePresellListQuery,
   serializePresellListResponse,
+  serializePublicPresell,
   previewRequestSchema,
   previewResponseSchema,
   previewRuntimeSchema,

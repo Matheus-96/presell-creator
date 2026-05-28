@@ -2,10 +2,11 @@ const {
   buildApiError,
   publicApiContract,
   serializeTrackingEventResponse,
-  serializeTrackingRedirectResponse
+  serializeTrackingRedirectResponse,
+  serializePublicPresell
 } = require("../contracts");
 const { getPublishedPresell } = require("../services/presellService");
-const { recordEvent, resolveRedirect } = require("../services/analyticsService");
+const { recordEvent, resolveRedirect, getOrCreateSession, recordEventWithSession } = require("../services/analyticsService");
 
 function getContracts(req, res) {
   res.json(publicApiContract);
@@ -71,8 +72,25 @@ function getEventParams(value) {
   return { ...value };
 }
 
+function getPublicPresell(req, res) {
+  const presell = getPublishedPresell(req.params.slug);
+  if (!presell) {
+    return res.status(404).json(buildApiError(
+      "presell_not_found",
+      "No published presell matches the requested slug.",
+      { slug: req.params.slug }
+    ));
+  }
+
+  const session = getOrCreateSession(req);
+  recordEventWithSession(req, presell, "page_view", session);
+
+  return res.json(serializePublicPresell(presell));
+}
+
 module.exports = {
   getContracts,
   recordPresellEvent,
-  resolvePresellRedirect: resolvePresellRedirectContract
+  resolvePresellRedirect: resolvePresellRedirectContract,
+  getPublicPresell
 };

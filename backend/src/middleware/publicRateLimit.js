@@ -24,8 +24,10 @@ function createPublicRateLimit(identifier, limit) {
 
 const publicEventRateLimit = createPublicRateLimit("public-analytics-events", 120);
 const publicRedirectRateLimit = createPublicRateLimit("public-redirect-resolution", 240);
+const publicReadRateLimit = createPublicRateLimit("public-presell-read", 300);
 
 module.exports = {
   publicEventRateLimit,
-  publicRedirectRateLimit
+  publicRedirectRateLimit,
+  publicReadRateLimit
 };
