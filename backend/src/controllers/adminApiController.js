@@ -8,7 +8,6 @@ const {
   deserializePresellWriteInput,
   deserializePresellListQuery,
   serializePresellListResponse,
-  serializePreviewDocument,
   serializeTemplateCatalog,
   serializeAnalyticsOverview,
   serializeAnalyticsSummary,
@@ -32,7 +31,6 @@ const {
   authenticateAdminCredentials,
   rotateAdminSession
 } = require("../services/adminAuthService");
-const { buildPreviewDocument } = require("../services/previewService");
 const { registerUpload } = require("../services/uploadService");
 
 function getContracts(req, res) {
@@ -111,20 +109,6 @@ function deleteSession(req, res) {
 
 function getTemplates(req, res) {
   res.json(serializeTemplateCatalog(templateDefinitions));
-}
-
-async function postPreview(req, res, next) {
-  try {
-    const previewDocument = await buildPreviewDocument(req.app, req.body);
-
-    return res.json(serializePreviewDocument(previewDocument));
-  } catch (error) {
-    if (error.code === "presell_not_found") {
-      return respondPresellNotFound(res, error.details && error.details.id);
-    }
-
-    return next(error);
-  }
 }
 
 function getPresellCollection(req, res) {
@@ -301,7 +285,6 @@ module.exports = {
   postSession,
   deleteSession,
   getTemplates,
-  postPreview,
   getPresellCollection,
   getPresell,
   createPresell,
