@@ -18,7 +18,6 @@ vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   updatePresell: vi.fn(),
   deletePresell: vi.fn(),
   duplicatePresell: vi.fn(),
-  renderPreview: vi.fn(),
   getApiErrorMessage: (_err: unknown, fallback: string) => fallback,
 }))
 
@@ -36,7 +35,6 @@ import {
   updatePresell,
   deletePresell,
   duplicatePresell,
-  renderPreview,
 } from '@/features/presells/lib/presells-api.ts'
 
 const mockListTemplates = vi.mocked(listTemplates)
@@ -107,31 +105,6 @@ function renderPage(route: string) {
 describe('PresellEditPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(renderPreview).mockResolvedValue({
-      html: '<html><body>preview</body></html>',
-      contentType: 'text/html',
-      presell: makePresellDetail(),
-      template: makeTemplate(),
-      runtime: {
-        schemaVersion: 1,
-        mode: 'preview',
-        templateId: 'advertorial',
-        renderer: {
-          templateId: 'advertorial',
-          kind: 'react',
-          engine: 'react',
-          entry: 'advertorial.js',
-          view: 'advertorial',
-          fileName: 'advertorial.js',
-        },
-        previewContract: {
-          schemaVersion: 1,
-          templateId: 'advertorial',
-          selectors: {},
-          fields: [],
-        },
-      },
-    })
   })
 
   it('shows form loaded with presell data in edit mode at /presells/:id/edit', async () => {

@@ -328,7 +328,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             draft={formValues as unknown as PresellFormState}
             template={selectedTemplate}
             detailStatus="idle"
-            highlightSelector={null}
           />
         </div>
       </div>
