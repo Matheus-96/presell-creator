@@ -1,33 +1,28 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useParams, useBlocker } from 'react-router-dom'
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { Copy, ClipboardPaste } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
+import { FormSection } from '@/features/presells/components/FormSection.tsx'
+import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
 import { MediaUploadField } from '@/features/presells/components/MediaUploadField.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
 import { TemplateSettingsFields } from '@/features/presells/components/TemplateSettingsFields.tsx'
 import {
-  buildPresellPayload,
   createEmptyPresellForm,
   createPresellForm,
   getTemplateById,
 } from '@/features/presells/lib/presell-editor.ts'
-import {
-  createPresell,
-  deletePresell,
-  duplicatePresell,
-  getApiErrorMessage,
-  getPresell,
-  listTemplates,
-  updatePresell,
-} from '@/features/presells/lib/presells-api.ts'
+import { getPresell, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import { presellFormSchema } from '@/features/presells/lib/presell-form-schema.ts'
+import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
+import { usePresellEditor } from '@/features/presells/hooks/usePresellEditor.ts'
 import type {
   MediaReference,
   PresellFormState,
@@ -36,74 +31,14 @@ import type {
 } from '@/features/presells/types.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 
-const presellFormSchema = z.object({
-  id: z.number().nullable(),
-  slug: z.string().min(1, 'Slug é obrigatório'),
-  status: z.enum(['draft', 'published']),
-  templateId: z.string().min(1),
-  title: z.string().min(1, 'Título interno é obrigatório'),
-  headline: z.string().min(1, 'Título é obrigatório'),
-  subtitle: z.string(),
-  body: z.string(),
-  bulletsText: z.string(),
-  ctaText: z.string().min(1, 'Texto do botão é obrigatório'),
-  affiliateUrl: z.string().url('Insira uma URL válida'),
-  googlePixelId: z.string(),
-  trackingParam: z.string(),
-  settings: z.record(z.string(), z.unknown()),
-  media: z.object({
-    heroImageFileName: z.string(),
-    initialHeroImageFileName: z.string(),
-    heroImageReference: z.any().nullable(),
-    backgroundImageFileName: z.string(),
-    initialBackgroundImageFileName: z.string(),
-    backgroundImageReference: z.any().nullable(),
-  }),
-  urls: z.any().nullable(),
-  timestamps: z.object({
-    createdAt: z.string().nullable(),
-    updatedAt: z.string().nullable(),
-  }),
-})
-
-type PresellFormValues = z.infer<typeof presellFormSchema>
-
 type EditorFormProps = {
   id: number | null
   templates: TemplateMetadata[]
   defaultValues: PresellFormState
 }
 
-function FormSection({
-  title,
-  description,
-  action,
-  children,
-}: {
-  title: string
-  description?: string
-  action?: React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-          {description ? (
-            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
-          ) : null}
-        </div>
-        {action}
-      </div>
-      {children}
-    </div>
-  )
-}
-
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
 
   const { register, handleSubmit, watch, setValue, formState } = useForm<PresellFormValues>({
     resolver: zodResolver(presellFormSchema),
@@ -114,146 +49,25 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
 
   const [aiModalOpen, setAiModalOpen] = useState(false)
-  const [aiJsonText, setAiJsonText] = useState('')
-  const [aiJsonError, setAiJsonError] = useState('')
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  function handleApplyAiJson() {
-    let parsed: Record<string, unknown>
-    try {
-      parsed = JSON.parse(aiJsonText)
-    } catch {
-      setAiJsonError('JSON inválido. Verifique o formato e tente novamente.')
-      return
-    }
-
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-      setAiJsonError('O JSON deve ser um objeto.')
-      return
-    }
-
-    if ('headline' in parsed && typeof parsed.headline === 'string') {
-      setValue('headline', parsed.headline, { shouldDirty: true })
-    }
-    if ('subtitle' in parsed && typeof parsed.subtitle === 'string') {
-      setValue('subtitle', parsed.subtitle, { shouldDirty: true })
-    }
-    if ('ctaText' in parsed && typeof parsed.ctaText === 'string') {
-      setValue('ctaText', parsed.ctaText, { shouldDirty: true })
-    }
-    if ('bullets' in parsed && Array.isArray(parsed.bullets)) {
-      const lines = (parsed.bullets as unknown[])
-        .filter((b) => typeof b === 'string')
-        .join('\n')
-      setValue('bulletsText', lines, { shouldDirty: true })
-    }
-    if ('settings' in parsed && typeof parsed.settings === 'object' && parsed.settings !== null) {
-      const knownFieldNames = new Set(selectedTemplate?.fields.map((f) => f.name) ?? [])
-      const incoming = parsed.settings as Record<string, unknown>
-      for (const key of Object.keys(incoming)) {
-        if (knownFieldNames.has(key)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setValue(`settings.${key}` as any, incoming[key], { shouldDirty: true })
-        }
-      }
-    }
-
-    toast.success('Formulário preenchido com o JSON da IA')
-    setAiModalOpen(false)
-    setAiJsonText('')
-    setAiJsonError('')
-  }
-
-  const blocker = useBlocker(formState.isDirty)
-
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      if (window.confirm('Descartar alterações não salvas?')) {
-        blocker.proceed()
-      } else {
-        blocker.reset()
-      }
-    }
-  }, [blocker])
-
-  const saveMutation = useMutation({
-    mutationFn: (values: PresellFormValues) => {
-      const payload = buildPresellPayload(values as unknown as PresellFormState, selectedTemplate)
-      return id ? updatePresell(id, payload) : createPresell(payload)
-    },
-    onSuccess: (saved) => {
-      queryClient.invalidateQueries({ queryKey: ['presells'] })
-      if (id) {
-        queryClient.invalidateQueries({ queryKey: ['presell', id] })
-        toast.success('Presell salvo')
-      } else {
-        navigate(`/presells/${saved.id}/edit`)
-      }
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Erro ao salvar presell'))
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: () => deletePresell(id!),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['presells'] })
-      navigate('/presells')
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Erro ao excluir presell'))
-    },
-  })
-
-  const duplicateMutation = useMutation({
-    mutationFn: () => duplicatePresell(id!),
-    onSuccess: (saved) => {
-      queryClient.invalidateQueries({ queryKey: ['presells'] })
-      navigate(`/presells/${saved.id}/edit`)
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Erro ao duplicar presell'))
-    },
-  })
-
-  function handleDelete() {
-    if (!window.confirm('Excluir este presell permanentemente?')) return
-    deleteMutation.mutate()
-  }
-
-  function handleHeroUpload(ref: MediaReference) {
-    setValue('media.heroImageFileName', ref.fileName, { shouldDirty: true })
-    setValue('media.heroImageReference', ref, { shouldDirty: true })
-  }
-
-  function handleHeroRemove() {
-    setValue('media.heroImageFileName', '', { shouldDirty: true })
-    setValue('media.heroImageReference', null, { shouldDirty: true })
-  }
-
-  function handleBackgroundUpload(ref: MediaReference) {
-    setValue('media.backgroundImageFileName', ref.fileName, { shouldDirty: true })
-    setValue('media.backgroundImageReference', ref, { shouldDirty: true })
-  }
-
-  function handleBackgroundRemove() {
-    setValue('media.backgroundImageFileName', '', { shouldDirty: true })
-    setValue('media.backgroundImageReference', null, { shouldDirty: true })
-  }
-
-  const isBusy = saveMutation.isPending || deleteMutation.isPending || duplicateMutation.isPending
+  const {
+    saveMutation,
+    deleteMutation,
+    duplicateMutation,
+    isBusy,
+    handleDelete,
+    handleHeroUpload,
+    handleHeroRemove,
+    handleBackgroundUpload,
+    handleBackgroundRemove,
+  } = usePresellEditor({ id, isDirty: formState.isDirty, selectedTemplate, setValue })
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
       <div className="shrink-0 px-6 py-3 border-b border-slate-200 bg-white">
         <PageHeader
           eyebrow="Editor de presell"
-          title={
-            id
-              ? (formValues.title || formValues.headline || `Presell #${id}`)
-              : 'Novo presell'
-          }
+          title={id ? (formValues.title || formValues.headline || `Presell #${id}`) : 'Novo presell'}
         />
       </div>
 
@@ -342,10 +156,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           </FormSection>
 
           {/* Conteúdo */}
-          <FormSection
-            title="Conteúdo"
-            description="Textos exibidos na página de presell"
-          >
+          <FormSection title="Conteúdo" description="Textos exibidos na página de presell">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="headline">Título</Label>
@@ -411,32 +222,23 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="googlePixelId">ID do pixel Google</Label>
-                <Input
-                  id="googlePixelId"
-                  placeholder="Opcional"
-                  {...register('googlePixelId')}
-                />
+                <Input id="googlePixelId" placeholder="Opcional" {...register('googlePixelId')} />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="trackingParam">Parâmetro de rastreamento</Label>
-                <Input
-                  id="trackingParam"
-                  placeholder="gclid"
-                  {...register('trackingParam')}
-                />
+                <Input id="trackingParam" placeholder="gclid" {...register('trackingParam')} />
                 <p className="text-xs text-muted-foreground">
-                  Nome do parâmetro passado para o link do afiliado. Use <code>sid</code> para CJ Affiliate e Braip, <code>src</code> para Hotmart e Eduzz, <code>tid</code> para ClickBank. Deixe em branco para usar <code>gclid</code>.
+                  Nome do parâmetro passado para o link do afiliado. Use <code>sid</code> para CJ
+                  Affiliate e Braip, <code>src</code> para Hotmart e Eduzz, <code>tid</code> para
+                  ClickBank. Deixe em branco para usar <code>gclid</code>.
                 </p>
               </div>
             </div>
           </FormSection>
 
           {/* Mídia */}
-          <FormSection
-            title="Mídia"
-            description="Imagens usadas pelo template"
-          >
+          <FormSection title="Mídia" description="Imagens usadas pelo template">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <MediaUploadField
                 label="Imagem do produto"
@@ -446,9 +248,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
               />
               <MediaUploadField
                 label="Imagem de fundo"
-                reference={
-                  formValues.media.backgroundImageReference as MediaReference | null
-                }
+                reference={formValues.media.backgroundImageReference as MediaReference | null}
                 onUpload={handleBackgroundUpload}
                 onRemove={handleBackgroundRemove}
               />
@@ -459,38 +259,35 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           <FormSection
             title="Configurações do template"
             description={selectedTemplate?.description}
-            action={selectedTemplate?.aiInstructions ? (
-              <div className="flex items-center gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto shrink-0 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedTemplate.aiInstructions!)
-                    toast.success('Instruções copiadas')
-                  }}
-                >
-                  <Copy className="h-3.5 w-3.5 mr-1" />
-                  Copiar instruções
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-auto shrink-0 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                  onClick={() => {
-                    setAiJsonText('')
-                    setAiJsonError('')
-                    setAiModalOpen(true)
-                    setTimeout(() => textareaRef.current?.focus(), 50)
-                  }}
-                >
-                  <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
-                  Preencher com JSON
-                </Button>
-              </div>
-            ) : null}
+            action={
+              selectedTemplate?.aiInstructions ? (
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto shrink-0 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    onClick={() => {
+                      navigator.clipboard.writeText(selectedTemplate.aiInstructions!)
+                      toast.success('Instruções copiadas')
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5 mr-1" />
+                    Copiar instruções
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto shrink-0 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                    onClick={() => setAiModalOpen(true)}
+                  >
+                    <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
+                    Preencher com JSON
+                  </Button>
+                </div>
+              ) : null
+            }
           >
             <TemplateSettingsFields
               settings={formValues.settings as Record<string, TemplateSettingValue>}
@@ -514,48 +311,12 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         </div>
       </div>
 
-      {/* AI JSON modal */}
-      {aiModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={(e) => { if (e.target === e.currentTarget) setAiModalOpen(false) }}
-        >
-          <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl flex flex-col gap-4">
-            <div>
-              <h2 className="text-base font-semibold text-slate-900">Preencher com JSON da IA</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Cole o JSON retornado pela IA. Os campos serão preenchidos automaticamente.
-              </p>
-            </div>
-            <textarea
-              ref={textareaRef}
-              className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
-              placeholder={'{\n  "headline": "...",\n  "subtitle": "...",\n  "ctaText": "...",\n  "bullets": ["..."],\n  "settings": {}\n}'}
-              value={aiJsonText}
-              onChange={(e) => {
-                setAiJsonText(e.target.value)
-                if (aiJsonError) setAiJsonError('')
-              }}
-            />
-            {aiJsonError ? (
-              <p className="text-sm text-destructive">{aiJsonError}</p>
-            ) : null}
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setAiModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                className="bg-green-600 hover:bg-green-700 text-white"
-                onClick={handleApplyAiJson}
-              >
-                <ClipboardPaste className="h-4 w-4 mr-1.5" />
-                Aplicar
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <AiJsonModal
+        open={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        selectedTemplate={selectedTemplate}
+        setValue={setValue}
+      />
     </div>
   )
 }
