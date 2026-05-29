@@ -41,7 +41,8 @@ const analyticsOverviewSchema = {
           views: { type: "number" },
           clicks: { type: "number" },
           redirects: { type: "number" },
-          ctr: { type: "number" }
+          ctr: { type: "number" },
+          avgTimeOnPage: { type: ["number", "null"] }
         }
       }
     },
@@ -165,7 +166,8 @@ function serializeAnalyticsOverview(overview) {
       views: Number(item.views || 0),
       clicks: Number(item.clicks || 0),
       redirects: Number(item.redirects || 0),
-      ctr: Number(item.ctr || 0)
+      ctr: Number(item.ctr || 0),
+      avgTimeOnPage: item.avg_time_on_page != null ? Math.round(Number(item.avg_time_on_page)) : null
     })),
     recentEvents: (overview.recent || overview.recentEvents || []).map(serializeEvent),
     sources: (overview.sources || []).map((item) => ({

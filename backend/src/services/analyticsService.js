@@ -123,7 +123,8 @@ function getPresellStatistics(presellId) {
     gclidDwellTime,
     utmSources,
     referrers,
-    recentEvents
+    recentEvents,
+    avgTimeOnPage
   } = analyticsRepository.getPresellStatistics(presellId);
 
   return {
@@ -133,7 +134,8 @@ function getPresellStatistics(presellId) {
     gclidDwellTime: gclidDwellTime.filter(item => item.gclid),
     utmSources: utmSources.filter(item => item.source),
     referrers: referrers.filter(item => item.referrer),
-    recentEvents
+    recentEvents,
+    avgTimeOnPage
   };
 }
 

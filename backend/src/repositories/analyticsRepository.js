@@ -34,7 +34,13 @@ const getOverviewByPresellStmt = db.prepare(`
     p.slug,
     SUM(CASE WHEN e.event_type = 'page_view' THEN 1 ELSE 0 END) AS views,
     SUM(CASE WHEN e.event_type = 'cta_click' THEN 1 ELSE 0 END) AS clicks,
-    SUM(CASE WHEN e.event_type = 'redirect' THEN 1 ELSE 0 END) AS redirects
+    SUM(CASE WHEN e.event_type = 'redirect' THEN 1 ELSE 0 END) AS redirects,
+    ROUND(AVG(CASE
+      WHEN e.event_type = 'time_on_page'
+        AND CAST(json_extract(e.params_json, '$.seconds') AS REAL) > 0
+        AND CAST(json_extract(e.params_json, '$.seconds') AS REAL) < 3600
+      THEN CAST(json_extract(e.params_json, '$.seconds') AS REAL)
+    END)) AS avg_time_on_page
   FROM presells p
   LEFT JOIN events e ON e.presell_id = p.id
   GROUP BY p.id
@@ -90,18 +96,23 @@ const getPresellGclidStatsStmt = db.prepare(`
 const getPresellGclidDwellTimeStmt = db.prepare(`
   SELECT
     json_extract(pv.params_json, '$.gclid') AS gclid,
-    ROUND(AVG(
-      (julianday(cc.created_at) - julianday(pv.created_at)) * 86400
-    )) AS avg_dwell_seconds,
+    ROUND(AVG(CAST(json_extract(tp.params_json, '$.seconds') AS REAL))) AS avg_dwell_seconds,
     COUNT(*) AS sessions_with_click
-  FROM events pv
-  JOIN events cc
-    ON pv.session_key = cc.session_key
-    AND pv.presell_id = cc.presell_id
-    AND cc.event_type = 'cta_click'
-  WHERE pv.event_type = 'page_view'
-    AND pv.presell_id = ?
+  FROM events tp
+  JOIN events pv ON pv.id = (
+    SELECT id FROM events
+    WHERE session_key = tp.session_key
+      AND presell_id = tp.presell_id
+      AND event_type = 'page_view'
+      AND id < tp.id
+    ORDER BY id DESC
+    LIMIT 1
+  )
+  WHERE tp.event_type = 'time_on_page'
+    AND tp.presell_id = ?
     AND json_extract(pv.params_json, '$.gclid') IS NOT NULL
+    AND CAST(json_extract(tp.params_json, '$.seconds') AS REAL) > 0
+    AND CAST(json_extract(tp.params_json, '$.seconds') AS REAL) < 3600
   GROUP BY gclid
   ORDER BY sessions_with_click DESC
 `);
