@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useBlocker } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { Copy, ClipboardPaste } from 'lucide-react'
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
@@ -111,6 +112,57 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
 
   const formValues = watch()
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
+
+  const [aiModalOpen, setAiModalOpen] = useState(false)
+  const [aiJsonText, setAiJsonText] = useState('')
+  const [aiJsonError, setAiJsonError] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  function handleApplyAiJson() {
+    let parsed: Record<string, unknown>
+    try {
+      parsed = JSON.parse(aiJsonText)
+    } catch {
+      setAiJsonError('JSON inválido. Verifique o formato e tente novamente.')
+      return
+    }
+
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      setAiJsonError('O JSON deve ser um objeto.')
+      return
+    }
+
+    if ('headline' in parsed && typeof parsed.headline === 'string') {
+      setValue('headline', parsed.headline, { shouldDirty: true })
+    }
+    if ('subtitle' in parsed && typeof parsed.subtitle === 'string') {
+      setValue('subtitle', parsed.subtitle, { shouldDirty: true })
+    }
+    if ('ctaText' in parsed && typeof parsed.ctaText === 'string') {
+      setValue('ctaText', parsed.ctaText, { shouldDirty: true })
+    }
+    if ('bullets' in parsed && Array.isArray(parsed.bullets)) {
+      const lines = (parsed.bullets as unknown[])
+        .filter((b) => typeof b === 'string')
+        .join('\n')
+      setValue('bulletsText', lines, { shouldDirty: true })
+    }
+    if ('settings' in parsed && typeof parsed.settings === 'object' && parsed.settings !== null) {
+      const knownFieldNames = new Set(selectedTemplate?.fields.map((f) => f.name) ?? [])
+      const incoming = parsed.settings as Record<string, unknown>
+      for (const key of Object.keys(incoming)) {
+        if (knownFieldNames.has(key)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setValue(`settings.${key}` as any, incoming[key], { shouldDirty: true })
+        }
+      }
+    }
+
+    toast.success('Formulário preenchido com o JSON da IA')
+    setAiModalOpen(false)
+    setAiJsonText('')
+    setAiJsonError('')
+  }
 
   const blocker = useBlocker(formState.isDirty)
 
@@ -408,18 +460,36 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             title="Configurações do template"
             description={selectedTemplate?.description}
             action={selectedTemplate?.aiInstructions ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-auto shrink-0 py-1 text-xs text-muted-foreground"
-                onClick={() => {
-                  navigator.clipboard.writeText(selectedTemplate.aiInstructions!)
-                  toast.success('Instruções copiadas')
-                }}
-              >
-                Copiar instruções para IA
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto shrink-0 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedTemplate.aiInstructions!)
+                    toast.success('Instruções copiadas')
+                  }}
+                >
+                  <Copy className="h-3.5 w-3.5 mr-1" />
+                  Copiar instruções
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto shrink-0 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                  onClick={() => {
+                    setAiJsonText('')
+                    setAiJsonError('')
+                    setAiModalOpen(true)
+                    setTimeout(() => textareaRef.current?.focus(), 50)
+                  }}
+                >
+                  <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
+                  Preencher com JSON
+                </Button>
+              </div>
             ) : null}
           >
             <TemplateSettingsFields
@@ -443,6 +513,49 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           />
         </div>
       </div>
+
+      {/* AI JSON modal */}
+      {aiModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={(e) => { if (e.target === e.currentTarget) setAiModalOpen(false) }}
+        >
+          <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl flex flex-col gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Preencher com JSON da IA</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Cole o JSON retornado pela IA. Os campos serão preenchidos automaticamente.
+              </p>
+            </div>
+            <textarea
+              ref={textareaRef}
+              className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+              placeholder={'{\n  "headline": "...",\n  "subtitle": "...",\n  "ctaText": "...",\n  "bullets": ["..."],\n  "settings": {}\n}'}
+              value={aiJsonText}
+              onChange={(e) => {
+                setAiJsonText(e.target.value)
+                if (aiJsonError) setAiJsonError('')
+              }}
+            />
+            {aiJsonError ? (
+              <p className="text-sm text-destructive">{aiJsonError}</p>
+            ) : null}
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setAiModalOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleApplyAiJson}
+              >
+                <ClipboardPaste className="h-4 w-4 mr-1.5" />
+                Aplicar
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
