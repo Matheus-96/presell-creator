@@ -121,6 +121,7 @@ export type TemplateMetadata = {
   id: string
   name: string
   description: string
+  aiInstructions?: string | null
   renderer?: {
     templateId: string
     kind: string

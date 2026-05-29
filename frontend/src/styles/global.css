@@ -1,5 +1,90 @@
 @import "tailwindcss";
 
+/* =====================================================
+   PRESELL DESIGN TOKENS
+   Fonte da verdade para todos os templates de presell.
+   Referência: docs/presell-design-guidelines.md
+   ===================================================== */
+:root {
+  /* Cores — paleta neutra (presell) */
+  --p-bg:     #f9fafb;
+  --p-panel:  #ffffff;
+  --p-text:   #111827;
+  --p-muted:  #6b7280;
+  --p-line:   #e5e7eb;
+  --p-danger: #dc2626;
+
+  /* Presets de CTA — aplicar via style={{ '--p-cta': 'var(--p-cta-green)' }} */
+  --p-cta-green:  #16a34a;
+  --p-cta-orange: #ea580c;
+  --p-cta-red:    #dc2626;
+  --p-cta-blue:   #2563eb;
+  --p-cta-yellow: #ca8a04;
+
+  /* Tipografia — eyebrow */
+  --p-eyebrow-size:   11px;
+  --p-eyebrow-weight: 600;
+  --p-eyebrow-lh:     1.4;
+  --p-eyebrow-ls:     0.1em;
+
+  /* Tipografia — H1 */
+  --p-h1-size:   clamp(24px, 6vw, 44px);
+  --p-h1-weight: 800;
+  --p-h1-lh:     1.15;
+  --p-h1-ls:     -0.02em;
+
+  /* Tipografia — subtítulo */
+  --p-subtitle-size:   clamp(16px, 3vw, 20px);
+  --p-subtitle-weight: 600;
+  --p-subtitle-lh:     1.4;
+
+  /* Tipografia — body / bullets */
+  --p-body-size:   16px;
+  --p-body-weight: 400;
+  --p-body-lh:     1.6;
+
+  /* Tipografia — texto do CTA */
+  --p-cta-text-size:   clamp(17px, 3vw, 18px);
+  --p-cta-text-weight: 700;
+  --p-cta-text-lh:     1.3;
+
+  /* Tipografia — microcopy */
+  --p-micro-size:   12px;
+  --p-micro-weight: 400;
+  --p-micro-lh:     1.4;
+  --p-micro-ls:     0.05em;
+
+  /* Espaçamento — base 4px */
+  --p-space-1:   4px;
+  --p-space-2:   8px;
+  --p-space-3:  12px;
+  --p-space-4:  16px;
+  --p-space-5:  20px;
+  --p-space-6:  24px;
+  --p-space-8:  32px;
+  --p-space-10: 40px;
+  --p-space-12: 48px;
+
+  /* Border radius */
+  --p-radius-sm:   6px;
+  --p-radius-md:  12px;
+  --p-radius-lg:  20px;
+  --p-radius-full: 9999px;
+
+  /* Sombras */
+  --p-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --p-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --p-shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.18);
+
+  /* Largura máxima por categoria de template */
+  --p-maxw-card:   480px;
+  --p-maxw-layout: 900px;
+
+  /* Botão CTA — dimensões fixas */
+  --p-cta-min-height: 54px;
+  --p-cta-min-width:  280px;
+}
+
 :root {
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #0f172a;

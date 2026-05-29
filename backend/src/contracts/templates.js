@@ -34,6 +34,7 @@ const templateMetadataSchema = {
     id: { type: "string" },
     name: { type: "string" },
     description: { type: "string" },
+    aiInstructions: { type: ["string", "null"] },
     fields: {
       type: "array",
       items: templateFieldSchema
@@ -77,6 +78,7 @@ function serializeTemplateMetadata(template) {
     id: String(template.id),
     name: String(template.name),
     description: String(template.description || ""),
+    aiInstructions: template.aiInstructions || null,
     fields: Array.isArray(template.fields)
       ? template.fields.map(serializeTemplateField)
       : []
