@@ -63,6 +63,11 @@ export type PresellStatistics = {
     redirects: number
     ctr: number
   }>
+  gclidDwellTime: Array<{
+    gclid: string
+    avgDwellSeconds: number
+    sessionsWithClick: number
+  }>
   utmSources: Array<{
     source: string
     total: number

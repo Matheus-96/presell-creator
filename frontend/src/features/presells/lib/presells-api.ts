@@ -14,7 +14,8 @@ const adminApiPaths = {
 } as const
 
 export function getPublicPresell(slug: string) {
-  return apiClient.get<PresellPublicData>(`/public/presells/${slug}`)
+  const qs = window.location.search
+  return apiClient.get<PresellPublicData>(`/public/presells/${slug}${qs}`)
 }
 
 export function listTemplates() {

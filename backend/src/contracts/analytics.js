@@ -79,7 +79,7 @@ const analyticsOverviewSchema = {
 
 const presellStatisticsSchema = {
   type: "object",
-  required: ["presell", "summary", "timeSeries", "gclidStats", "utmSources", "referrers", "recentEvents"],
+  required: ["presell", "summary", "timeSeries", "gclidStats", "gclidDwellTime", "utmSources", "referrers", "recentEvents"],
   properties: {
     presell: presellSummarySchema,
     summary: analyticsOverviewSchema.properties.totals,
@@ -107,6 +107,17 @@ const presellStatisticsSchema = {
           clicks: { type: "number" },
           redirects: { type: "number" },
           ctr: { type: "number" }
+        }
+      }
+    },
+    gclidDwellTime: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          gclid: { type: "string" },
+          avgDwellSeconds: { type: "number" },
+          sessionsWithClick: { type: "number" }
         }
       }
     },
@@ -190,6 +201,11 @@ function serializePresellStatistics(statistics, presell) {
       ctr: Number(item.views || 0) > 0
         ? (Number(item.clicks || 0) / Number(item.views || 0)) * 100
         : 0
+    })),
+    gclidDwellTime: (statistics.gclidDwellTime || []).map((item) => ({
+      gclid: String(item.gclid || ""),
+      avgDwellSeconds: Number(item.avg_dwell_seconds || item.avgDwellSeconds || 0),
+      sessionsWithClick: Number(item.sessions_with_click || item.sessionsWithClick || 0)
     })),
     utmSources: (statistics.utmSources || []).map((item) => ({
       source: String(item.source || ""),

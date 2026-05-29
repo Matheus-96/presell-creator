@@ -1,16 +1,16 @@
-const numberFormatter = new Intl.NumberFormat('en-US')
-const compactNumberFormatter = new Intl.NumberFormat('en-US', {
+const numberFormatter = new Intl.NumberFormat('pt-BR')
+const compactNumberFormatter = new Intl.NumberFormat('pt-BR', {
   notation: 'compact',
   maximumFractionDigits: 1,
 })
-const percentFormatter = new Intl.NumberFormat('en-US', {
+const percentFormatter = new Intl.NumberFormat('pt-BR', {
   maximumFractionDigits: 1,
 })
-const dateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+const dateTimeFormatter = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'medium',
   timeStyle: 'short',
 })
-const dateFormatter = new Intl.DateTimeFormat('en-US', {
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
   dateStyle: 'medium',
 })
 

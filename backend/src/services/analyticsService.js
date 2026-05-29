@@ -120,6 +120,7 @@ function getPresellStatistics(presellId) {
     summary,
     timeSeries,
     gclidStats,
+    gclidDwellTime,
     utmSources,
     referrers,
     recentEvents
@@ -129,6 +130,7 @@ function getPresellStatistics(presellId) {
     summary: normalizeTotals(summary),
     timeSeries,
     gclidStats: gclidStats.filter(item => item.gclid),
+    gclidDwellTime: gclidDwellTime.filter(item => item.gclid),
     utmSources: utmSources.filter(item => item.source),
     referrers: referrers.filter(item => item.referrer),
     recentEvents
