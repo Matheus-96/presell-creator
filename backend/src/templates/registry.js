@@ -198,7 +198,7 @@ const templateRegistry = Object.freeze(
             previewSelector: ".app-ad-cta"
           }
         ]
-      }
+      },
       {
         id: "urgent-offer",
         name: "Oferta urgente",

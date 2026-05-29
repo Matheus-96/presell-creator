@@ -116,7 +116,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
         style={{
           maxWidth: 'var(--p-maxw-card)',
           margin: '0 auto',
-          padding: '0 var(--p-space-4)',
+          padding: topBarText ? '0 var(--p-space-4)' : 'var(--p-space-6) var(--p-space-4) 0',
         }}
       >
         {/* Countdown */}
