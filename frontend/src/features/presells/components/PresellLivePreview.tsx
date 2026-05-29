@@ -76,7 +76,7 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
         )}
         <div
           className="preview-panel__viewport"
-          style={{ overflowY: 'auto', maxHeight: '640px', pointerEvents: 'none' }}
+          style={{ overflowY: 'auto', maxHeight: '640px', minHeight: 0, transform: 'translateZ(0)', pointerEvents: 'none' }}
         >
           <TemplateComponent presell={publicData} />
         </div>
