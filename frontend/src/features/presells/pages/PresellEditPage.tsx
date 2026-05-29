@@ -504,7 +504,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         </form>
 
         {/* Preview column */}
-        <div className="flex-[3] overflow-y-auto border-l border-slate-200">
+        <div className="flex-[3] overflow-hidden border-l border-slate-200">
           <PresellLivePreview
             draft={formValues as unknown as PresellFormState}
             template={selectedTemplate}
