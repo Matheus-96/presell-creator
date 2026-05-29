@@ -105,6 +105,9 @@ function normalizeTemplateManifest(definition) {
     name: String((definition && definition.name) || id),
     description: String((definition && definition.description) || ""),
     fields,
+    aiInstructions: (definition && definition.aiInstructions)
+      ? String(definition.aiInstructions)
+      : null,
     renderer: {
       kind: String((definition && definition.renderer && definition.renderer.kind) || "server-view"),
       engine: String((definition && definition.renderer && definition.renderer.engine) || "ejs"),

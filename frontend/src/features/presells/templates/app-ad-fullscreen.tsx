@@ -9,50 +9,131 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const microcopy = settings.microcopy as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
+  const ctaBase = (settings.cta_color as string | undefined) ?? 'var(--p-cta-green)'
 
   function handleCta() {
     handlePresellCta(slug, affiliateUrl, trackingParam)
   }
 
-  const buttonClass =
-    buttonStyle === 'outline'
-      ? 'w-full rounded-xl border-2 border-white px-6 py-3 text-lg font-bold text-white hover:bg-white/10'
-      : buttonStyle === 'soft'
-        ? 'w-full rounded-xl bg-white/20 px-6 py-3 text-lg font-bold text-white hover:bg-white/30'
-        : 'w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600'
+  function getButtonStyle() {
+    const base = {
+      minHeight: 'var(--p-cta-min-height)',
+      borderRadius: 'var(--p-radius-md)',
+      padding: '0 var(--p-space-6)',
+      fontSize: 'var(--p-cta-text-size)',
+      fontWeight: 'var(--p-cta-text-weight)',
+      lineHeight: 'var(--p-cta-text-lh)',
+      width: '100%',
+    }
+    if (buttonStyle === 'outline') {
+      return { ...base, border: '2px solid white', color: 'white', backgroundColor: 'transparent' }
+    }
+    if (buttonStyle === 'soft') {
+      return { ...base, backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }
+    }
+    return { ...base, backgroundColor: ctaBase, color: '#ffffff' }
+  }
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center bg-gray-900"
+      className="relative flex min-h-screen items-center justify-center bg-gray-900 px-4"
       style={
         backgroundImageUrl
           ? { backgroundImage: `url(${backgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
           : undefined
       }
     >
-      <div className="absolute inset-0 backdrop-blur-sm bg-black/50" />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-white/20 bg-white/15 p-8 text-center text-white shadow-2xl backdrop-blur-md">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        className="relative z-10 w-full text-center text-white"
+        style={{
+          maxWidth: 'var(--p-maxw-card)',
+          backgroundColor: 'rgba(255,255,255,0.15)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 'var(--p-radius-lg)',
+          padding: 'var(--p-space-10)',
+          boxShadow: 'var(--p-shadow-lg)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
         {labelText && (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/60">{labelText}</p>
+          <p
+            style={{
+              fontSize: 'var(--p-eyebrow-size)',
+              fontWeight: 'var(--p-eyebrow-weight)',
+              letterSpacing: 'var(--p-eyebrow-ls)',
+              color: 'rgba(255,255,255,0.6)',
+              textTransform: 'uppercase',
+              marginBottom: 'var(--p-space-3)',
+            }}
+          >
+            {labelText}
+          </p>
         )}
         {imageUrl && (
           <img
             src={imageUrl}
             alt=""
-            className="mx-auto mb-4 object-contain"
-            style={{ maxHeight: '180px' }}
+            className="mx-auto block"
+            style={{ maxHeight: '180px', objectFit: 'contain', marginBottom: 'var(--p-space-4)' }}
           />
         )}
-        <h1 className="mb-2 text-2xl font-extrabold text-white">{headline}</h1>
-        <p className="mb-4 text-white/80">{subtitle}</p>
+        <h1
+          style={{
+            fontSize: 'var(--p-h1-size)',
+            fontWeight: 'var(--p-h1-weight)',
+            lineHeight: 'var(--p-h1-lh)',
+            letterSpacing: 'var(--p-h1-ls)',
+            color: 'white',
+            marginBottom: 'var(--p-space-2)',
+          }}
+        >
+          {headline}
+        </h1>
+        <p
+          style={{
+            fontSize: 'var(--p-subtitle-size)',
+            fontWeight: 'var(--p-subtitle-weight)',
+            lineHeight: 'var(--p-subtitle-lh)',
+            color: 'rgba(255,255,255,0.8)',
+            marginBottom: 'var(--p-space-4)',
+          }}
+        >
+          {subtitle}
+        </p>
         {microcopy && (
-          <p className="mb-4 text-sm text-white/60">{microcopy}</p>
+          <p
+            style={{
+              fontSize: 'var(--p-micro-size)',
+              lineHeight: 'var(--p-micro-lh)',
+              letterSpacing: 'var(--p-micro-ls)',
+              color: 'rgba(255,255,255,0.6)',
+              marginBottom: 'var(--p-space-4)',
+            }}
+          >
+            {microcopy}
+          </p>
         )}
-        <button type="button" onClick={handleCta} className={buttonClass}>
+        <button
+          type="button"
+          onClick={handleCta}
+          className="cursor-pointer transition-[filter] hover:brightness-90 active:brightness-75"
+          style={getButtonStyle()}
+        >
           {ctaText}
         </button>
         {disclaimer && (
-          <p className="mt-4 text-xs text-white/40">{disclaimer}</p>
+          <p
+            style={{
+              fontSize: 'var(--p-micro-size)',
+              lineHeight: 'var(--p-micro-lh)',
+              letterSpacing: 'var(--p-micro-ls)',
+              color: 'rgba(255,255,255,0.4)',
+              marginTop: 'var(--p-space-4)',
+            }}
+          >
+            {disclaimer}
+          </p>
         )}
       </div>
     </div>

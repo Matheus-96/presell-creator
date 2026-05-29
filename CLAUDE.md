@@ -65,10 +65,7 @@ The repo contains both the **legacy monolith** (`src/`) and the **refactored spl
 - `services/` — business logic that orchestrates repositories
 - `controllers/` — route handlers (`adminApiController.js` for the React API, `publicController.js` for presell pages, etc.)
 - `routes/` — Express routers; `apiAdmin.js` mounts at `/api/admin`, `apiPublic.js` at `/api/public`
-- `templates/` — template manifest registry (`registry.js`). Each template has an `id`, `fields`, and a `renderer` object that specifies the rendering engine
-- `runtime/` — template rendering engine: `templateRuntime.js` is the main entry. Supports two engines:
-  - `ejs` — renders via `res.render()` with EJS views in `backend/src/views/presell/`
-  - `react` — server-side renders using React static markup from `backend/src/runtime/react/*.js`
+- `templates/` — template manifest registry (`registry.js`). Each template has an `id`, `fields` (used by the admin UI to render the settings form), and a `name`/`description`. No renderer config — all templates render client-side in the frontend.
 
 **Auth model (refactored API):** Session-based only (no JWT). CSRF token is sent as `x-csrf-token` header (not hidden form field). Session state is exposed at `GET /api/admin/session`. The `verifyApiCsrf` middleware checks the header.
 
@@ -115,10 +112,13 @@ React 19 + TypeScript + Vite 8 + React Router 7. No Bootstrap — custom CSS onl
 
 ### Adding a new template
 
-1. Add an entry to `backend/src/templates/registry.js` with `id`, `name`, `description`, `fields`, and `renderer`.
-2. For EJS: create `backend/src/views/presell/<id>.ejs`. Set `renderer.engine = "ejs"`.
-3. For React: create `backend/src/runtime/react/<entry>.js` that exports a `renderToStaticHtml(viewModel)` function. Set `renderer.engine = "react"`.
-4. The `rendererRegistry` builds itself from the template registry on startup — no further registration needed.
+Templates are React components rendered entirely client-side. EJS is no longer used for presell pages (only `backend/src/views/presell/404.ejs` remains for the 404 error page).
+
+1. Create `frontend/src/features/presells/templates/<id>.tsx` — a React component that accepts `{ presell: PresellPublicData }` and calls `registerTemplate('<id>', Component)` at the bottom.
+2. Add the file to the barrel: `frontend/src/features/presells/templates/index.ts`.
+3. Add a manifest entry to `backend/src/templates/registry.js` with `id`, `name`, `description`, and `fields`. The `fields` array drives the admin settings form — each field has `name`, `label`, `type`, and `defaultValue`.
+
+No renderer config, no backend render code — `PresellPage.tsx` fetches the presell data via API and renders the matching template via `getTemplate(templateId)`.
 
 ---
 
