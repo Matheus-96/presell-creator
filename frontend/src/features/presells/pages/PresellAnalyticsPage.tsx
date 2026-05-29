@@ -6,6 +6,13 @@ import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { getPresellStatistics } from '@/features/analytics/lib/analytics-api.ts'
 import { formatNumber, formatPercent, formatDate, formatTitle } from '@/lib/formatters.ts'
+
+function formatDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds}s`
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return s > 0 ? `${m}m ${s}s` : `${m}m`
+}
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 
 export function PresellAnalyticsPage() {
@@ -47,7 +54,7 @@ export function PresellAnalyticsPage() {
     )
   }
 
-  const { summary, timeSeries, utmSources, referrers, gclidStats } = statsQuery.data
+  const { summary, timeSeries, utmSources, referrers, gclidStats, avgTimeOnPage } = statsQuery.data
 
   return (
     <div className="page">
@@ -64,11 +71,16 @@ export function PresellAnalyticsPage() {
 
       {/* Resumo */}
       <SectionCard eyebrow="Resumo" title="Totais acumulados">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
           <StatCard label="Visualizações" value={formatNumber(summary.views)} />
           <StatCard label="Cliques no CTA" value={formatNumber(summary.clicks)} />
           <StatCard label="Redirecionamentos" value={formatNumber(summary.redirects)} />
           <StatCard label="CTR" value={formatPercent(summary.ctr)} />
+          <StatCard
+            label="Tempo médio"
+            value={avgTimeOnPage ? formatDuration(avgTimeOnPage.avgSeconds) : '—'}
+            helper={avgTimeOnPage ? `${formatNumber(avgTimeOnPage.sampleCount)} amostras` : undefined}
+          />
         </div>
       </SectionCard>
 
@@ -147,11 +159,12 @@ export function PresellAnalyticsPage() {
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, helper }: { label: string; value: string; helper?: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-slate-200 bg-white p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-2xl font-bold tabular-nums">{value}</p>
+      {helper ? <p className="text-xs text-muted-foreground">{helper}</p> : null}
     </div>
   )
 }
