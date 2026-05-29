@@ -22,6 +22,7 @@ import {
   createPresell,
   deletePresell,
   duplicatePresell,
+  getApiErrorMessage,
   getPresell,
   listTemplates,
   updatePresell,
@@ -132,6 +133,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         navigate(`/presells/${saved.id}/edit`)
       }
     },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao salvar presell'))
+    },
   })
 
   const deleteMutation = useMutation({
@@ -140,6 +144,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
       queryClient.invalidateQueries({ queryKey: ['presells'] })
       navigate('/presells')
     },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao excluir presell'))
+    },
   })
 
   const duplicateMutation = useMutation({
@@ -147,6 +154,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     onSuccess: (saved) => {
       queryClient.invalidateQueries({ queryKey: ['presells'] })
       navigate(`/presells/${saved.id}/edit`)
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao duplicar presell'))
     },
   })
 
