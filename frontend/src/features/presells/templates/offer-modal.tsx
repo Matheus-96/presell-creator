@@ -10,7 +10,6 @@ function OfferModal({ presell }: TemplateComponentProps) {
   const starsText = settings.stars_text as string | undefined
   const scarcityText = settings.scarcity_text as string | undefined
 
-
   return (
     <div
       className="relative flex min-h-screen items-center justify-center bg-gray-900"
