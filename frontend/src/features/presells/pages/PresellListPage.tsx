@@ -156,6 +156,13 @@ export function PresellListPage() {
                   <Button
                     size="sm"
                     variant="outline"
+                    onClick={() => navigate(`/presells/${item.id}/analytics`)}
+                  >
+                    Analytics
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => navigate(`/presells/${item.id}/edit`)}
                   >
                     Editar
