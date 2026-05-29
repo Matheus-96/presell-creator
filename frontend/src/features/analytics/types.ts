@@ -23,6 +23,7 @@ export type AnalyticsOverview = {
     clicks: number
     redirects: number
     ctr: number
+    avgTimeOnPage: number | null
   }>
   recentEvents: Array<{
     id: number

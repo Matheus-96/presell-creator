@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -9,22 +9,26 @@ import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
-import type { PresellSummary, PresellStatus } from '@/features/presells/types.ts'
+import type { PresellStatus } from '@/features/presells/types.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
-
-function copyPublicLink(item: PresellSummary) {
-  const url = `${window.location.origin}/p/${item.slug}`
-  navigator.clipboard.writeText(url).then(
-    () => toast.success('Link copiado'),
-    () => toast.error('Não foi possível copiar'),
-  )
-}
 
 export function PresellListPage() {
   useDocumentTitle('Presells')
 
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
+
+  const handleCopyLink = useCallback((slug: string) => {
+    const url = `${window.location.origin}/p/${slug}`
+    navigator.clipboard.writeText(url).then(
+      () => {
+        setCopiedSlug(slug)
+        setTimeout(() => setCopiedSlug(null), 2000)
+      },
+      () => toast.error('Não foi possível copiar'),
+    )
+  }, [])
   const [selectedStatus, setSelectedStatus] = useState<'all' | PresellStatus>('all')
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
 
@@ -148,10 +152,19 @@ export function PresellListPage() {
                 <div className="flex shrink-0 gap-1">
                   <Button
                     size="sm"
-                    variant="outline"
-                    onClick={() => copyPublicLink(item)}
+                    variant="ghost"
+                    asChild
                   >
-                    Copiar link
+                    <a href={`/p/${item.slug}`} target="_blank" rel="noopener noreferrer">
+                      Ver
+                    </a>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleCopyLink(item.slug)}
+                  >
+                    {copiedSlug === item.slug ? 'Copiado!' : 'Copiar link'}
                   </Button>
                   <Button
                     size="sm"

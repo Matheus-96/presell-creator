@@ -9,6 +9,7 @@ import { listPresells, listTemplates } from '@/features/presells/lib/presells-ap
 import {
   formatCompactNumber,
   formatDateTime,
+  formatDuration,
   formatNumber,
   formatPercent,
   formatTitle,
@@ -153,6 +154,9 @@ export function DashboardPage() {
                   <div className="list-row__stats">
                     <span>{formatNumber(item.views)} views</span>
                     <span>{formatPercent(item.ctr)} CTR</span>
+                    {item.avgTimeOnPage != null && (
+                      <span>{formatDuration(item.avgTimeOnPage)} médio</span>
+                    )}
                   </div>
                 </li>
               ))}

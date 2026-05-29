@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
@@ -5,14 +6,7 @@ import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
 import { Button } from '@/components/ui/button.tsx'
 import { getPresellStatistics } from '@/features/analytics/lib/analytics-api.ts'
-import { formatNumber, formatPercent, formatDate, formatTitle } from '@/lib/formatters.ts'
-
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return s > 0 ? `${m}m ${s}s` : `${m}m`
-}
+import { formatNumber, formatPercent, formatDate, formatTitle, formatDuration } from '@/lib/formatters.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 
 export function PresellAnalyticsPage() {
@@ -32,6 +26,20 @@ export function PresellAnalyticsPage() {
     : 'Analytics'
 
   useDocumentTitle(title)
+
+  const gclidRows = useMemo(() => {
+    const gclidStats = statsQuery.data?.gclidStats ?? []
+    const gclidDwellTime = statsQuery.data?.gclidDwellTime ?? []
+    const map = new Map<string, Record<string, unknown>>()
+    for (const stat of gclidStats) {
+      map.set(stat.gclid, { ...stat })
+    }
+    for (const dwell of gclidDwellTime) {
+      const existing = map.get(dwell.gclid) ?? { gclid: dwell.gclid }
+      map.set(dwell.gclid, { ...existing, avgDwellSeconds: dwell.avgDwellSeconds })
+    }
+    return Array.from(map.values())
+  }, [statsQuery.data?.gclidStats, statsQuery.data?.gclidDwellTime])
 
   if (statsQuery.isPending) {
     return (
@@ -54,7 +62,7 @@ export function PresellAnalyticsPage() {
     )
   }
 
-  const { summary, timeSeries, utmSources, referrers, gclidStats, avgTimeOnPage } = statsQuery.data
+  const { summary, timeSeries, utmSources, referrers, avgTimeOnPage } = statsQuery.data
 
   return (
     <div className="page">
@@ -129,8 +137,8 @@ export function PresellAnalyticsPage() {
       </div>
 
       {/* gclid stats */}
-      {gclidStats.length > 0 && (
-        <SectionCard eyebrow="Google Ads" title="Performance por gclid">
+      {gclidRows.length > 0 && (
+        <SectionCard eyebrow="Google Ads" title={`${gclidRows.length} GCLID${gclidRows.length !== 1 ? 's' : ''} rastreados`}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -138,16 +146,20 @@ export function PresellAnalyticsPage() {
                   <th className="pb-2 pr-4 font-medium">gclid</th>
                   <th className="pb-2 pr-4 font-medium text-right">Views</th>
                   <th className="pb-2 pr-4 font-medium text-right">Cliques</th>
-                  <th className="pb-2 font-medium text-right">CTR</th>
+                  <th className="pb-2 pr-4 font-medium text-right">CTR</th>
+                  <th className="pb-2 font-medium text-right">Permanência</th>
                 </tr>
               </thead>
               <tbody>
-                {gclidStats.map((row) => (
-                  <tr key={row.gclid} className="border-b last:border-0">
-                    <td className="py-2 pr-4 font-mono text-xs">{row.gclid}</td>
-                    <td className="py-2 pr-4 text-right">{formatNumber(row.views)}</td>
-                    <td className="py-2 pr-4 text-right">{formatNumber(row.clicks)}</td>
-                    <td className="py-2 text-right">{formatPercent(row.ctr)}</td>
+                {gclidRows.map((row) => (
+                  <tr key={row.gclid as string} className="border-b last:border-0">
+                    <td className="py-2 pr-4 font-mono text-xs max-w-[180px] truncate">{row.gclid as string}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums">{formatNumber(Number(row.views ?? 0))}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums">{formatNumber(Number(row.clicks ?? 0))}</td>
+                    <td className="py-2 pr-4 text-right tabular-nums">{row.ctr != null ? formatPercent(row.ctr as number) : '—'}</td>
+                    <td className="py-2 text-right tabular-nums">
+                      {row.avgDwellSeconds != null ? formatDuration(row.avgDwellSeconds as number) : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
