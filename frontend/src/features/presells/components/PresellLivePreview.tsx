@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import '@/features/presells/templates/index.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
@@ -39,48 +38,42 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
   const TemplateComponent = template ? getTemplate(template.id) : null
   const openSavedPreviewUrl = draft?.urls?.publicPage ?? null
 
-  if (!draft || detailStatus === 'loading') {
-    return (
-      <SectionCard eyebrow="Preview" title="Live preview">
-        <div className="empty-state">
-          <p>{detailStatus === 'loading' ? 'Loading presell…' : 'Select or create a presell to see the preview.'}</p>
-        </div>
-      </SectionCard>
-    )
-  }
-
-  if (!TemplateComponent || !publicData) {
-    return (
-      <SectionCard eyebrow="Preview" title="Live preview">
-        <div className="empty-state">
-          <p>Choose a template to unlock the preview.</p>
-        </div>
-      </SectionCard>
-    )
-  }
+  const isEmpty = !draft || detailStatus === 'loading' || !TemplateComponent || !publicData
 
   return (
-    <SectionCard eyebrow="Preview" title="Live preview">
-      <div className="preview-panel">
+    <div className="flex flex-col h-full">
+      <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-slate-200 bg-slate-50/80">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Preview</p>
         {openSavedPreviewUrl && (
-          <div className="preview-panel__toolbar">
-            <a
-              className="button-link button-link--secondary"
-              href={openSavedPreviewUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Open public page
-            </a>
-          </div>
+          <a
+            className="text-xs text-indigo-600 hover:underline"
+            href={openSavedPreviewUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Abrir página
+          </a>
         )}
+      </div>
+
+      {isEmpty ? (
+        <div className="flex flex-1 items-center justify-center p-6 text-center">
+          <p className="text-sm text-muted-foreground">
+            {detailStatus === 'loading'
+              ? 'Carregando…'
+              : !TemplateComponent
+                ? 'Escolha um template para ver o preview.'
+                : 'Selecione ou crie um presell para ver o preview.'}
+          </p>
+        </div>
+      ) : (
         <div
-          className="preview-panel__viewport"
-          style={{ overflowY: 'auto', maxHeight: '640px', pointerEvents: 'none' }}
+          className="flex-1 overflow-y-auto"
+          style={{ transform: 'translateZ(0)', pointerEvents: 'none' }}
         >
           <TemplateComponent presell={publicData} />
         </div>
-      </div>
-    </SectionCard>
+      )}
+    </div>
   )
 }
