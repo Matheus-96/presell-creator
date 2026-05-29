@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
@@ -8,8 +9,16 @@ import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
-import type { PresellStatus } from '@/features/presells/types.ts'
+import type { PresellSummary, PresellStatus } from '@/features/presells/types.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
+
+function copyPublicLink(item: PresellSummary) {
+  const url = `${window.location.origin}/p/${item.slug}`
+  navigator.clipboard.writeText(url).then(
+    () => toast.success('Link copiado'),
+    () => toast.error('Não foi possível copiar'),
+  )
+}
 
 export function PresellListPage() {
   useDocumentTitle('Presells')
@@ -124,24 +133,34 @@ export function PresellListPage() {
         ) : (
           <ul className="divide-y divide-border">
             {filteredPresells.map((item) => (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  className="w-full text-left px-2 py-3 rounded-md hover:bg-accent transition-colors flex items-center justify-between gap-4"
-                  onClick={() => navigate(`/presells/${item.id}/edit`)}
-                >
-                  <div className="min-w-0">
-                    <p className="font-medium truncate">
-                      {item.title || item.headline || item.slug}
-                    </p>
-                    <p className="text-sm text-muted-foreground truncate">
-                      /{item.slug} · {item.templateId}
-                    </p>
-                  </div>
-                  <span className={`status-pill status-pill--${item.status} shrink-0`}>
-                    {item.status}
-                  </span>
-                </button>
+              <li key={item.id} className="flex items-center gap-2 px-2 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">
+                    {item.title || item.headline || item.slug}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    /{item.slug} · {item.templateId}
+                  </p>
+                </div>
+                <span className={`status-pill status-pill--${item.status} shrink-0`}>
+                  {item.status}
+                </span>
+                <div className="flex shrink-0 gap-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyPublicLink(item)}
+                  >
+                    Copiar link
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/presells/${item.id}/edit`)}
+                  >
+                    Editar
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>
