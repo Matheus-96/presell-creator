@@ -215,7 +215,18 @@ function serializePresellStatistics(statistics, presell) {
       referrer: String(item.referrer || ""),
       total: Number(item.total || 0)
     })),
-    recentEvents: (statistics.recentEvents || []).map(serializeEvent)
+    recentEvents: (statistics.recentEvents || []).map(serializeEvent),
+    avgTimeOnPage: serializeAvgTimeOnPage(statistics.avgTimeOnPage)
+  };
+}
+
+function serializeAvgTimeOnPage(row) {
+  if (!row || row.avg_seconds === null || row.avg_seconds === undefined) {
+    return null;
+  }
+  return {
+    avgSeconds: Math.round(Number(row.avg_seconds)),
+    sampleCount: Number(row.sample_count || 0)
   };
 }
 

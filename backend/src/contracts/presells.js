@@ -32,6 +32,7 @@ const presellWriteSchema = {
     ctaText: { type: "string" },
     affiliateUrl: { type: "string" },
     googlePixelId: { type: ["string", "null"] },
+    trackingParam: { type: "string" },
     settings: {
       type: "object",
       additionalProperties: true
@@ -87,7 +88,8 @@ const presellSummarySchema = {
     tracking: {
       type: "object",
       properties: {
-        googlePixelId: { type: ["string", "null"] }
+        googlePixelId: { type: ["string", "null"] },
+        trackingParam: { type: "string" }
       }
     },
     timestamps: {
@@ -156,7 +158,8 @@ function serializePresellSummary(presell) {
       backgroundImage: serializeMediaReference(presell.background_image_path)
     },
     tracking: {
-      googlePixelId: presell.google_pixel || null
+      googlePixelId: presell.google_pixel || null,
+      trackingParam: String(presell.tracking_param || "gclid")
     },
     timestamps: {
       createdAt: presell.created_at || null,
@@ -192,6 +195,7 @@ function serializePresellWriteInput(presell) {
     ctaText: String(presell.cta_text || ""),
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
+    trackingParam: String(presell.tracking_param || "gclid"),
     settings: parsePresellSettings(presell),
     media: {
       heroImage: serializeMediaReference(presell.image_path),
@@ -221,6 +225,7 @@ function deserializePresellWriteInput(payload = {}) {
     cta_text: String(payload.ctaText || payload.cta_text || "").trim(),
     affiliate_url: String(payload.affiliateUrl || payload.affiliate_url || "").trim(),
     google_pixel: payload.googlePixelId || payload.google_pixel || null,
+    tracking_param: String(payload.trackingParam || payload.tracking_param || "gclid").trim() || "gclid",
     settings: payload.settings && typeof payload.settings === "object" ? payload.settings : {},
     current_image_path: hasHeroImage
       ? readMediaReferencePath(media.heroImage)
@@ -296,6 +301,7 @@ const publicPresellSchema = {
     ctaText: { type: "string" },
     affiliateUrl: { type: "string" },
     googlePixelId: { type: ["string", "null"] },
+    trackingParam: { type: "string" },
     imageUrl: { type: ["string", "null"] },
     backgroundImageUrl: { type: ["string", "null"] },
     settings: { type: "object", additionalProperties: true }
@@ -314,6 +320,7 @@ function serializePublicPresell(presell) {
     ctaText: String(presell.cta_text || ""),
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
+    trackingParam: String(presell.tracking_param || "gclid"),
     imageUrl: buildMediaUrl(presell.image_path) || null,
     backgroundImageUrl: buildMediaUrl(presell.background_image_path) || null,
     settings: parsePresellSettings(presell)

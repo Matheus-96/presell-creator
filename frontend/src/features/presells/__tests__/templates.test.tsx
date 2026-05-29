@@ -18,6 +18,7 @@ function makePresell(overrides: Partial<PresellPublicData> = {}): PresellPublicD
     ctaText: 'Buy Now',
     affiliateUrl: 'https://affiliate.example.com',
     googlePixelId: null,
+    trackingParam: 'gclid',
     imageUrl: null,
     backgroundImageUrl: null,
     settings: {},
@@ -56,9 +57,9 @@ describe('offer-modal render', () => {
     expect(screen.getByRole('button', { name: 'Get It Now' })).toBeDefined()
   })
 
-  it('clicking CTA fires POST /api/public/presells/:slug/redirect', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({ ok: true })
-    vi.stubGlobal('fetch', mockFetch)
+  it('clicking CTA fires beacon to /api/public/presells/:slug/redirect', async () => {
+    const mockBeacon = vi.fn().mockReturnValue(true)
+    vi.stubGlobal('navigator', { ...navigator, sendBeacon: mockBeacon })
 
     const originalLocation = window.location
     Object.defineProperty(window, 'location', {
@@ -71,10 +72,7 @@ describe('offer-modal render', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Buy Now' }))
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      '/api/public/presells/test-slug/redirect',
-      expect.objectContaining({ method: 'POST' }),
-    )
+    expect(mockBeacon).toHaveBeenCalledWith('/api/public/presells/test-slug/redirect')
 
     vi.unstubAllGlobals()
     Object.defineProperty(window, 'location', { writable: true, value: originalLocation })

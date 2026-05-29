@@ -1,9 +1,9 @@
+import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
-import { handlePresellCta } from '@/features/presells/lib/presell-cta.ts'
 
 function DeviceFrame({ presell }: TemplateComponentProps) {
-  const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, bullets, settings } = presell
+  const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, bullets, settings } = presell
 
   const topBarText = settings.top_bar_text as string | undefined
   const offerNote = settings.offer_note as string | undefined
@@ -12,6 +12,10 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
   const frameType = settings.frame_type as string | undefined
 
   const isPhone = frameType === 'phone'
+
+  function handleCta() {
+    handlePresellCta(slug, affiliateUrl, trackingParam)
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-6">
@@ -53,7 +57,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
             )}
             <button
               type="button"
-              onClick={() => handlePresellCta(slug, affiliateUrl)}
+              onClick={handleCta}
               className="w-full rounded-xl bg-green-500 px-6 py-3 text-lg font-bold text-white hover:bg-green-600 active:bg-green-700"
             >
               {ctaText}

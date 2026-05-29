@@ -20,7 +20,7 @@ const LazyPresellEditPage = createElement(
 
 const LazyPresellAnalyticsPage = createElement(
   lazy(async () => {
-    const module = await import('@/features/analytics/pages/PresellAnalyticsPage.tsx')
+    const module = await import('@/features/presells/pages/PresellAnalyticsPage.tsx')
     return { default: module.PresellAnalyticsPage }
   }),
 )

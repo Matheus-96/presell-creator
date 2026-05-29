@@ -132,6 +132,16 @@ const getPresellRecentEventsStmt = db.prepare(`
   ORDER BY created_at DESC
   LIMIT 50
 `);
+const getPresellAvgTimeOnPageStmt = db.prepare(`
+  SELECT
+    AVG(CAST(json_extract(params_json, '$.seconds') AS REAL)) AS avg_seconds,
+    COUNT(*) AS sample_count
+  FROM events
+  WHERE presell_id = ? AND event_type = 'time_on_page'
+    AND json_extract(params_json, '$.seconds') IS NOT NULL
+    AND CAST(json_extract(params_json, '$.seconds') AS REAL) > 0
+    AND CAST(json_extract(params_json, '$.seconds') AS REAL) < 3600
+`);
 const countDistinctTrackingSessionsStmt = db.prepare(
   "SELECT COUNT(DISTINCT session_key) AS count FROM tracking_sessions"
 );
@@ -186,7 +196,8 @@ function getPresellStatistics(presellId) {
     gclidDwellTime: getPresellGclidDwellTimeStmt.all(presellId),
     utmSources: getPresellUtmSourcesStmt.all(presellId),
     referrers: getPresellReferrersStmt.all(presellId),
-    recentEvents: getPresellRecentEventsStmt.all(presellId)
+    recentEvents: getPresellRecentEventsStmt.all(presellId),
+    avgTimeOnPage: getPresellAvgTimeOnPageStmt.get(presellId)
   };
 }
 

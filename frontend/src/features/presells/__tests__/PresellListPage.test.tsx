@@ -35,7 +35,7 @@ function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
     affiliateUrl: 'https://example.com',
     published: false,
     media: { heroImage: null, backgroundImage: null },
-    tracking: { googlePixelId: null },
+    tracking: { googlePixelId: null, trackingParam: 'gclid' },
     timestamps: { createdAt: null, updatedAt: null },
     ...overrides,
   }
@@ -101,13 +101,13 @@ describe('PresellListPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/presells/new')
   })
 
-  it('navigates to /presells/:id/edit when a presell is clicked', async () => {
+  it('navigates to /presells/:id/edit when "Editar" is clicked', async () => {
     mockListPresells.mockResolvedValue(makeListResponse([makePresell({ id: 42, title: 'Click Me' })]))
     renderPage()
 
     await waitFor(() => expect(screen.getByText('Click Me')).toBeDefined())
 
-    await userEvent.click(screen.getByText('Click Me'))
+    await userEvent.click(screen.getByRole('button', { name: /editar/i }))
 
     expect(mockNavigate).toHaveBeenCalledWith('/presells/42/edit')
   })

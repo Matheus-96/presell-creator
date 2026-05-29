@@ -1,6 +1,7 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
@@ -8,8 +9,16 @@ import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
-import type { PresellStatus } from '@/features/presells/types.ts'
+import type { PresellSummary, PresellStatus } from '@/features/presells/types.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
+
+function copyPublicLink(item: PresellSummary) {
+  const url = `${window.location.origin}/p/${item.slug}`
+  navigator.clipboard.writeText(url).then(
+    () => toast.success('Link copiado'),
+    () => toast.error('Não foi possível copiar'),
+  )
+}
 
 export function PresellListPage() {
   useDocumentTitle('Presells')
@@ -18,15 +27,6 @@ export function PresellListPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState<'all' | PresellStatus>('all')
   const [selectedTemplateId, setSelectedTemplateId] = useState('')
-  const [copiedSlug, setCopiedSlug] = useState<string | null>(null)
-
-  const handleCopyLink = useCallback((slug: string) => {
-    const url = `${window.location.origin}/p/${slug}`
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiedSlug(slug)
-      setTimeout(() => setCopiedSlug(null), 2000)
-    })
-  }, [])
 
   const { data: presellData, isError, error } = useQuery({
     queryKey: ['presells', { limit: 100 }],
@@ -133,7 +133,7 @@ export function PresellListPage() {
         ) : (
           <ul className="divide-y divide-border">
             {filteredPresells.map((item) => (
-              <li key={item.id} className="flex items-center gap-4 px-2 py-3">
+              <li key={item.id} className="flex items-center gap-2 px-2 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium truncate">
                     {item.title || item.headline || item.slug}
@@ -145,36 +145,27 @@ export function PresellListPage() {
                 <span className={`status-pill status-pill--${item.status} shrink-0`}>
                   {item.status}
                 </span>
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="flex shrink-0 gap-1">
                   <Button
                     size="sm"
-                    variant="ghost"
-                    asChild
+                    variant="outline"
+                    onClick={() => copyPublicLink(item)}
                   >
-                    <a href={`/p/${item.slug}`} target="_blank" rel="noopener noreferrer">
-                      Ver
-                    </a>
+                    Copiar link
                   </Button>
                   <Button
                     size="sm"
-                    variant="ghost"
-                    onClick={() => handleCopyLink(item.slug)}
-                  >
-                    {copiedSlug === item.slug ? 'Copiado!' : 'Copiar link'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => navigate(`/presells/${item.id}/edit`)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => navigate(`/presells/${item.id}/analytics`)}
                   >
                     Analytics
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/presells/${item.id}/edit`)}
+                  >
+                    Editar
                   </Button>
                 </div>
               </li>

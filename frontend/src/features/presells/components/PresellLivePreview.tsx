@@ -27,6 +27,7 @@ function formStateToPublicData(draft: PresellFormState): PresellPublicData {
     ctaText: draft.ctaText || 'Continuar',
     affiliateUrl: draft.affiliateUrl,
     googlePixelId: draft.googlePixelId || null,
+    trackingParam: draft.trackingParam || 'gclid',
     imageUrl: draft.media.heroImageReference?.url ?? null,
     backgroundImageUrl: draft.media.backgroundImageReference?.url ?? null,
     settings: draft.settings,

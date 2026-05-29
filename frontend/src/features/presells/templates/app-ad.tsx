@@ -1,14 +1,18 @@
+import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
-import { handlePresellCta } from '@/features/presells/lib/presell-cta.ts'
 
 function AppAd({ presell }: TemplateComponentProps) {
-  const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, settings } = presell
+  const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, settings } = presell
 
   const labelText = settings.label_text as string | undefined
   const microcopy = settings.microcopy as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
+
+  function handleCta() {
+    handlePresellCta(slug, affiliateUrl, trackingParam)
+  }
 
   const buttonClass =
     buttonStyle === 'outline'
@@ -36,7 +40,7 @@ function AppAd({ presell }: TemplateComponentProps) {
         {microcopy && (
           <p className="mb-4 text-sm text-gray-500">{microcopy}</p>
         )}
-        <button type="button" onClick={() => handlePresellCta(slug, affiliateUrl)} className={buttonClass}>
+        <button type="button" onClick={handleCta} className={buttonClass}>
           {ctaText}
         </button>
         {disclaimer && (
