@@ -89,7 +89,7 @@ export function MediaUploadField({
           type="button"
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-input bg-muted/20 px-4 py-8 text-sm text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-50"
+          className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-input bg-muted/20 px-4 py-4 text-sm text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-50"
         >
           {uploading ? (
             'Enviando…'
