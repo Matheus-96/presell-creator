@@ -72,4 +72,5 @@ export type PresellStatistics = {
     total: number
   }>
   recentEvents: AnalyticsOverview['recentEvents']
+  avgTimeOnPage: { avgSeconds: number; sampleCount: number } | null
 }

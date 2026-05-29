@@ -23,6 +23,39 @@ export function PresellPage() {
   })
 
   useEffect(() => {
+    if (!presell?.slug) return
+    const slug = presell.slug
+    const startTime = Date.now()
+    let sent = false
+
+    function sendTime() {
+      if (sent) return
+      sent = true
+      const seconds = Math.round((Date.now() - startTime) / 1000)
+      if (seconds < 1) return
+      navigator.sendBeacon(
+        `/api/public/presells/${slug}/events`,
+        new Blob(
+          [JSON.stringify({ eventType: 'time_on_page', params: { seconds } })],
+          { type: 'application/json' },
+        ),
+      )
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === 'hidden') sendTime()
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('pagehide', sendTime, { once: true })
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      sendTime()
+    }
+  }, [presell?.slug])
+
+  useEffect(() => {
     const pixelId = presell?.googlePixelId
     if (!pixelId || !isValidPixelId(pixelId)) return
 

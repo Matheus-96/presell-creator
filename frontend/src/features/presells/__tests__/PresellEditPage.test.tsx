@@ -71,7 +71,7 @@ function makePresellDetail(overrides: Partial<PresellDetail> = {}): PresellDetai
     bullets: [],
     settings: {},
     media: { heroImage: null, backgroundImage: null },
-    tracking: { googlePixelId: null },
+    tracking: { googlePixelId: null, trackingParam: 'gclid' },
     timestamps: { createdAt: null, updatedAt: null },
     urls: {
       publicPage: '/p/test-presell',

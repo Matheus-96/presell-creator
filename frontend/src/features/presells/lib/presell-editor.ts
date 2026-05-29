@@ -92,6 +92,7 @@ export function createEmptyPresellForm(template: TemplateMetadata | null): Prese
     ctaText: 'Continuar',
     affiliateUrl: '',
     googlePixelId: '',
+    trackingParam: 'gclid',
     settings: buildTemplateSettings(template),
     media: {
       heroImageFileName: '',
@@ -126,6 +127,7 @@ export function createPresellForm(
     ctaText: detail.ctaText,
     affiliateUrl: detail.affiliateUrl,
     googlePixelId: detail.tracking.googlePixelId ?? '',
+    trackingParam: detail.tracking.trackingParam ?? 'gclid',
     settings: buildTemplateSettings(template, detail.settings),
     media: {
       heroImageFileName: detail.media.heroImage?.fileName ?? '',
@@ -180,6 +182,7 @@ export function buildPresellPayload(
     ctaText: form.ctaText.trim(),
     affiliateUrl: form.affiliateUrl.trim(),
     googlePixelId: form.googlePixelId.trim() || null,
+    trackingParam: form.trackingParam.trim() || 'gclid',
     settings: buildTemplateSettings(template, form.settings),
     ...(Object.keys(media).length > 0 ? { media } : {}),
   }

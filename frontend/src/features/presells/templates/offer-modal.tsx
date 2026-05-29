@@ -1,8 +1,9 @@
+import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
 
 function OfferModal({ presell }: TemplateComponentProps) {
-  const { headline, subtitle, ctaText, affiliateUrl, slug, backgroundImageUrl, settings } = presell
+  const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, backgroundImageUrl, settings } = presell
 
   const discountText = settings.discount_text as string | undefined
   const rating = settings.rating as string | undefined
@@ -10,8 +11,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
   const scarcityText = settings.scarcity_text as string | undefined
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = affiliateUrl
+    handlePresellCta(slug, affiliateUrl, trackingParam)
   }
 
   return (

@@ -1,8 +1,9 @@
+import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
 
 function DeviceFrame({ presell }: TemplateComponentProps) {
-  const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, bullets, settings } = presell
+  const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, bullets, settings } = presell
 
   const topBarText = settings.top_bar_text as string | undefined
   const offerNote = settings.offer_note as string | undefined
@@ -13,8 +14,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
   const isPhone = frameType === 'phone'
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = affiliateUrl
+    handlePresellCta(slug, affiliateUrl, trackingParam)
   }
 
   return (

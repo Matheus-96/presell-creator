@@ -11,6 +11,7 @@ export type PresellPublicData = {
   ctaText: string
   affiliateUrl: string
   googlePixelId: string | null
+  trackingParam: string
   imageUrl: string | null
   backgroundImageUrl: string | null
   settings: Record<string, unknown>

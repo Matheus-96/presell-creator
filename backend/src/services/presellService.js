@@ -102,6 +102,11 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     throw new Error("Google Pixel ID deve ter no maximo 50 caracteres.");
   }
 
+  const rawTrackingParam = String(input.tracking_param || "gclid").trim() || "gclid";
+  if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/.test(rawTrackingParam)) {
+    throw new Error("Parâmetro de rastreamento inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra).");
+  }
+
   return {
     slug,
     status,
@@ -116,7 +121,8 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     imagePath: imagePath === null ? null : (imagePath !== undefined ? imagePath : (input.current_image_path || "")),
     backgroundImagePath: backgroundImagePath === null ? null : (backgroundImagePath !== undefined ? backgroundImagePath : (input.current_background_image_path || "")),
     settingsJson: JSON.stringify(settings),
-    googlePixel: googlePixel || null
+    googlePixel: googlePixel || null,
+    trackingParam: rawTrackingParam
   };
 }
 

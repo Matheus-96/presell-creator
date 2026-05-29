@@ -22,6 +22,7 @@ import {
   createPresell,
   deletePresell,
   duplicatePresell,
+  getApiErrorMessage,
   getPresell,
   listTemplates,
   updatePresell,
@@ -47,6 +48,7 @@ const presellFormSchema = z.object({
   ctaText: z.string().min(1, 'Texto do botão é obrigatório'),
   affiliateUrl: z.string().url('Insira uma URL válida'),
   googlePixelId: z.string(),
+  trackingParam: z.string(),
   settings: z.record(z.string(), z.unknown()),
   media: z.object({
     heroImageFileName: z.string(),
@@ -131,6 +133,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         navigate(`/presells/${saved.id}/edit`)
       }
     },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao salvar presell'))
+    },
   })
 
   const deleteMutation = useMutation({
@@ -139,6 +144,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
       queryClient.invalidateQueries({ queryKey: ['presells'] })
       navigate('/presells')
     },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao excluir presell'))
+    },
   })
 
   const duplicateMutation = useMutation({
@@ -146,6 +154,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     onSuccess: (saved) => {
       queryClient.invalidateQueries({ queryKey: ['presells'] })
       navigate(`/presells/${saved.id}/edit`)
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'Erro ao duplicar presell'))
     },
   })
 
@@ -348,6 +359,18 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   placeholder="Opcional"
                   {...register('googlePixelId')}
                 />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="trackingParam">Parâmetro de rastreamento</Label>
+                <Input
+                  id="trackingParam"
+                  placeholder="gclid"
+                  {...register('trackingParam')}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Nome do parâmetro passado para o link do afiliado. Use <code>sid</code> para CJ Affiliate e Braip, <code>src</code> para Hotmart e Eduzz, <code>tid</code> para ClickBank. Deixe em branco para usar <code>gclid</code>.
+                </p>
               </div>
             </div>
           </FormSection>

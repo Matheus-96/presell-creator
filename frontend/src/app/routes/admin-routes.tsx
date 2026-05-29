@@ -18,6 +18,13 @@ const LazyPresellEditPage = createElement(
   }),
 )
 
+const LazyPresellAnalyticsPage = createElement(
+  lazy(async () => {
+    const module = await import('@/features/presells/pages/PresellAnalyticsPage.tsx')
+    return { default: module.PresellAnalyticsPage }
+  }),
+)
+
 function toRouteObject(route: AdminRouteDefinition): RouteObject {
   if (route.index) {
     return {
@@ -36,4 +43,5 @@ export const adminRouteObjects: RouteObject[] = [
   ...adminRoutes.map(toRouteObject),
   { path: 'presells/new', element: LazyPresellEditPage },
   { path: 'presells/:id/edit', element: LazyPresellEditPage },
+  { path: 'presells/:id/analytics', element: LazyPresellAnalyticsPage },
 ]
