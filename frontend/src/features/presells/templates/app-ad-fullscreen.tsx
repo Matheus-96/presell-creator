@@ -1,8 +1,9 @@
+import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
 
 function AppAdFullscreen({ presell }: TemplateComponentProps) {
-  const { headline, subtitle, ctaText, affiliateUrl, slug, imageUrl, backgroundImageUrl, settings } = presell
+  const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, backgroundImageUrl, settings } = presell
 
   const labelText = settings.label_text as string | undefined
   const microcopy = settings.microcopy as string | undefined
@@ -10,8 +11,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
 
   function handleCta() {
-    fetch(`/api/public/presells/${slug}/redirect`, { method: 'POST' })
-    window.location.href = affiliateUrl
+    handlePresellCta(slug, affiliateUrl, trackingParam)
   }
 
   const buttonClass =

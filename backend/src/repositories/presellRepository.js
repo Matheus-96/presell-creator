@@ -13,6 +13,7 @@ const presellSummarySelect = `
   image_path,
   google_pixel,
   background_image_path,
+  tracking_param,
   created_at,
   updated_at
 `;
@@ -47,20 +48,21 @@ const updatePresellStmt = db.prepare(`
   UPDATE presells
   SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
       subtitle = ?, body = ?, bullets = ?, cta_text = ?, affiliate_url = ?,
-      image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?, updated_at = CURRENT_TIMESTAMP
+      image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?,
+      tracking_param = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?
 `);
 const createPresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const duplicatePresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel
-  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param
+  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const deletePresellStmt = db.prepare("DELETE FROM presells WHERE id = ?");
 
@@ -124,6 +126,7 @@ function updatePresell(id, data) {
     data.settingsJson,
     data.googlePixel,
     data.backgroundImagePath,
+    data.trackingParam ?? "gclid",
     id
   );
 
@@ -145,7 +148,8 @@ function createPresell(data) {
     data.imagePath,
     data.settingsJson,
     data.googlePixel,
-    data.backgroundImagePath
+    data.backgroundImagePath,
+    data.trackingParam ?? "gclid"
   );
 
   return getPresellById(result.lastInsertRowid);
@@ -164,7 +168,8 @@ function duplicatePresell(source, { slug, title }) {
     source.affiliate_url,
     source.image_path,
     source.settings_json || "{}",
-    source.google_pixel || null
+    source.google_pixel || null,
+    source.tracking_param || "gclid"
   );
 
   return getPresellById(result.lastInsertRowid);

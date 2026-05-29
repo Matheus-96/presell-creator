@@ -73,6 +73,10 @@ function migrate() {
   runMigration("003_add_background_image_column", `
     ALTER TABLE presells ADD COLUMN background_image_path TEXT DEFAULT NULL;
   `);
+
+  runMigration("004_presell_tracking_param", `
+    ALTER TABLE presells ADD COLUMN tracking_param TEXT NOT NULL DEFAULT 'gclid';
+  `);
 }
 
 function runMigration(name, sql) {
