@@ -66,6 +66,7 @@ export interface DividerBlock {
 
 export interface CountdownBlock {
   type: "countdown";
+  variant?: "block" | "banner";
   minutes: number;
   label?: string;
   textColor?: string;

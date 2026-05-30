@@ -11,7 +11,9 @@ export function ListBlockComponent({ block }: Props) {
     display: "flex",
     flexDirection: "column",
     gap: "var(--p-space-2)",
-    ...(icon ? { listStyle: "none", paddingLeft: 0 } : {}),
+    ...(icon
+      ? { listStyle: "none", paddingLeft: "var(--p-block-padding-x)", paddingRight: "var(--p-block-padding-x)" }
+      : { paddingLeft: "calc(var(--p-block-padding-x) + 1.25em)", paddingRight: "var(--p-block-padding-x)" }),
     ...(textColor ? { color: textColor } : {}),
     margin: 0,
   };

@@ -35,7 +35,8 @@ SCHEMA:
     { "type": "button", "text": "...", "url": "https://...", "backgroundColor": "#hex", "textColor": "#hex", "size": "lg", "align": "center" },
     { "type": "image", "src": "...", "alt": "...", "borderRadius": "12px", "maxWidth": "320px", "align": "center" },
     { "type": "divider", "color": "#hex", "spacing": "24px" },
-    { "type": "countdown", "minutes": 15, "label": "Oferta expira em:", "textColor": "#hex", "backgroundColor": "#hex" },
+    { "type": "countdown", "variant": "block", "minutes": 15, "label": "Oferta expira em:", "textColor": "#hex", "backgroundColor": "#hex" },
+    { "type": "countdown", "variant": "banner", "minutes": 15, "label": "Oferta expira em:", "textColor": "#hex", "backgroundColor": "#hex" },
     { "type": "column_layout", "gap": "16px", "children": [ ...máx 2 blocos não-column_layout... ] }
   ]
 }
@@ -46,6 +47,7 @@ REGRAS:
 - "level" em "title" deve ser 1, 2 ou 3
 - "fontSize" em "paragraph" deve ser "sm", "md" ou "lg"
 - "size" em "button" deve ser "sm", "md" ou "lg"
+- "variant" em "countdown" deve ser "block" (padrão, centralizado) ou "banner" (faixa full-width horizontal)
 - "align" deve ser "left", "center" ou "right"
 - Cores sempre em formato hexadecimal (#rrggbb ou #rgb)
 - O JSON deve ser válido — sem vírgulas finais, sem comentários
@@ -164,17 +166,23 @@ EXEMPLO DE PRESELL COMPLETA:
  * Usa conteúdo multimodal quando screenshot está disponível.
  *
  * @param {import('../extractors/IPageExtractor').PageData} pageData
+ * @param {string[]} hostedImageUrls - URLs absolutas hospedadas localmente
  * @returns {string|Array}
  */
-function buildUserMessage(pageData) {
+function buildUserMessage(pageData, hostedImageUrls = []) {
+  const imageSection = hostedImageUrls.length > 0
+    ? `\nImagens do produto disponíveis (use estas URLs exatas nos blocos image/hero — não invente outras):\n${hostedImageUrls.join('\n')}`
+    : '';
+
   const textContent = [
     `Título: ${pageData.title}`,
     `Descrição: ${pageData.metaDescription}`,
     `Texto: ${pageData.text}`,
     `Cores: ${pageData.colors.join(', ')}`,
     `CSS Vars: ${JSON.stringify(pageData.cssVars)}`,
-    `Styles: ${pageData.inlineStyles}`
-  ].join('\n');
+    `Styles: ${pageData.inlineStyles}`,
+    imageSection,
+  ].filter(Boolean).join('\n');
 
   if (pageData.screenshot) {
     return [
@@ -201,7 +209,7 @@ function buildUserMessage(pageData) {
  * @returns {Promise<{ blocks: import('./blockSchema').Block[], rootProps: import('./blockSchema').RootProps, rawJson: string }>}
  * @throws {Error} se a chamada à API falhar ou a resposta for inválida
  */
-async function generatePresellBlocks(pageData) {
+async function generatePresellBlocks(pageData, hostedImageUrls = []) {
   const { openRouterApiKey } = getEnv();
 
   let response;
@@ -214,11 +222,11 @@ async function generatePresellBlocks(pageData) {
         'HTTP-Referer': 'https://presell-creator.local'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash',
+        model: 'google/gemini-2.0-flash-001',
         temperature: 0.3,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserMessage(pageData) }
+          { role: 'user', content: buildUserMessage(pageData, hostedImageUrls) }
         ]
       }),
       signal: AbortSignal.timeout(90_000)

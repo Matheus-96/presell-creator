@@ -11,6 +11,7 @@ export function TitleBlockComponent({ block }: Props) {
     ...(textColor ? { color: textColor } : {}),
     textAlign: align,
     margin: 0,
+    padding: "0 var(--p-block-padding-x)",
   };
 
   if (level === 1) return <h1 style={style}>{text}</h1>;

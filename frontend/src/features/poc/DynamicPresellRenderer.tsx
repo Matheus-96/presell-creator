@@ -85,7 +85,15 @@ export function DynamicPresellRenderer({ blocks, rootProps }: Props) {
           }}
         />
       )}
-      {blocks.map((block, index) => renderBlock(block, index))}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "var(--p-space-6)",
+        }}
+      >
+        {blocks.map((block, index) => renderBlock(block, index))}
+      </div>
     </div>
   );
 }

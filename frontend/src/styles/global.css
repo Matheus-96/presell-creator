@@ -80,6 +80,9 @@
   --p-maxw-card:   480px;
   --p-maxw-layout: 900px;
 
+  /* Layout de blocos */
+  --p-block-padding-x: 16px;
+
   /* Botão CTA — dimensões fixas */
   --p-cta-min-height: 54px;
   --p-cta-min-width:  280px;
