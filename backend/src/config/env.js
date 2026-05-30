@@ -112,6 +112,23 @@ function parseSessionCookieSecure(value, { fallback, sameSite, forceHttps }) {
   return parseBoolean(normalized, fallback);
 }
 
+const PAGE_EXTRACTOR_VALUES = ["puppeteer", "fetch"];
+
+function parsePageExtractor(value, fallback = "puppeteer") {
+  if (typeof value !== "string" || !value.trim()) {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!PAGE_EXTRACTOR_VALUES.includes(normalized)) {
+    throw new Error(
+      `Invalid PAGE_EXTRACTOR value "${value}". Must be one of: ${PAGE_EXTRACTOR_VALUES.join(", ")}`
+    );
+  }
+
+  return normalized;
+}
+
 function getEnv() {
   loadEnv();
 
@@ -129,6 +146,11 @@ function getEnv() {
   );
   const adminFrontendPath = normalizeRoutePath(process.env.ADMIN_FRONTEND_PATH, "/admin");
 
+  const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+  if (!openRouterApiKey || !openRouterApiKey.trim()) {
+    throw new Error("Missing required environment variable: OPENROUTER_API_KEY");
+  }
+
   return {
     adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || "",
     adminFrontendPath,
@@ -137,6 +159,8 @@ function getEnv() {
     compatibilityPort: parsePort(process.env.PORT, 3001),
     forceHttps,
     nodeEnv,
+    openRouterApiKey: openRouterApiKey.trim(),
+    pageExtractor: parsePageExtractor(process.env.PAGE_EXTRACTOR, "puppeteer"),
     sessionSecret: process.env.SESSION_SECRET || "development-secret",
     sessionCookieSameSite,
     sessionCookieSecure,
