@@ -108,7 +108,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           </div>
 
           {/* Publicação */}
-          <FormSection title="Publicação">
+          <FormSection title="Publicação" collapsible defaultOpen={true}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="slug">Slug</Label>
@@ -156,7 +156,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           </FormSection>
 
           {/* Conteúdo */}
-          <FormSection title="Conteúdo" description="Textos exibidos na página de presell">
+          <FormSection title="Conteúdo" description="Textos exibidos na página de presell" collapsible defaultOpen={true}>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="headline">Título</Label>
@@ -195,7 +195,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           </FormSection>
 
           {/* Conversão */}
-          <FormSection title="Conversão">
+          <FormSection title="Conversão" collapsible defaultOpen={true}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="ctaText">Texto do botão</Label>
@@ -238,7 +238,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           </FormSection>
 
           {/* Mídia */}
-          <FormSection title="Mídia" description="Imagens usadas pelo template">
+          <FormSection title="Mídia" description="Imagens usadas pelo template" collapsible defaultOpen={false}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <MediaUploadField
                 label="Imagem do produto"
@@ -259,6 +259,8 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           <FormSection
             title="Configurações do template"
             description={selectedTemplate?.description}
+            collapsible
+            defaultOpen={true}
             action={
               selectedTemplate?.aiInstructions ? (
                 <div className="flex items-center gap-1">
