@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label.tsx'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { FormSection } from '@/features/presells/components/FormSection.tsx'
 import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
-import { MediaUploadField } from '@/features/presells/components/MediaUploadField.tsx'
+import { MediaPicker } from '@/features/presells/components/MediaPicker.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
 import { TemplateSettingsFields } from '@/features/presells/components/TemplateSettingsFields.tsx'
 import {
@@ -24,7 +24,6 @@ import { presellFormSchema } from '@/features/presells/lib/presell-form-schema.t
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 import { usePresellEditor } from '@/features/presells/hooks/usePresellEditor.ts'
 import type {
-  MediaReference,
   PresellFormState,
   TemplateMetadata,
   TemplateSettingValue,
@@ -56,10 +55,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     duplicateMutation,
     isBusy,
     handleDelete,
-    handleHeroUpload,
-    handleHeroRemove,
-    handleBackgroundUpload,
-    handleBackgroundRemove,
   } = usePresellEditor({ id, isDirty: formState.isDirty, selectedTemplate, setValue })
 
   return (
@@ -240,17 +235,23 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           {/* Mídia */}
           <FormSection title="Mídia" description="Imagens usadas pelo template" collapsible defaultOpen={false}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <MediaUploadField
-                label="Imagem do produto"
-                reference={formValues.media.heroImageReference as MediaReference | null}
-                onUpload={handleHeroUpload}
-                onRemove={handleHeroRemove}
+              <MediaPicker
+                label="Imagem do herói"
+                value={watch('media.heroImageReference')}
+                onChange={(ref) => {
+                  setValue('media.heroImageReference', ref, { shouldDirty: true })
+                  setValue('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                }}
+                isLoading={isBusy}
               />
-              <MediaUploadField
+              <MediaPicker
                 label="Imagem de fundo"
-                reference={formValues.media.backgroundImageReference as MediaReference | null}
-                onUpload={handleBackgroundUpload}
-                onRemove={handleBackgroundRemove}
+                value={watch('media.backgroundImageReference')}
+                onChange={(ref) => {
+                  setValue('media.backgroundImageReference', ref, { shouldDirty: true })
+                  setValue('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                }}
+                isLoading={isBusy}
               />
             </div>
           </FormSection>

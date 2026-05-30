@@ -11,7 +11,7 @@ import {
   updatePresell,
 } from '@/features/presells/lib/presells-api.ts'
 import { buildPresellPayload } from '@/features/presells/lib/presell-editor.ts'
-import type { MediaReference, PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
+import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 
 type Props = {
@@ -83,26 +83,6 @@ export function usePresellEditor({ id, isDirty, selectedTemplate, setValue }: Pr
     deleteMutation.mutate()
   }
 
-  function handleHeroUpload(ref: MediaReference) {
-    setValue('media.heroImageFileName', ref.fileName, { shouldDirty: true })
-    setValue('media.heroImageReference', ref, { shouldDirty: true })
-  }
-
-  function handleHeroRemove() {
-    setValue('media.heroImageFileName', '', { shouldDirty: true })
-    setValue('media.heroImageReference', null, { shouldDirty: true })
-  }
-
-  function handleBackgroundUpload(ref: MediaReference) {
-    setValue('media.backgroundImageFileName', ref.fileName, { shouldDirty: true })
-    setValue('media.backgroundImageReference', ref, { shouldDirty: true })
-  }
-
-  function handleBackgroundRemove() {
-    setValue('media.backgroundImageFileName', '', { shouldDirty: true })
-    setValue('media.backgroundImageReference', null, { shouldDirty: true })
-  }
-
   const isBusy = saveMutation.isPending || deleteMutation.isPending || duplicateMutation.isPending
 
   return {
@@ -111,9 +91,5 @@ export function usePresellEditor({ id, isDirty, selectedTemplate, setValue }: Pr
     duplicateMutation,
     isBusy,
     handleDelete,
-    handleHeroUpload,
-    handleHeroRemove,
-    handleBackgroundUpload,
-    handleBackgroundRemove,
   }
 }
