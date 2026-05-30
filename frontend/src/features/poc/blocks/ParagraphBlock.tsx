@@ -21,6 +21,7 @@ export function ParagraphBlockComponent({ block }: Props) {
         textAlign: align,
         ...(textColor ? { color: textColor } : {}),
         margin: 0,
+        padding: "0 var(--p-block-padding-x)",
       }}
     >
       {text}

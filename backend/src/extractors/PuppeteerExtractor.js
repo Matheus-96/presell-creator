@@ -60,7 +60,7 @@ class PuppeteerExtractor {
   async extract(url) {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox'],
+      args: ['--no-sandbox', '--ignore-certificate-errors'],
     });
 
     try {

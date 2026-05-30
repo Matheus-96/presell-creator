@@ -21,7 +21,7 @@ export function ButtonBlockComponent({ block }: Props) {
   } = block;
 
   return (
-    <div style={{ textAlign: align }}>
+    <div style={{ textAlign: align, padding: "0 var(--p-block-padding-x)" }}>
       <a
         href={url}
         target="_blank"

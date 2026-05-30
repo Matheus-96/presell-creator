@@ -30,6 +30,7 @@ export function CountdownBlockComponent({ block }: Props) {
   const ss = String(secondsLeft % 60).padStart(2, "0");
 
   return (
+    <div style={{ padding: "0 var(--p-block-padding-x)" }}>
     <div
       style={{
         display: "inline-block",
@@ -63,6 +64,7 @@ export function CountdownBlockComponent({ block }: Props) {
       >
         {mm}:{ss}
       </div>
+    </div>
     </div>
   );
 }

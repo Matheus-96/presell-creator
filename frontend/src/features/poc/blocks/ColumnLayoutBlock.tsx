@@ -14,6 +14,7 @@ export function ColumnLayoutBlockComponent({ block }: Props) {
         display: "flex",
         flexWrap: "wrap",
         gap,
+        padding: "0 var(--p-block-padding-x)",
       }}
     >
       {children.map((child, index) => {

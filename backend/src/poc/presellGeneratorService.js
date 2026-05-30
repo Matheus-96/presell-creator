@@ -214,7 +214,7 @@ async function generatePresellBlocks(pageData) {
         'HTTP-Referer': 'https://presell-creator.local'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash',
+        model: 'google/gemini-2.0-flash-001',
         temperature: 0.3,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
