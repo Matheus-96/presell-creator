@@ -60,13 +60,21 @@ function DigitBox({ value, label }: { value: number; label: string }) {
 function UrgentOffer({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, bullets, settings } = presell
 
+  const theme = presell.theme ?? {}
+  const colors = {
+    primary:    theme.primary    ?? '#6366f1',
+    secondary:  theme.secondary  ?? '#1e293b',
+    background: theme.background ?? '#ffffff',
+    surface:    theme.surface    ?? '#f8fafc',
+    textColor:  theme.textColor  ?? '#0f172a',
+  }
+
   const topBarText = settings.top_bar_text as string | undefined
   const countdownMinutes = Number(settings.countdown_minutes) || 0
   const originalPrice = settings.original_price as string | undefined
   const currentPrice = settings.current_price as string | undefined
   const scarcityText = settings.scarcity_text as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
-  const ctaBase = (settings.cta_color as string | undefined) ?? 'var(--p-cta-green)'
 
   const countdown = useCountdown(countdownMinutes)
 
@@ -78,7 +86,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
     <div
       style={{
         minHeight: '100dvh',
-        backgroundColor: 'var(--p-bg)',
+        backgroundColor: colors.background,
         paddingBottom: 'calc(var(--p-cta-min-height) + var(--p-space-8))',
       }}
     >
@@ -86,7 +94,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
       {topBarText && (
         <div
           className="flex items-center justify-center gap-2"
-          style={{ backgroundColor: ctaBase, padding: 'var(--p-space-3) var(--p-space-4)' }}
+          style={{ backgroundColor: colors.primary, padding: 'var(--p-space-3) var(--p-space-4)' }}
         >
           <span
             style={{
@@ -135,7 +143,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
               style={{
                 fontSize: 'var(--p-micro-size)',
                 fontWeight: 700,
-                color: ctaBase,
+                color: colors.primary,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 lineHeight: 1.3,
@@ -178,7 +186,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
             fontWeight: 'var(--p-h1-weight)',
             lineHeight: 'var(--p-h1-lh)',
             letterSpacing: 'var(--p-h1-ls)',
-            color: 'var(--p-text)',
+            color: colors.secondary,
             marginBottom: 'var(--p-space-4)',
             marginTop: countdownMinutes > 0 ? 0 : 'var(--p-space-5)',
           }}
@@ -192,7 +200,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
             fontSize: 'var(--p-body-size)',
             fontWeight: 'var(--p-body-weight)',
             lineHeight: 'var(--p-body-lh)',
-            color: 'var(--p-muted)',
+            color: colors.textColor,
             marginBottom: 'var(--p-space-5)',
           }}
         >
@@ -219,7 +227,7 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
                   style={{
                     fontSize: 'clamp(28px, 8vw, 40px)',
                     fontWeight: 800,
-                    color: ctaBase,
+                    color: colors.primary,
                     lineHeight: 1,
                   }}
                 >
@@ -266,10 +274,10 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
                   gap: 'var(--p-space-2)',
                   fontSize: 'var(--p-body-size)',
                   lineHeight: 'var(--p-body-lh)',
-                  color: 'var(--p-text)',
+                  color: colors.textColor,
                 }}
               >
-                <span style={{ color: ctaBase, flexShrink: 0, marginTop: '0.125rem' }}>✓</span>
+                <span style={{ color: colors.primary, flexShrink: 0, marginTop: '0.125rem' }}>✓</span>
                 <span>{bullet}</span>
               </li>
             ))}
@@ -295,14 +303,14 @@ function UrgentOffer({ presell }: TemplateComponentProps) {
       {/* Sticky CTA */}
       <div
         className="fixed bottom-0 left-0 right-0"
-        style={{ padding: 'var(--p-space-3) var(--p-space-4)', backgroundColor: 'var(--p-bg)' }}
+        style={{ padding: 'var(--p-space-3) var(--p-space-4)', backgroundColor: colors.background }}
       >
         <button
           type="button"
           onClick={handleCta}
           className="w-full cursor-pointer uppercase tracking-wider transition-[filter] hover:brightness-90 active:brightness-75"
           style={{
-            backgroundColor: ctaBase,
+            backgroundColor: colors.primary,
             minHeight: 'var(--p-cta-min-height)',
             borderRadius: 'var(--p-radius-md)',
             fontSize: 'var(--p-cta-text-size)',
