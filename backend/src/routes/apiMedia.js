@@ -1,0 +1,37 @@
+'use strict';
+
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const { requireApiAuth } = require('../middleware/auth');
+const { uploadDir } = require('../services/uploadService');
+
+const router = express.Router();
+
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
+
+router.get('/', requireApiAuth, (req, res) => {
+  let files;
+  try {
+    files = fs.readdirSync(uploadDir);
+  } catch {
+    return res.json({ images: [] });
+  }
+
+  const images = files
+    .filter(f => IMAGE_EXTENSIONS.has(path.extname(f).toLowerCase()))
+    .map(filename => {
+      const stat = fs.statSync(path.join(uploadDir, filename));
+      return {
+        url: `/media/${filename}`,
+        filename,
+        size: stat.size,
+        createdAt: stat.birthtime.toISOString(),
+      };
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  res.json({ images });
+});
+
+module.exports = router;
