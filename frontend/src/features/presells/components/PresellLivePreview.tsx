@@ -30,6 +30,7 @@ function formStateToPublicData(draft: PresellFormState): PresellPublicData {
     imageUrl: draft.media.heroImageReference?.url ?? null,
     backgroundImageUrl: draft.media.backgroundImageReference?.url ?? null,
     settings: draft.settings,
+    theme: draft.theme ?? null,
   }
 }
 

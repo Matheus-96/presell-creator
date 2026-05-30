@@ -5,12 +5,20 @@ import type { TemplateComponentProps } from './types.ts'
 function DeviceFrame({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, bullets, settings } = presell
 
+  const theme = presell.theme ?? {}
+  const colors = {
+    primary:    theme.primary    ?? '#6366f1',
+    secondary:  theme.secondary  ?? '#1e293b',
+    background: theme.background ?? '#ffffff',
+    surface:    theme.surface    ?? '#f8fafc',
+    textColor:  theme.textColor  ?? '#0f172a',
+  }
+
   const topBarText = settings.top_bar_text as string | undefined
   const offerNote = settings.offer_note as string | undefined
   const footerLeftText = settings.footer_left_text as string | undefined
   const footerRightText = settings.footer_right_text as string | undefined
   const frameType = settings.frame_type as string | undefined
-  const ctaBase = (settings.cta_color as string | undefined) ?? 'var(--p-cta-green)'
 
   const isPhone = frameType === 'phone'
 
@@ -21,7 +29,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
   return (
     <div
       className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: 'var(--p-bg)', padding: 'var(--p-space-6)' }}
+      style={{ backgroundColor: colors.background, padding: 'var(--p-space-6)' }}
     >
       <div
         className="w-full overflow-hidden"
@@ -29,14 +37,15 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
           maxWidth: isPhone ? 'var(--p-maxw-card)' : 'var(--p-maxw-layout)',
           border: '1px solid var(--p-line)',
           borderRadius: 'var(--p-radius-lg)',
-          backgroundColor: 'var(--p-panel)',
+          backgroundColor: colors.surface,
           boxShadow: 'var(--p-shadow-md)',
         }}
       >
         {/* Browser/phone top bar */}
         <div
+          data-testid="device-top-bar"
           className="flex items-center gap-2"
-          style={{ backgroundColor: 'var(--p-line)', padding: 'var(--p-space-3) var(--p-space-4)' }}
+          style={{ backgroundColor: colors.primary, padding: 'var(--p-space-3) var(--p-space-4)' }}
         >
           <span className="h-3 w-3 rounded-full bg-red-400" />
           <span className="h-3 w-3 rounded-full bg-yellow-400" />
@@ -81,7 +90,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
                 fontWeight: 'var(--p-h1-weight)',
                 lineHeight: 'var(--p-h1-lh)',
                 letterSpacing: 'var(--p-h1-ls)',
-                color: 'var(--p-text)',
+                color: colors.textColor,
               }}
             >
               {headline}
@@ -105,7 +114,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
                   fontSize: 'var(--p-subtitle-size)',
                   fontWeight: 'var(--p-subtitle-weight)',
                   lineHeight: 'var(--p-subtitle-lh)',
-                  color: 'var(--p-text)',
+                  color: colors.textColor,
                   marginBottom: 'var(--p-space-4)',
                 }}
               >
@@ -124,9 +133,9 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
                     <li
                       key={i}
                       className="flex items-start"
-                      style={{ gap: 'var(--p-space-2)', fontSize: 'var(--p-body-size)', lineHeight: 'var(--p-body-lh)', color: 'var(--p-text)' }}
+                      style={{ gap: 'var(--p-space-2)', fontSize: 'var(--p-body-size)', lineHeight: 'var(--p-body-lh)', color: colors.textColor }}
                     >
-                      <span style={{ marginTop: '0.125rem', color: ctaBase, flexShrink: 0 }}>✓</span>
+                      <span style={{ marginTop: '0.125rem', color: colors.primary, flexShrink: 0 }}>✓</span>
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -137,7 +146,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
                 onClick={handleCta}
                 className="w-full cursor-pointer transition-[filter] hover:brightness-90 active:brightness-75"
                 style={{
-                  backgroundColor: ctaBase,
+                  backgroundColor: colors.primary,
                   minHeight: 'var(--p-cta-min-height)',
                   borderRadius: 'var(--p-radius-md)',
                   padding: '0 var(--p-space-6)',
@@ -159,7 +168,7 @@ function DeviceFrame({ presell }: TemplateComponentProps) {
             className="flex items-center justify-between"
             style={{
               borderTop: '1px solid var(--p-line)',
-              backgroundColor: 'var(--p-bg)',
+              backgroundColor: colors.secondary,
               padding: 'var(--p-space-3) var(--p-space-6)',
               fontSize: 'var(--p-micro-size)',
               color: 'var(--p-muted)',

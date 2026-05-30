@@ -26,6 +26,30 @@ function makePresell(overrides: Partial<PresellPublicData> = {}): PresellPublicD
   }
 }
 
+const FALLBACK_PRIMARY = '#6366f1'
+const FALLBACK_BACKGROUND = '#ffffff'
+
+const CUSTOM_THEME = {
+  primary: '#ff0000',
+  secondary: '#00ff00',
+  background: '#0000ff',
+  surface: '#ffff00',
+  textColor: '#ff00ff',
+}
+
+/** Normalize a hex color like #rrggbb to the rgb(...) string jsdom reports. */
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+function expectColor(actual: string, hex: string) {
+  const expected = hexToRgb(hex)
+  expect(actual === hex || actual === expected).toBe(true)
+}
+
 describe('Template registration', () => {
   it('getTemplate("offer-modal") returns a component after import', () => {
     expect(getTemplate('offer-modal')).not.toBeNull()
@@ -41,6 +65,10 @@ describe('Template registration', () => {
 
   it('getTemplate("device-frame") returns a component after import', () => {
     expect(getTemplate('device-frame')).not.toBeNull()
+  })
+
+  it('getTemplate("urgent-offer") returns a component after import', () => {
+    expect(getTemplate('urgent-offer')).not.toBeNull()
   })
 })
 
@@ -77,6 +105,28 @@ describe('offer-modal render', () => {
     vi.unstubAllGlobals()
     Object.defineProperty(window, 'location', { writable: true, value: originalLocation })
   })
+
+  it('uses fallback primary color on CTA button when theme is null', () => {
+    const OfferModal = getTemplate('offer-modal')!
+    const { container } = render(<OfferModal presell={makePresell({ theme: null })} />)
+    const btn = container.querySelector('button')!
+    expectColor(btn.style.backgroundColor, FALLBACK_PRIMARY)
+  })
+
+  it('applies custom theme primary to CTA button', () => {
+    const OfferModal = getTemplate('offer-modal')!
+    const { container } = render(<OfferModal presell={makePresell({ theme: CUSTOM_THEME })} />)
+    const btn = container.querySelector('button')!
+    expectColor(btn.style.backgroundColor, CUSTOM_THEME.primary)
+  })
+
+  it('applies custom theme surface to modal card background', () => {
+    const OfferModal = getTemplate('offer-modal')!
+    const { container } = render(<OfferModal presell={makePresell({ theme: CUSTOM_THEME })} />)
+    // the modal card is the inner z-10 div
+    const card = container.querySelector('.relative.z-10') as HTMLElement
+    expectColor(card.style.backgroundColor, CUSTOM_THEME.surface)
+  })
 })
 
 describe('app-ad render', () => {
@@ -93,6 +143,64 @@ describe('app-ad render', () => {
     )
     expect(screen.getByText('App Headline')).toBeDefined()
     expect(screen.getByText('Special Offer')).toBeDefined()
+  })
+
+  it('uses fallback background color on page when theme is null', () => {
+    const AppAd = getTemplate('app-ad')!
+    const { container } = render(<AppAd presell={makePresell({ templateId: 'app-ad', theme: null })} />)
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, FALLBACK_BACKGROUND)
+  })
+
+  it('applies custom theme background to page', () => {
+    const AppAd = getTemplate('app-ad')!
+    const { container } = render(<AppAd presell={makePresell({ templateId: 'app-ad', theme: CUSTOM_THEME })} />)
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, CUSTOM_THEME.background)
+  })
+
+  it('applies custom theme primary to CTA button', () => {
+    const AppAd = getTemplate('app-ad')!
+    const { container } = render(<AppAd presell={makePresell({ templateId: 'app-ad', theme: CUSTOM_THEME })} />)
+    const btn = container.querySelector('button')!
+    expectColor(btn.style.backgroundColor, CUSTOM_THEME.primary)
+  })
+})
+
+describe('app-ad-fullscreen render', () => {
+  it('renders headline', () => {
+    const AppAdFullscreen = getTemplate('app-ad-fullscreen')!
+    render(
+      <AppAdFullscreen presell={makePresell({ templateId: 'app-ad-fullscreen', headline: 'FS Headline' })} />,
+    )
+    expect(screen.getByText('FS Headline')).toBeDefined()
+  })
+
+  it('uses fallback background on page when theme is null', () => {
+    const AppAdFullscreen = getTemplate('app-ad-fullscreen')!
+    const { container } = render(
+      <AppAdFullscreen presell={makePresell({ templateId: 'app-ad-fullscreen', theme: null })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, FALLBACK_BACKGROUND)
+  })
+
+  it('applies custom theme background to page', () => {
+    const AppAdFullscreen = getTemplate('app-ad-fullscreen')!
+    const { container } = render(
+      <AppAdFullscreen presell={makePresell({ templateId: 'app-ad-fullscreen', theme: CUSTOM_THEME })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, CUSTOM_THEME.background)
+  })
+
+  it('applies custom theme primary to CTA button', () => {
+    const AppAdFullscreen = getTemplate('app-ad-fullscreen')!
+    const { container } = render(
+      <AppAdFullscreen presell={makePresell({ templateId: 'app-ad-fullscreen', theme: CUSTOM_THEME })} />,
+    )
+    const btn = container.querySelector('button')!
+    expectColor(btn.style.backgroundColor, CUSTOM_THEME.primary)
   })
 })
 
@@ -113,5 +221,69 @@ describe('device-frame render', () => {
     expect(screen.getByText('First bullet')).toBeDefined()
     expect(screen.getByText('Second bullet')).toBeDefined()
     expect(screen.getByText('https://example.com')).toBeDefined()
+  })
+
+  it('uses fallback background color on page when theme is null', () => {
+    const DeviceFrame = getTemplate('device-frame')!
+    const { container } = render(
+      <DeviceFrame presell={makePresell({ templateId: 'device-frame', theme: null })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, FALLBACK_BACKGROUND)
+  })
+
+  it('applies custom theme background to page', () => {
+    const DeviceFrame = getTemplate('device-frame')!
+    const { container } = render(
+      <DeviceFrame presell={makePresell({ templateId: 'device-frame', theme: CUSTOM_THEME })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, CUSTOM_THEME.background)
+  })
+
+  it('applies custom theme primary to top bar', () => {
+    const DeviceFrame = getTemplate('device-frame')!
+    const { container } = render(
+      <DeviceFrame presell={makePresell({ templateId: 'device-frame', theme: CUSTOM_THEME })} />,
+    )
+    const bar = container.querySelector('[data-testid="device-top-bar"]') as HTMLElement
+    expectColor(bar.style.backgroundColor, CUSTOM_THEME.primary)
+  })
+})
+
+describe('urgent-offer render', () => {
+  it('renders headline', () => {
+    const UrgentOffer = getTemplate('urgent-offer')!
+    render(<UrgentOffer presell={makePresell({ templateId: 'urgent-offer', headline: 'Urgent Headline' })} />)
+    expect(screen.getByText('Urgent Headline')).toBeDefined()
+  })
+
+  it('uses fallback background color on page when theme is null', () => {
+    const UrgentOffer = getTemplate('urgent-offer')!
+    const { container } = render(
+      <UrgentOffer presell={makePresell({ templateId: 'urgent-offer', theme: null })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, FALLBACK_BACKGROUND)
+  })
+
+  it('applies custom theme background to page', () => {
+    const UrgentOffer = getTemplate('urgent-offer')!
+    const { container } = render(
+      <UrgentOffer presell={makePresell({ templateId: 'urgent-offer', theme: CUSTOM_THEME })} />,
+    )
+    const root = container.firstElementChild as HTMLElement
+    expectColor(root.style.backgroundColor, CUSTOM_THEME.background)
+  })
+
+  it('applies custom theme primary to CTA button', () => {
+    const UrgentOffer = getTemplate('urgent-offer')!
+    const { container } = render(
+      <UrgentOffer presell={makePresell({ templateId: 'urgent-offer', theme: CUSTOM_THEME })} />,
+    )
+    // sticky CTA is last button
+    const buttons = container.querySelectorAll('button')
+    const btn = buttons[buttons.length - 1] as HTMLElement
+    expectColor(btn.style.backgroundColor, CUSTOM_THEME.primary)
   })
 })
