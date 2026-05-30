@@ -14,6 +14,7 @@ const presellSummarySelect = `
   google_pixel,
   background_image_path,
   tracking_param,
+  theme,
   created_at,
   updated_at
 `;
@@ -49,14 +50,14 @@ const updatePresellStmt = db.prepare(`
   SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
       subtitle = ?, body = ?, bullets = ?, cta_text = ?, affiliate_url = ?,
       image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?,
-      tracking_param = ?, updated_at = CURRENT_TIMESTAMP
+      tracking_param = ?, theme = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?
 `);
 const createPresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param, theme
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const duplicatePresellStmt = db.prepare(`
   INSERT INTO presells (
@@ -127,6 +128,7 @@ function updatePresell(id, data) {
     data.googlePixel,
     data.backgroundImagePath,
     data.trackingParam ?? "gclid",
+    data.theme ?? null,
     id
   );
 
@@ -149,7 +151,8 @@ function createPresell(data) {
     data.settingsJson,
     data.googlePixel,
     data.backgroundImagePath,
-    data.trackingParam ?? "gclid"
+    data.trackingParam ?? "gclid",
+    data.theme ?? null
   );
 
   return getPresellById(result.lastInsertRowid);

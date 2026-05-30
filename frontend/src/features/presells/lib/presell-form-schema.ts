@@ -28,6 +28,13 @@ export const presellFormSchema = z.object({
     createdAt: z.string().nullable(),
     updatedAt: z.string().nullable(),
   }),
+  theme: z.object({
+    primary: z.string().optional(),
+    secondary: z.string().optional(),
+    background: z.string().optional(),
+    surface: z.string().optional(),
+    textColor: z.string().optional(),
+  }).nullable().optional(),
 })
 
 export type PresellFormValues = z.infer<typeof presellFormSchema>

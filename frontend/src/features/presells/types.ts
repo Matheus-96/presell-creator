@@ -1,5 +1,13 @@
 export type PresellStatus = 'draft' | 'published'
 
+export interface PresellTheme {
+  primary?: string
+  secondary?: string
+  background?: string
+  surface?: string
+  textColor?: string
+}
+
 export type StatusTone = 'info' | 'warning'
 
 export type AdminSession = {
@@ -70,6 +78,7 @@ export type PresellSummary = {
     createdAt: string | null
     updatedAt: string | null
   }
+  theme?: PresellTheme | null
 }
 
 export type PresellDetail = PresellSummary & {
@@ -175,6 +184,7 @@ export type PresellFormState = {
   }
   urls: PresellDetail['urls'] | null
   timestamps: PresellSummary['timestamps']
+  theme?: PresellTheme | null
 }
 
 export type PresellWritePayload = {
@@ -195,6 +205,7 @@ export type PresellWritePayload = {
     heroImage?: { fileName: string } | null
     backgroundImage?: { fileName: string } | null
   }
+  theme?: PresellTheme | null
 }
 
 export type UploadResponse = {
