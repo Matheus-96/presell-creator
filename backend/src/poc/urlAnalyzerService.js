@@ -31,7 +31,7 @@ Sua tarefa é analisar os dados de uma página de produto e preencher automatica
 
 Você deve:
 1. Escolher o template mais adequado dentre os disponíveis (com base no tipo de produto, visual da página e screenshot)
-2. Gerar o conteúdo persuasivo em português brasileiro
+2. Gerar o conteúdo persuasivo no idioma da página de destino
 3. Extrair o tema de cores da identidade visual do site
 4. Preencher os campos específicos do template escolhido
 
@@ -77,7 +77,7 @@ REGRAS:
 - "settings" deve conter apenas os campos do template escolhido
 - Campos de "settings" do tipo "range" devem ser números dentro do min/max especificado
 - O JSON deve ser válido — sem vírgulas finais, sem comentários
-- Todo o conteúdo em português brasileiro`;
+- Todo o conteúdo no idioma da página de destino analisada`;
 }
 
 async function analyzeUrlForForm(pageData, hostedImageUrls = []) {
