@@ -2,6 +2,7 @@ import { ApiClientError, apiClient } from '@/lib/api/api-client.ts'
 import type {
   PresellDetail,
   PresellListResponse,
+  PresellTheme,
   PresellWritePayload,
   TemplateCatalogResponse,
   UploadResponse,
@@ -12,6 +13,25 @@ const adminApiPaths = {
   presells: '/admin/presells',
   templates: '/admin/templates',
 } as const
+
+export interface AnalyzeUrlResult {
+  templateId: string
+  headline: string
+  subtitle: string
+  body: string
+  bullets: string[]
+  ctaText: string
+  heroImageUrl: string | null
+  theme: PresellTheme | null
+  settings: Record<string, unknown>
+  hostedImageUrls: string[]
+}
+
+export async function analyzeUrl(url: string): Promise<AnalyzeUrlResult> {
+  return apiClient.post<AnalyzeUrlResult>(`${adminApiPaths.presells}/analyze-url`, {
+    body: { url },
+  })
+}
 
 export function getPublicPresell(slug: string) {
   const qs = window.location.search

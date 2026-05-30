@@ -11,15 +11,18 @@ import { Label } from '@/components/ui/label.tsx'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { FormSection } from '@/features/presells/components/FormSection.tsx'
 import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
+import { AnalyzeUrlSection } from '@/features/presells/components/AnalyzeUrlSection.tsx'
 import { MediaUploadField } from '@/features/presells/components/MediaUploadField.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
 import { TemplateSettingsFields } from '@/features/presells/components/TemplateSettingsFields.tsx'
 import {
+  buildTemplateSettings,
   createEmptyPresellForm,
   createPresellForm,
   getTemplateById,
 } from '@/features/presells/lib/presell-editor.ts'
 import { getPresell, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import type { AnalyzeUrlResult } from '@/features/presells/lib/presells-api.ts'
 import { presellFormSchema } from '@/features/presells/lib/presell-form-schema.ts'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 import { usePresellEditor } from '@/features/presells/hooks/usePresellEditor.ts'
@@ -40,10 +43,11 @@ type EditorFormProps = {
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const navigate = useNavigate()
 
-  const { register, handleSubmit, watch, setValue, formState } = useForm<PresellFormValues>({
-    resolver: zodResolver(presellFormSchema),
-    defaultValues,
-  })
+  const { register, handleSubmit, watch, setValue, getValues, formState } =
+    useForm<PresellFormValues>({
+      resolver: zodResolver(presellFormSchema),
+      defaultValues,
+    })
 
   const formValues = watch()
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
@@ -61,6 +65,49 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     handleBackgroundUpload,
     handleBackgroundRemove,
   } = usePresellEditor({ id, isDirty: formState.isDirty, selectedTemplate, setValue })
+
+  function handleAnalyzeResult(result: AnalyzeUrlResult) {
+    // 1. Template
+    setValue('templateId', result.templateId, { shouldDirty: true })
+
+    // 2. Content fields
+    if (result.headline) setValue('headline', result.headline, { shouldDirty: true })
+    if (result.subtitle) setValue('subtitle', result.subtitle, { shouldDirty: true })
+    if (result.body) setValue('body', result.body, { shouldDirty: true })
+    if (result.bullets?.length) {
+      setValue('bulletsText', result.bullets.join('\n'), { shouldDirty: true })
+    }
+    if (result.ctaText) setValue('ctaText', result.ctaText, { shouldDirty: true })
+
+    // 3. Theme
+    if (result.theme) {
+      setValue('theme', result.theme, { shouldDirty: true })
+    }
+
+    // 4. Template settings — normalize AI values against template field definitions
+    if (result.settings) {
+      const tmplDef = templates.find((t) => t.id === result.templateId)
+      const normalized = buildTemplateSettings(tmplDef ?? null, result.settings)
+      setValue('settings', normalized, { shouldDirty: true })
+    }
+
+    // 5. Hero image
+    if (result.heroImageUrl) {
+      const filename = result.heroImageUrl.replace('/media/', '')
+      setValue('media.heroImageFileName', filename, { shouldDirty: true })
+      setValue(
+        'media.heroImageReference',
+        {
+          fileName: filename,
+          originalName: filename,
+          mimeType: null,
+          size: null,
+          url: result.heroImageUrl,
+        },
+        { shouldDirty: true },
+      )
+    }
+  }
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
@@ -106,6 +153,17 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
               Voltar
             </Button>
           </div>
+
+          {/* Preencher com IA */}
+          <FormSection
+            title="Preencher com IA"
+            description="Analise a URL do produto para preencher os campos automaticamente"
+          >
+            <AnalyzeUrlSection
+              onResult={handleAnalyzeResult}
+              disabled={isBusy}
+            />
+          </FormSection>
 
           {/* Publicação */}
           <FormSection title="Publicação">
