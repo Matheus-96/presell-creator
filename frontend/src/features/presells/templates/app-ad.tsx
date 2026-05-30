@@ -5,11 +5,19 @@ import type { TemplateComponentProps } from './types.ts'
 function AppAd({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, settings } = presell
 
+  const theme = presell.theme ?? {}
+  const colors = {
+    primary:    theme.primary    ?? '#6366f1',
+    secondary:  theme.secondary  ?? '#1e293b',
+    background: theme.background ?? '#ffffff',
+    surface:    theme.surface    ?? '#f8fafc',
+    textColor:  theme.textColor  ?? '#0f172a',
+  }
+
   const labelText = settings.label_text as string | undefined
   const microcopy = settings.microcopy as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
-  const ctaBase = (settings.cta_color as string | undefined) ?? 'var(--p-cta-green)'
 
   function handleCta() {
     handlePresellCta(slug, affiliateUrl, trackingParam)
@@ -26,21 +34,21 @@ function AppAd({ presell }: TemplateComponentProps) {
       width: '100%',
     }
     if (buttonStyle === 'outline') {
-      return { ...base, border: `2px solid ${ctaBase}`, color: ctaBase, backgroundColor: 'transparent' }
+      return { ...base, border: `2px solid ${colors.primary}`, color: colors.primary, backgroundColor: 'transparent' }
     }
     if (buttonStyle === 'soft') {
-      return { ...base, backgroundColor: `color-mix(in srgb, ${ctaBase} 15%, transparent)`, color: ctaBase }
+      return { ...base, backgroundColor: `color-mix(in srgb, ${colors.primary} 15%, transparent)`, color: colors.primary }
     }
-    return { ...base, backgroundColor: ctaBase, color: '#ffffff' }
+    return { ...base, backgroundColor: colors.primary, color: '#ffffff' }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: 'var(--p-bg)' }}>
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: colors.background }}>
       <div
         className="w-full text-center"
         style={{
           maxWidth: 'var(--p-maxw-card)',
-          backgroundColor: 'var(--p-panel)',
+          backgroundColor: colors.surface,
           border: '1px solid var(--p-line)',
           borderRadius: 'var(--p-radius-lg)',
           padding: 'var(--p-space-10)',
@@ -53,7 +61,7 @@ function AppAd({ presell }: TemplateComponentProps) {
               fontSize: 'var(--p-eyebrow-size)',
               fontWeight: 'var(--p-eyebrow-weight)',
               letterSpacing: 'var(--p-eyebrow-ls)',
-              color: 'var(--p-muted)',
+              color: colors.primary,
               textTransform: 'uppercase',
               marginBottom: 'var(--p-space-3)',
             }}
@@ -75,7 +83,7 @@ function AppAd({ presell }: TemplateComponentProps) {
             fontWeight: 'var(--p-h1-weight)',
             lineHeight: 'var(--p-h1-lh)',
             letterSpacing: 'var(--p-h1-ls)',
-            color: 'var(--p-text)',
+            color: colors.textColor,
             marginBottom: 'var(--p-space-2)',
           }}
         >
@@ -86,7 +94,7 @@ function AppAd({ presell }: TemplateComponentProps) {
             fontSize: 'var(--p-subtitle-size)',
             fontWeight: 'var(--p-subtitle-weight)',
             lineHeight: 'var(--p-subtitle-lh)',
-            color: 'var(--p-text)',
+            color: colors.textColor,
             marginBottom: 'var(--p-space-4)',
           }}
         >

@@ -5,11 +5,19 @@ import type { TemplateComponentProps } from './types.ts'
 function AppAdFullscreen({ presell }: TemplateComponentProps) {
   const { headline, subtitle, ctaText, affiliateUrl, slug, trackingParam, imageUrl, backgroundImageUrl, settings } = presell
 
+  const theme = presell.theme ?? {}
+  const colors = {
+    primary:    theme.primary    ?? '#6366f1',
+    secondary:  theme.secondary  ?? '#1e293b',
+    background: theme.background ?? '#ffffff',
+    surface:    theme.surface    ?? '#f8fafc',
+    textColor:  theme.textColor  ?? '#0f172a',
+  }
+
   const labelText = settings.label_text as string | undefined
   const microcopy = settings.microcopy as string | undefined
   const disclaimer = settings.disclaimer as string | undefined
   const buttonStyle = (settings.button_style as string | undefined) ?? 'solid'
-  const ctaBase = (settings.cta_color as string | undefined) ?? 'var(--p-cta-green)'
 
   function handleCta() {
     handlePresellCta(slug, affiliateUrl, trackingParam)
@@ -31,17 +39,18 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
     if (buttonStyle === 'soft') {
       return { ...base, backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }
     }
-    return { ...base, backgroundColor: ctaBase, color: '#ffffff' }
+    return { ...base, backgroundColor: colors.primary, color: '#ffffff' }
   }
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center bg-gray-900 px-4"
-      style={
-        backgroundImageUrl
+      className="relative flex min-h-screen items-center justify-center px-4"
+      style={{
+        backgroundColor: colors.background,
+        ...(backgroundImageUrl
           ? { backgroundImage: `url(${backgroundImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-          : undefined
-      }
+          : undefined),
+      }}
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div
