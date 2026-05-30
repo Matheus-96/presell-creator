@@ -130,6 +130,27 @@ class PuppeteerExtractor {
           const ogImageEl = document.querySelector('meta[property="og:image"]');
           const ogImage = ogImageEl ? ogImageEl.content ?? null : null;
 
+          // ----------------------------------------------------------------
+          // pageImages — imagens relevantes da página (por área renderizada)
+          // ----------------------------------------------------------------
+
+          const pageImageCandidates = [];
+          for (const img of document.querySelectorAll('img')) {
+            const src = img.currentSrc || img.src;
+            if (!src || src.startsWith('data:') || !src.startsWith('http')) continue;
+            const w = img.naturalWidth || img.width || 0;
+            const h = img.naturalHeight || img.height || 0;
+            if (w < 100 || h < 100) continue;
+            pageImageCandidates.push({ src, area: w * h });
+          }
+          pageImageCandidates.sort((a, b) => b.area - a.area);
+          const pageImageUrls = pageImageCandidates.slice(0, 8).map((p) => p.src);
+
+          const imageUrlSet = new Set();
+          if (ogImage) imageUrlSet.add(ogImage);
+          for (const u of pageImageUrls) imageUrlSet.add(u);
+          const imageUrls = Array.from(imageUrlSet);
+
           const text = document.body.innerText
             .replace(/\s+/g, ' ')
             .trim()
@@ -194,6 +215,7 @@ class PuppeteerExtractor {
             title,
             metaDescription,
             ogImage,
+            imageUrls,
             text,
             colors,
             cssVars,

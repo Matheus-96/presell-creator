@@ -11,6 +11,7 @@ const { requireApiAuth } = require('../middleware/auth');
 const { attachCsrf } = require('../middleware/csrf');
 const { createExtractor } = require('../extractors/extractorFactory');
 const { generatePresellBlocks } = require('../poc/presellGeneratorService');
+const { downloadAndHostImages } = require('../poc/pocAssetService');
 
 const router = express.Router();
 
@@ -52,12 +53,14 @@ router.post('/generate', async (req, res) => {
   try {
     const extractor = createExtractor();
     const pageData = await extractor.extract(parsedUrl.href);
-    const result = await generatePresellBlocks(pageData);
+    const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href);
+    const result = await generatePresellBlocks(pageData, hostedImageUrls);
 
     return res.json({
       blocks: result.blocks,
       rootProps: result.rootProps,
-      rawJson: result.rawJson
+      rawJson: result.rawJson,
+      hostedImageUrls,
     });
   } catch (err) {
     const code = err.code || 'UNKNOWN_ERROR';

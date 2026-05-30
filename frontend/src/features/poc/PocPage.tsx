@@ -11,6 +11,7 @@ interface GenerateResult {
   blocks: Block[]
   rootProps: RootProps
   rawJson: string
+  hostedImageUrls: string[]
 }
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
