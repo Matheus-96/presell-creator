@@ -14,6 +14,7 @@ import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
 import { MediaUploadField } from '@/features/presells/components/MediaUploadField.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
 import { TemplateSettingsFields } from '@/features/presells/components/TemplateSettingsFields.tsx'
+import { ThemeEditor } from '@/features/presells/components/ThemeEditor.tsx'
 import {
   createEmptyPresellForm,
   createPresellForm,
@@ -253,6 +254,14 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                 onRemove={handleBackgroundRemove}
               />
             </div>
+          </FormSection>
+
+          {/* Tema Visual */}
+          <FormSection title="Tema Visual" description="Cores da identidade visual do produto">
+            <ThemeEditor
+              theme={formValues.theme}
+              onChange={(newTheme) => setValue('theme', newTheme, { shouldDirty: true })}
+            />
           </FormSection>
 
           {/* Configurações do template */}
