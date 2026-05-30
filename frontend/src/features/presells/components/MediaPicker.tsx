@@ -101,15 +101,15 @@ export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerPr
           >
             {value.originalName ?? value.fileName}
           </div>
-          <Button size="sm" variant="outline" onClick={openGallery} disabled={isLoading}>
+          <Button type="button" size="sm" variant="outline" onClick={openGallery} disabled={isLoading}>
             Trocar
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onChange(null)} disabled={isLoading}>
+          <Button type="button" size="sm" variant="outline" onClick={() => onChange(null)} disabled={isLoading}>
             Remover
           </Button>
         </div>
       ) : (
-        <Button variant="outline" onClick={openGallery} disabled={isLoading}>
+        <Button type="button" variant="outline" onClick={openGallery} disabled={isLoading}>
           Selecionar imagem
         </Button>
       )}
@@ -166,7 +166,7 @@ export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerPr
                     <span>{uploading ? 'Enviando…' : '+ Upload'}</span>
                   </Button>
                 </label>
-                <Button size="sm" variant="outline" onClick={() => setGalleryOpen(false)}>
+                <Button type="button" size="sm" variant="outline" onClick={() => setGalleryOpen(false)}>
                   Fechar
                 </Button>
               </div>
