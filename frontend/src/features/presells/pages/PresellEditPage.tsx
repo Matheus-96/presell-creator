@@ -12,6 +12,7 @@ import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { FormSection } from '@/features/presells/components/FormSection.tsx'
 import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
 import { MediaPicker } from '@/features/presells/components/MediaPicker.tsx'
+import { ThemeEditor } from '@/features/presells/components/ThemeEditor.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
 import { TemplateSettingsFields } from '@/features/presells/components/TemplateSettingsFields.tsx'
 import {
@@ -254,6 +255,14 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                 isLoading={isBusy}
               />
             </div>
+          </FormSection>
+
+          {/* Tema Visual */}
+          <FormSection title="Tema Visual" description="Cores da identidade visual do produto" collapsible defaultOpen={false}>
+            <ThemeEditor
+              theme={formValues.theme}
+              onChange={(newTheme) => setValue('theme', newTheme, { shouldDirty: true })}
+            />
           </FormSection>
 
           {/* Configurações do template */}
