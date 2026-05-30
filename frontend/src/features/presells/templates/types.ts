@@ -1,4 +1,5 @@
 import type React from 'react'
+import type { PresellTheme } from '../types'
 
 export type PresellPublicData = {
   id: number
@@ -15,6 +16,7 @@ export type PresellPublicData = {
   imageUrl: string | null
   backgroundImageUrl: string | null
   settings: Record<string, unknown>
+  theme?: PresellTheme | null
 }
 
 export type TemplateComponentProps = {

@@ -77,6 +77,10 @@ function migrate() {
   runMigration("004_presell_tracking_param", `
     ALTER TABLE presells ADD COLUMN tracking_param TEXT NOT NULL DEFAULT 'gclid';
   `);
+
+  runMigration("005_add_theme_to_presells", `
+    ALTER TABLE presells ADD COLUMN theme TEXT;
+  `);
 }
 
 function runMigration(name, sql) {

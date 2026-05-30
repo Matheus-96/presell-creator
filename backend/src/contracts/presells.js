@@ -164,7 +164,8 @@ function serializePresellSummary(presell) {
     timestamps: {
       createdAt: presell.created_at || null,
       updatedAt: presell.updated_at || null
-    }
+    },
+    theme: presell.theme ? JSON.parse(presell.theme) : null
   };
 }
 
@@ -234,7 +235,8 @@ function deserializePresellWriteInput(payload = {}) {
       ? readMediaReferencePath(media.backgroundImage)
       : normalizeMediaPath(String(payload.current_background_image_path || "")),
     remove_image: hasHeroImage && media.heroImage === null,
-    remove_background_image: hasBackgroundImage && media.backgroundImage === null
+    remove_background_image: hasBackgroundImage && media.backgroundImage === null,
+    theme: payload.theme != null ? JSON.stringify(payload.theme) : null
   };
 }
 
@@ -323,7 +325,8 @@ function serializePublicPresell(presell) {
     trackingParam: String(presell.tracking_param || "gclid"),
     imageUrl: buildMediaUrl(presell.image_path) || null,
     backgroundImageUrl: buildMediaUrl(presell.background_image_path) || null,
-    settings: parsePresellSettings(presell)
+    settings: parsePresellSettings(presell),
+    theme: presell.theme ? JSON.parse(presell.theme) : null
   };
 }
 

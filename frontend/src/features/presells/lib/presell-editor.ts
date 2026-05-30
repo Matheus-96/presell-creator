@@ -107,6 +107,7 @@ export function createEmptyPresellForm(template: TemplateMetadata | null): Prese
       createdAt: null,
       updatedAt: null,
     },
+    theme: null,
   }
 }
 
@@ -139,6 +140,7 @@ export function createPresellForm(
     },
     urls: detail.urls,
     timestamps: detail.timestamps,
+    theme: detail.theme ?? null,
   }
 }
 
@@ -185,6 +187,7 @@ export function buildPresellPayload(
     trackingParam: form.trackingParam.trim() || 'gclid',
     settings: buildTemplateSettings(template, form.settings),
     ...(Object.keys(media).length > 0 ? { media } : {}),
+    theme: form.theme ?? null,
   }
 }
 

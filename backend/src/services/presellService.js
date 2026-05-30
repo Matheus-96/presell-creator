@@ -122,7 +122,8 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     backgroundImagePath: backgroundImagePath === null ? null : (backgroundImagePath !== undefined ? backgroundImagePath : (input.current_background_image_path || "")),
     settingsJson: JSON.stringify(settings),
     googlePixel: googlePixel || null,
-    trackingParam: rawTrackingParam
+    trackingParam: rawTrackingParam,
+    theme: input.theme != null ? input.theme : null
   };
 }
 
