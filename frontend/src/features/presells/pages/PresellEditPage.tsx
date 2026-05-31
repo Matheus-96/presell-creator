@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -43,11 +43,39 @@ type EditorFormProps = {
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const navigate = useNavigate()
 
-  const { register, handleSubmit, watch, setValue, getValues, formState } =
+  const { register, handleSubmit, watch, setValue, formState } =
     useForm<PresellFormValues>({
       resolver: zodResolver(presellFormSchema),
       defaultValues,
     })
+
+  // Bug fix: RHF's formState.isDirty can produce false positives — it fires when
+  // the deep-equality comparison of the entire form state vs defaultValues fails
+  // due to object reference changes (e.g. after the resolver normalises the
+  // `settings` or `media` objects on mount, or when switching templates). We
+  // derive a reliable "has the user actually edited anything?" signal from two
+  // sources that are each individually trustworthy:
+  //
+  //   1. formState.dirtyFields — populated field-by-field only when a registered
+  //      <input> value actually diverges from its defaultValue. Per-field dirty
+  //      tracking does NOT suffer from the cross-field object-reference problem.
+  //
+  //   2. userHasEdited ref — set to true whenever setValue() is called. All
+  //      non-registered (controlled) fields (settings, media, theme) are updated
+  //      exclusively via setValue, so this ref captures every user-initiated
+  //      change to those fields.
+  //
+  // Together they give us a signal that is false until the user deliberately
+  // edits at least one field.
+  const userHasEdited = useRef(false)
+
+  // Wrap setValue so every explicit set marks the form as edited.
+  const setValueAndMarkEdited: typeof setValue = (name, value, options) => {
+    userHasEdited.current = true
+    return setValue(name, value, options)
+  }
+
+  const hasUserEdits = userHasEdited.current || Object.keys(formState.dirtyFields).length > 0
 
   const formValues = watch()
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
@@ -60,38 +88,38 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     duplicateMutation,
     isBusy,
     handleDelete,
-  } = usePresellEditor({ id, isDirty: formState.isDirty, selectedTemplate, setValue })
+  } = usePresellEditor({ id, isDirty: hasUserEdits, selectedTemplate })
 
   function handleAnalyzeResult(result: AnalyzeUrlResult) {
     // 1. Template
-    setValue('templateId', result.templateId, { shouldDirty: true })
+    setValueAndMarkEdited('templateId', result.templateId, { shouldDirty: true })
 
     // 2. Content fields
-    if (result.headline) setValue('headline', result.headline, { shouldDirty: true })
-    if (result.subtitle) setValue('subtitle', result.subtitle, { shouldDirty: true })
-    if (result.body) setValue('body', result.body, { shouldDirty: true })
+    if (result.headline) setValueAndMarkEdited('headline', result.headline, { shouldDirty: true })
+    if (result.subtitle) setValueAndMarkEdited('subtitle', result.subtitle, { shouldDirty: true })
+    if (result.body) setValueAndMarkEdited('body', result.body, { shouldDirty: true })
     if (result.bullets?.length) {
-      setValue('bulletsText', result.bullets.join('\n'), { shouldDirty: true })
+      setValueAndMarkEdited('bulletsText', result.bullets.join('\n'), { shouldDirty: true })
     }
-    if (result.ctaText) setValue('ctaText', result.ctaText, { shouldDirty: true })
+    if (result.ctaText) setValueAndMarkEdited('ctaText', result.ctaText, { shouldDirty: true })
 
     // 3. Theme
     if (result.theme) {
-      setValue('theme', result.theme, { shouldDirty: true })
+      setValueAndMarkEdited('theme', result.theme, { shouldDirty: true })
     }
 
     // 4. Template settings — normalize AI values against template field definitions
     if (result.settings) {
       const tmplDef = templates.find((t) => t.id === result.templateId)
       const normalized = buildTemplateSettings(tmplDef ?? null, result.settings)
-      setValue('settings', normalized, { shouldDirty: true })
+      setValueAndMarkEdited('settings', normalized, { shouldDirty: true })
     }
 
     // 5. Hero image
     if (result.heroImageUrl) {
       const filename = result.heroImageUrl.replace('/media/', '')
-      setValue('media.heroImageFileName', filename, { shouldDirty: true })
-      setValue(
+      setValueAndMarkEdited('media.heroImageFileName', filename, { shouldDirty: true })
+      setValueAndMarkEdited(
         'media.heroImageReference',
         {
           fileName: filename,
@@ -161,51 +189,21 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             />
           </FormSection>
 
-          {/* Publicação */}
-          <FormSection title="Publicação" collapsible defaultOpen={true}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="slug">Slug</Label>
-                <Input id="slug" placeholder="meu-presell" {...register('slug')} />
-                {formState.errors.slug && (
-                  <p className="text-sm text-destructive">{formState.errors.slug.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  {...register('status')}
-                >
-                  <option value="draft">Rascunho</option>
-                  <option value="published">Publicado</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="templateId">Template</Label>
-                <select
-                  id="templateId"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  {...register('templateId')}
-                >
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="title">Título interno</Label>
-                <Input id="title" placeholder="Para organização interna" {...register('title')} />
-                {formState.errors.title && (
-                  <p className="text-sm text-destructive">{formState.errors.title.message}</p>
-                )}
-              </div>
+          {/* Template */}
+          <FormSection title="Template" description="Escolha o layout da página de presell" collapsible defaultOpen={true}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="templateId">Template</Label>
+              <select
+                id="templateId"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                {...register('templateId')}
+              >
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </FormSection>
 
@@ -248,79 +246,34 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             </div>
           </FormSection>
 
-          {/* Conversão */}
-          <FormSection title="Conversão" collapsible defaultOpen={true}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="ctaText">Texto do botão</Label>
-                <Input id="ctaText" {...register('ctaText')} />
-                {formState.errors.ctaText && (
-                  <p className="text-sm text-destructive">{formState.errors.ctaText.message}</p>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <Label htmlFor="affiliateUrl">URL de destino</Label>
-                <Input
-                  id="affiliateUrl"
-                  type="url"
-                  placeholder="https://exemplo.com/oferta"
-                  {...register('affiliateUrl')}
+          {/* Aparência */}
+          <FormSection title="Aparência" description="Imagens e cores da identidade visual do produto" collapsible defaultOpen={false}>
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <MediaPicker
+                  label="Imagem do herói"
+                  value={watch('media.heroImageReference')}
+                  onChange={(ref) => {
+                    setValueAndMarkEdited('media.heroImageReference', ref, { shouldDirty: true })
+                    setValueAndMarkEdited('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                  }}
+                  isLoading={isBusy}
                 />
-                {formState.errors.affiliateUrl && (
-                  <p className="text-sm text-destructive">
-                    {formState.errors.affiliateUrl.message}
-                  </p>
-                )}
+                <MediaPicker
+                  label="Imagem de fundo"
+                  value={watch('media.backgroundImageReference')}
+                  onChange={(ref) => {
+                    setValueAndMarkEdited('media.backgroundImageReference', ref, { shouldDirty: true })
+                    setValueAndMarkEdited('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                  }}
+                  isLoading={isBusy}
+                />
               </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="googlePixelId">ID do pixel Google</Label>
-                <Input id="googlePixelId" placeholder="Opcional" {...register('googlePixelId')} />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="trackingParam">Parâmetro de rastreamento</Label>
-                <Input id="trackingParam" placeholder="gclid" {...register('trackingParam')} />
-                <p className="text-xs text-muted-foreground">
-                  Nome do parâmetro passado para o link do afiliado. Use <code>sid</code> para CJ
-                  Affiliate e Braip, <code>src</code> para Hotmart e Eduzz, <code>tid</code> para
-                  ClickBank. Deixe em branco para usar <code>gclid</code>.
-                </p>
-              </div>
-            </div>
-          </FormSection>
-
-          {/* Mídia */}
-          <FormSection title="Mídia" description="Imagens usadas pelo template" collapsible defaultOpen={false}>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <MediaPicker
-                label="Imagem do herói"
-                value={watch('media.heroImageReference')}
-                onChange={(ref) => {
-                  setValue('media.heroImageReference', ref, { shouldDirty: true })
-                  setValue('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
-                }}
-                isLoading={isBusy}
-              />
-              <MediaPicker
-                label="Imagem de fundo"
-                value={watch('media.backgroundImageReference')}
-                onChange={(ref) => {
-                  setValue('media.backgroundImageReference', ref, { shouldDirty: true })
-                  setValue('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
-                }}
-                isLoading={isBusy}
+              <ThemeEditor
+                theme={formValues.theme}
+                onChange={(newTheme) => setValueAndMarkEdited('theme', newTheme, { shouldDirty: true })}
               />
             </div>
-          </FormSection>
-
-          {/* Tema Visual */}
-          <FormSection title="Tema Visual" description="Cores da identidade visual do produto" collapsible defaultOpen={false}>
-            <ThemeEditor
-              theme={formValues.theme}
-              onChange={(newTheme) => setValue('theme', newTheme, { shouldDirty: true })}
-            />
           </FormSection>
 
           {/* Configurações do template */}
@@ -364,9 +317,85 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
               template={selectedTemplate}
               onChange={(fieldName, value) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setValue(`settings.${fieldName}` as any, value, { shouldDirty: true })
+                setValueAndMarkEdited(`settings.${fieldName}` as any, value, { shouldDirty: true })
               }}
             />
+          </FormSection>
+
+          {/* Conversão */}
+          <FormSection title="Conversão" collapsible defaultOpen={false}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="ctaText">Texto do botão</Label>
+                <Input id="ctaText" {...register('ctaText')} />
+                {formState.errors.ctaText && (
+                  <p className="text-sm text-destructive">{formState.errors.ctaText.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <Label htmlFor="affiliateUrl">URL de destino</Label>
+                <Input
+                  id="affiliateUrl"
+                  type="url"
+                  placeholder="https://exemplo.com/oferta"
+                  {...register('affiliateUrl')}
+                />
+                {formState.errors.affiliateUrl && (
+                  <p className="text-sm text-destructive">
+                    {formState.errors.affiliateUrl.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="googlePixelId">ID do pixel Google</Label>
+                <Input id="googlePixelId" placeholder="Opcional" {...register('googlePixelId')} />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="trackingParam">Parâmetro de rastreamento</Label>
+                <Input id="trackingParam" placeholder="gclid" {...register('trackingParam')} />
+                <p className="text-xs text-muted-foreground">
+                  Nome do parâmetro passado para o link do afiliado. Use <code>sid</code> para CJ
+                  Affiliate e Braip, <code>src</code> para Hotmart e Eduzz, <code>tid</code> para
+                  ClickBank. Deixe em branco para usar <code>gclid</code>.
+                </p>
+              </div>
+            </div>
+          </FormSection>
+
+          {/* Publicação */}
+          <FormSection title="Publicação" collapsible defaultOpen={false}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="slug">Slug</Label>
+                <Input id="slug" placeholder="meu-presell" {...register('slug')} />
+                {formState.errors.slug && (
+                  <p className="text-sm text-destructive">{formState.errors.slug.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="status">Status</Label>
+                <select
+                  id="status"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  {...register('status')}
+                >
+                  <option value="draft">Rascunho</option>
+                  <option value="published">Publicado</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="title">Título interno</Label>
+                <Input id="title" placeholder="Para organização interna" {...register('title')} />
+                {formState.errors.title && (
+                  <p className="text-sm text-destructive">{formState.errors.title.message}</p>
+                )}
+              </div>
+            </div>
           </FormSection>
         </form>
 
@@ -385,7 +414,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
         selectedTemplate={selectedTemplate}
-        setValue={setValue}
+        setValue={setValueAndMarkEdited}
       />
     </div>
   )

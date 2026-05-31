@@ -267,6 +267,48 @@ const templateRegistry = Object.freeze(
             previewSelector: ".urgent-offer-scarcity"
           },
           {
+            name: "show_bonus",
+            label: "Exibir seção de bônus",
+            type: "checkbox",
+            defaultValue: false,
+            helpText: "Mostra ou oculta a seção de bônus exclusivos."
+          },
+          {
+            name: "bonus_title",
+            label: "Título dos bônus",
+            type: "text",
+            defaultValue: "Bônus Exclusivos",
+            helpText: "Título exibido no topo da seção de bônus."
+          },
+          {
+            name: "bonus_items",
+            label: "Itens de bônus (um por linha)",
+            type: "textarea",
+            defaultValue: "",
+            helpText: "Cada linha vira um item na lista de bônus. Deixe vazio para não exibir."
+          },
+          {
+            name: "show_guarantee",
+            label: "Exibir seção de garantia",
+            type: "checkbox",
+            defaultValue: false,
+            helpText: "Mostra ou oculta o bloco de garantia."
+          },
+          {
+            name: "guarantee_title",
+            label: "Título da garantia",
+            type: "text",
+            defaultValue: "Garantia de 30 dias",
+            helpText: "Ex: Garantia de 7 dias, Satisfação garantida."
+          },
+          {
+            name: "guarantee_text",
+            label: "Texto da garantia",
+            type: "textarea",
+            defaultValue: "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
+            helpText: "Descrição da garantia exibida abaixo do título."
+          },
+          {
             name: "disclaimer",
             label: "Aviso legal",
             type: "textarea",
@@ -290,8 +332,10 @@ Presell mobile-first com urgência visual: barra de oferta oficial, contador reg
 6. Preço original riscado → preço atual em destaque
 7. Texto de escassez com ponto laranja
 8. Lista de benefícios (bullets)
-9. Botão CTA fixo na base da tela
-10. Aviso legal (disclaimer)
+9. Seção de bônus exclusivos (opcional)
+10. Bloco de garantia (opcional)
+11. Botão CTA fixo na base da tela
+12. Aviso legal (disclaimer)
 
 ## Campos do presell
 
@@ -324,6 +368,22 @@ Exemplo: "R$ 147"
 **scarcity_text** — Texto de escassez exibido com ponto laranja abaixo do preço. Cria urgência de estoque ou condição. Omita para ocultar.
 Exemplo: "Restam apenas 7 unidades nesta condição"
 
+**show_bonus** — true para exibir a seção de bônus; false para ocultar (padrão). Use quando o produto oferece bônus adicionais que reforçam o valor da oferta.
+
+**bonus_title** — Título da seção de bônus. Curto e chamativo.
+Exemplo: "Bônus Exclusivos", "O Que Você Leva Hoje"
+
+**bonus_items** — Lista de bônus, um por linha. Cada linha vira um item com ⭐ no início. Deixe vazio se show_bonus for false.
+Exemplo: "E-book exclusivo de receitas\nConsultoria online gratuita\nAcesso ao grupo VIP"
+
+**show_guarantee** — true para exibir o bloco de garantia; false para ocultar (padrão). Use para reduzir objeções e aumentar conversão, especialmente em páginas com preço mais alto.
+
+**guarantee_title** — Título do bloco de garantia. Use o prazo da garantia.
+Exemplo: "Garantia de 30 dias", "Satisfação Garantida"
+
+**guarantee_text** — Descrição da garantia. Breve e direta ao ponto.
+Exemplo: "Se não ficar satisfeito, devolvemos 100% do seu dinheiro. Sem perguntas."
+
 **disclaimer** — Aviso legal exibido no rodapé em texto pequeno e centralizado. Omita para ocultar.
 Exemplo: "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde."
 
@@ -350,8 +410,196 @@ Responda exclusivamente com um JSON válido neste formato:
     "original_price": "...",
     "current_price": "...",
     "scarcity_text": "...",
+    "show_bonus": false,
+    "bonus_title": "Bônus Exclusivos",
+    "bonus_items": "",
+    "show_guarantee": false,
+    "guarantee_title": "Garantia de 30 dias",
+    "guarantee_text": "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
     "disclaimer": "...",
     "font_pair": "friendly"
+  }
+}
+\`\`\``
+      },
+      {
+        id: "clean-authority",
+        name: "Autoridade limpa",
+        description: "Layout mobile-first centrado em autoridade e confiança, sem elementos de urgência. Ideal para saúde, suplementos, produtos naturais e cursos de bem-estar.",
+        fields: [
+          {
+            name: "label_text",
+            label: "Rótulo superior",
+            type: "text",
+            defaultValue: "OFERTA OFICIAL",
+            helpText: "Texto exibido acima da imagem em destaque. Ex: PRODUTO OFICIAL, FÓRMULA EXCLUSIVA.",
+            previewSelector: ".clean-authority-label"
+          },
+          {
+            name: "show_rating",
+            label: "Exibir avaliação em estrelas",
+            type: "checkbox",
+            defaultValue: true,
+            helpText: "Mostra ou oculta as 5 estrelas de avaliação.",
+            previewSelector: ".clean-authority-rating"
+          },
+          {
+            name: "rating_count",
+            label: "Texto complementar da avaliação",
+            type: "text",
+            defaultValue: "+5.000 avaliações",
+            helpText: "Texto exibido ao lado das estrelas. Ex: +5.000 avaliações, Mais de 10 mil clientes.",
+            previewSelector: ".clean-authority-rating-count"
+          },
+          {
+            name: "show_bonus",
+            label: "Exibir seção de bônus",
+            type: "checkbox",
+            defaultValue: false,
+            helpText: "Mostra ou oculta a seção de bônus exclusivos."
+          },
+          {
+            name: "bonus_title",
+            label: "Título dos bônus",
+            type: "text",
+            defaultValue: "Bônus Exclusivos",
+            helpText: "Título exibido no topo da seção de bônus."
+          },
+          {
+            name: "bonus_items",
+            label: "Itens de bônus (um por linha)",
+            type: "textarea",
+            defaultValue: "",
+            helpText: "Cada linha vira um item na lista de bônus. Deixe vazio para não exibir."
+          },
+          {
+            name: "show_guarantee",
+            label: "Exibir seção de garantia",
+            type: "checkbox",
+            defaultValue: false,
+            helpText: "Mostra ou oculta o bloco de garantia."
+          },
+          {
+            name: "guarantee_title",
+            label: "Título da garantia",
+            type: "text",
+            defaultValue: "Garantia de 30 dias",
+            helpText: "Ex: Garantia de 7 dias, Satisfação garantida."
+          },
+          {
+            name: "guarantee_text",
+            label: "Texto da garantia",
+            type: "textarea",
+            defaultValue: "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
+            helpText: "Descrição da garantia exibida abaixo do título."
+          },
+          {
+            name: "disclaimer",
+            label: "Aviso legal",
+            type: "textarea",
+            defaultValue: "",
+            helpText: "Texto pequeno no rodapé. Deixe vazio para ocultar.",
+            previewSelector: ".clean-authority-disclaimer"
+          }
+        ],
+        aiInstructions: `Você irá preencher um template de presell do tipo "Autoridade Limpa" (clean-authority).
+
+## Objetivo
+Presell mobile-first focado em autoridade e confiança — SEM urgência. Não use "tempo limitado", contadores regressivos, escassez de estoque ou linguagem de pressão. O tom deve transmitir credibilidade, segurança e resultado. Ideal para saúde, suplementos, produtos naturais e cursos de bem-estar.
+
+## Estrutura visual (de cima para baixo)
+1. Rótulo superior em destaque (ex: "PRODUTO OFICIAL")
+2. Imagem circular do produto (ou placeholder)
+3. Avaliação em estrelas (★★★★★) com contagem de avaliações
+4. Título principal (headline)
+5. Subtítulo descritivo
+6. Seção de bônus exclusivos (opcional)
+7. Bloco de garantia (opcional)
+8. Botão CTA em largura total
+9. Aviso legal no rodapé
+
+## Campos do presell
+
+**headline** — Título principal. Enfatize resultado ou transformação de forma clara e positiva. Evite linguagem de urgência ou escassez.
+Exemplo: "Recupere sua energia em 30 dias", "O suplemento que mais de 50 mil brasileiros confiam"
+
+**subtitle** — Descreve o produto e seu diferencial com linguagem serena e informativa. 2–3 linhas.
+Exemplo: "Uma fórmula exclusiva, desenvolvida com ingredientes naturais selecionados para apoiar seu bem-estar de forma segura e eficaz."
+
+**ctaText** — Texto do botão de ação. Voz imperativa, sem urgência. Pode incluir "→".
+Exemplo: "CONHECER O PRODUTO OFICIAL →", "ACESSAR O SITE OFICIAL →"
+
+**bullets** — Não é exibido neste template. Pode ser omitido ou deixado vazio.
+
+## Configurações (settings)
+
+**label_text** — Rótulo curto exibido acima da imagem em letras maiúsculas. Deve reforçar autoridade ou exclusividade, não urgência.
+Exemplo: "PRODUTO OFICIAL", "FÓRMULA EXCLUSIVA", "SITE OFICIAL"
+
+**show_rating** — true para exibir as 5 estrelas; false para ocultar. Recomendado: true para produtos com boa prova social.
+
+**rating_count** — Texto de prova social exibido ao lado das estrelas. Use números críveis e condizentes com o nicho.
+Exemplo: "+5.000 avaliações", "Mais de 10 mil clientes satisfeitos", "+8.500 avaliações verificadas"
+
+**show_bonus** — true para exibir a seção de bônus; false para ocultar (padrão). Use quando o produto oferece materiais complementares ou benefícios adicionais que reforçam o valor percebido, sem criar urgência.
+
+**bonus_title** — Título da seção de bônus. Mantenha o tom tranquilo e informativo.
+Exemplo: "Bônus Exclusivos", "O Que Você Recebe"
+
+**bonus_items** — Lista de bônus, um por linha. Cada linha vira um item com ⭐ no início. Deixe vazio se show_bonus for false.
+Exemplo: "E-book com guia de uso\nSuportevia WhatsApp por 30 dias\nAcesso à comunidade exclusiva"
+
+**show_guarantee** — true para exibir o bloco de garantia; false para ocultar (padrão). Recomendado para produtos com ticket médio ou alto — reforça confiança sem criar urgência.
+
+**guarantee_title** — Título do bloco de garantia. Use o prazo da garantia do produto.
+Exemplo: "Garantia de 30 dias", "Satisfação Garantida"
+
+**guarantee_text** — Descrição da garantia. Tom sereno e seguro, sem pressão.
+Exemplo: "Se não ficar satisfeito com os resultados, basta entrar em contato em até 30 dias para receber o reembolso integral."
+
+**disclaimer** — Aviso legal no rodapé em texto pequeno e discreto. Adapte ao tipo de produto:
+- Suplementos: mencione consulta a profissional de saúde e variação de resultados
+- Cursos: mencione que resultados dependem de dedicação e esforço do aluno
+- Produtos naturais: mencione que não substitui tratamento médico
+Omita se não for necessário para o nicho.
+
+## Cores e tom visual
+
+Escolha cores que transmitam confiança e saúde:
+- Azuis (confiança, profissionalismo): #2563eb, #0ea5e9, #1d4ed8
+- Verdes (saúde, bem-estar, natureza): #16a34a, #15803d, #059669
+- Neutros escuros (elegância, seriedade): #1e293b, #334155
+
+Evite vermelho intenso ou laranja — associados à urgência.
+
+## Modelo de resposta JSON
+
+Responda exclusivamente com um JSON válido neste formato:
+
+\`\`\`json
+{
+  "headline": "...",
+  "subtitle": "...",
+  "ctaText": "...",
+  "bullets": [],
+  "settings": {
+    "label_text": "...",
+    "show_rating": true,
+    "rating_count": "...",
+    "show_bonus": false,
+    "bonus_title": "Bônus Exclusivos",
+    "bonus_items": "",
+    "show_guarantee": false,
+    "guarantee_title": "Garantia de 30 dias",
+    "guarantee_text": "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
+    "disclaimer": "..."
+  },
+  "theme": {
+    "primary": "#2563eb",
+    "secondary": "#1e293b",
+    "background": "#ffffff",
+    "surface": "#f8fafc",
+    "textColor": "#0f172a"
   }
 }
 \`\`\``

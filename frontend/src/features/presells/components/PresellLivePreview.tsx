@@ -3,7 +3,7 @@ import '@/features/presells/templates/index.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
-import { getFontPair, buildFontCssVars } from '@/features/presells/lib/font-pairs.ts'
+import { getFontPair } from '@/features/presells/lib/font-pairs.ts'
 
 type PresellLivePreviewProps = {
   draft: PresellFormState | null
@@ -106,12 +106,17 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
           </p>
         </div>
       ) : (
+        // Bug fix: pointerEvents:none is on the INNER wrapper so the outer
+        // container keeps its scroll behaviour. Without this, wheel events on
+        // the preview panel were swallowed and the user could not scroll.
         <div
           ref={previewContainerRef}
           className="flex-1 overflow-y-auto"
-          style={{ transform: 'translateZ(0)', pointerEvents: 'none' }}
+          style={{ transform: 'translateZ(0)' }}
         >
-          <TemplateComponent presell={publicData} />
+          <div style={{ pointerEvents: 'none' }}>
+            <TemplateComponent presell={publicData} />
+          </div>
         </div>
       )}
     </div>
