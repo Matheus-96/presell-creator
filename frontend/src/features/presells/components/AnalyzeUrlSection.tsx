@@ -13,7 +13,6 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [urlError, setUrlError] = useState<string | null>(null)
-  const [wizardOpen, setWizardOpen] = useState(false)
   const [userInstructions, setUserInstructions] = useState('')
 
   function validateUrl(value: string): string | null {
@@ -79,62 +78,27 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
         </Button>
       </div>
 
-      {/* Wizard de IA — collapsible */}
-      <div>
-        <button
-          type="button"
-          onClick={() => setWizardOpen(o => !o)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.25rem',
-            background: 'none',
-            border: 'none',
-            padding: 0,
-            cursor: 'pointer',
-            fontSize: '0.8125rem',
-            color: 'var(--p-muted)',
-            userSelect: 'none',
-          }}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-space-1)' }}>
+        <label
+          htmlFor="wizard-instructions"
+          style={{ fontSize: '0.8125rem', color: 'var(--p-text)', fontWeight: 500 }}
         >
-          <span
-            style={{
-              display: 'inline-flex',
-              transition: 'transform 0.2s',
-              transform: wizardOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
-          Wizard de IA
-        </button>
-
-        {wizardOpen && (
-          <div style={{ marginTop: 'var(--p-space-2)', display: 'flex', flexDirection: 'column', gap: 'var(--p-space-1)' }}>
-            <label
-              htmlFor="wizard-instructions"
-              style={{ fontSize: '0.8125rem', color: 'var(--p-text)', fontWeight: 500 }}
-            >
-              Instruções adicionais para a IA
-            </label>
-            <textarea
-              id="wizard-instructions"
-              className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              rows={3}
-              maxLength={500}
-              placeholder="ex: foque em público feminino 35+, use tom urgente, destaque o desconto de 50%"
-              value={userInstructions}
-              onChange={(e) => setUserInstructions(e.currentTarget.value)}
-              disabled={loading || disabled}
-            />
-            {userInstructions.length > 0 && (
-              <p style={{ fontSize: '0.75rem', color: 'var(--p-muted)', margin: 0, textAlign: 'right' }}>
-                {userInstructions.length}/500
-              </p>
-            )}
-          </div>
+          Instruções adicionais para a IA
+        </label>
+        <textarea
+          id="wizard-instructions"
+          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+          rows={3}
+          maxLength={500}
+          placeholder="ex: foque em público feminino 35+, use tom urgente, destaque o desconto de 50%"
+          value={userInstructions}
+          onChange={(e) => setUserInstructions(e.currentTarget.value)}
+          disabled={loading || disabled}
+        />
+        {userInstructions.length > 0 && (
+          <p style={{ fontSize: '0.75rem', color: 'var(--p-muted)', margin: 0, textAlign: 'right' }}>
+            {userInstructions.length}/500
+          </p>
         )}
       </div>
 

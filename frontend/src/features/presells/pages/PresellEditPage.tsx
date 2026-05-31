@@ -146,7 +146,10 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         {/* Form column */}
         <form
           className="flex-[7] overflow-y-auto px-6 py-4 flex flex-col gap-4"
-          onSubmit={handleSubmit((values) => saveMutation.mutate(values))}
+          onSubmit={handleSubmit(
+            (values) => saveMutation.mutate(values),
+            () => toast.error('Corrija os campos obrigatórios antes de salvar'),
+          )}
         >
           {/* Actions */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -182,6 +185,8 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           <FormSection
             title="Preencher com IA"
             description="Analise a URL do produto para preencher os campos automaticamente"
+            collapsible
+            defaultOpen={true}
           >
             <AnalyzeUrlSection
               onResult={handleAnalyzeResult}

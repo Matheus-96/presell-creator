@@ -2,6 +2,7 @@ import { useMemo, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { Plus } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
@@ -64,11 +65,11 @@ export function PresellListPage() {
   if (isError) {
     return (
       <div className="page">
-        <PageHeader eyebrow="Presells" title="Presell list" description="Manage and publish your presell pages." />
+        <PageHeader eyebrow="Presells" title="Lista de presells" description="Gerencie e publique suas páginas de presell." />
         <StatusBanner
           tone="warning"
-          title="Could not load the presell list"
-          description={error instanceof Error ? error.message : 'Try refreshing the page.'}
+          title="Não foi possível carregar a lista de presells"
+          description={error instanceof Error ? error.message : 'Tente recarregar a página.'}
         />
       </div>
     )
@@ -78,21 +79,24 @@ export function PresellListPage() {
     <div className="page">
       <PageHeader
         eyebrow="Presells"
-        title="Presell list"
-        description="Browse, search, and filter your presell collection."
+        title="Lista de presells"
+        description="Busque, filtre e gerencie sua coleção de presells."
         aside={
-          <Button onClick={() => navigate('/presells/new')}>New presell</Button>
+          <Button onClick={() => navigate('/presells/new')} size="default" className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            Novo presell
+          </Button>
         }
       />
 
-      <SectionCard eyebrow="Filters" title="Narrow the collection">
+      <SectionCard eyebrow="Filtros" title="Filtrar coleção">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="presell-search">Search</Label>
+            <Label htmlFor="presell-search">Buscar</Label>
             <Input
               id="presell-search"
               type="search"
-              placeholder="Title, headline, or slug"
+              placeholder="Título, headline ou slug"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.currentTarget.value)}
             />
@@ -106,9 +110,9 @@ export function PresellListPage() {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.currentTarget.value as 'all' | PresellStatus)}
             >
-              <option value="all">All statuses</option>
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
+              <option value="all">Todos os status</option>
+              <option value="draft">Rascunho</option>
+              <option value="published">Publicado</option>
             </select>
           </div>
 
@@ -120,7 +124,7 @@ export function PresellListPage() {
               value={selectedTemplateId}
               onChange={(e) => setSelectedTemplateId(e.currentTarget.value)}
             >
-              <option value="">All templates</option>
+              <option value="">Todos os templates</option>
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
@@ -129,10 +133,10 @@ export function PresellListPage() {
         </div>
       </SectionCard>
 
-      <SectionCard eyebrow="Collection" title={`${filteredPresells.length} presell${filteredPresells.length !== 1 ? 's' : ''}`}>
+      <SectionCard eyebrow="Coleção" title={`${filteredPresells.length} presell${filteredPresells.length !== 1 ? 's' : ''}`}>
         {filteredPresells.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4">
-            No presells match the current filters.
+            Nenhum presell encontrado com os filtros atuais.
           </p>
         ) : (
           <ul className="divide-y divide-border">
@@ -147,7 +151,7 @@ export function PresellListPage() {
                   </p>
                 </div>
                 <span className={`status-pill status-pill--${item.status} shrink-0`}>
-                  {item.status}
+                  {item.status === 'published' ? 'Publicado' : 'Rascunho'}
                 </span>
                 <div className="flex shrink-0 gap-1">
                   <Button

@@ -189,6 +189,7 @@ export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerPr
                 style={{
                   overflowY: 'auto',
                   flex: 1,
+                  minHeight: 0,
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
                   gap: 'var(--p-space-3)',
