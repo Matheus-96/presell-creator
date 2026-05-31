@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ApiClientError } from '@/lib/api/api-client.ts'
 import { getPublicPresell } from '@/features/presells/lib/presells-api.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
+import { getFontPair, buildFontCssVars } from '@/features/presells/lib/font-pairs.ts'
 
 const PIXEL_ID_RE = /^[A-Z]+-[A-Z0-9]+$/
 
@@ -78,6 +79,45 @@ export function PresellPage() {
       inlineScript.remove()
     }
   }, [presell?.googlePixelId])
+
+  useEffect(() => {
+    const fontPairKey = presell?.settings?.font_pair as string | undefined
+    const pair = getFontPair(fontPairKey)
+
+    // Inject CSS custom properties for heading/body fonts
+    const styleEl = document.createElement('style')
+    styleEl.id = 'presell-font-vars'
+    styleEl.textContent = buildFontCssVars(pair)
+    document.head.appendChild(styleEl)
+
+    // Inject preconnect + font stylesheet for external pairs only
+    const nodes: HTMLElement[] = []
+    if (pair.googleFontsUrl) {
+      const preconnectFonts = document.createElement('link')
+      preconnectFonts.rel = 'preconnect'
+      preconnectFonts.href = 'https://fonts.googleapis.com'
+      document.head.appendChild(preconnectFonts)
+      nodes.push(preconnectFonts)
+
+      const preconnectStatic = document.createElement('link')
+      preconnectStatic.rel = 'preconnect'
+      preconnectStatic.href = 'https://fonts.gstatic.com'
+      preconnectStatic.crossOrigin = 'anonymous'
+      document.head.appendChild(preconnectStatic)
+      nodes.push(preconnectStatic)
+
+      const linkEl = document.createElement('link')
+      linkEl.rel = 'stylesheet'
+      linkEl.href = pair.googleFontsUrl
+      document.head.appendChild(linkEl)
+      nodes.push(linkEl)
+    }
+
+    return () => {
+      styleEl.remove()
+      nodes.forEach((n) => n.remove())
+    }
+  }, [presell?.settings?.font_pair])
 
   if (isLoading) {
     return (

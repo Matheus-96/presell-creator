@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import '@/features/presells/templates/index.ts'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
+import { getFontPair } from '@/features/presells/lib/font-pairs.ts'
 
 type PresellLivePreviewProps = {
   draft: PresellFormState | null
@@ -38,6 +39,52 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
   const publicData = useMemo(() => (draft ? formStateToPublicData(draft) : null), [draft])
   const TemplateComponent = template ? getTemplate(template.id) : null
   const openSavedPreviewUrl = draft?.urls?.publicPage ?? null
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+
+  const fontPairKey = draft?.settings?.font_pair as string | undefined
+
+  useEffect(() => {
+    const container = previewContainerRef.current
+    if (!container) return
+
+    const pair = getFontPair(fontPairKey)
+
+    // Inject CSS custom properties scoped to the preview container via a style tag
+    // placed just before the container, targeting it by a data attribute
+    container.setAttribute('data-presell-preview', 'true')
+    const styleEl = document.createElement('style')
+    styleEl.textContent = [
+      `[data-presell-preview="true"] {`,
+      `  --p-font-heading: ${pair.headingStack};`,
+      `  --p-font-body: ${pair.bodyStack};`,
+      `  font-family: ${pair.bodyStack};`,
+      `}`,
+      `[data-presell-preview="true"] h1,`,
+      `[data-presell-preview="true"] h2,`,
+      `[data-presell-preview="true"] h3,`,
+      `[data-presell-preview="true"] h4,`,
+      `[data-presell-preview="true"] h5,`,
+      `[data-presell-preview="true"] h6 {`,
+      `  font-family: ${pair.headingStack};`,
+      `}`,
+    ].join('\n')
+    document.head.appendChild(styleEl)
+
+    // Load external font if needed (shared document head — acceptable in preview)
+    const nodes: HTMLElement[] = []
+    if (pair.googleFontsUrl) {
+      const linkEl = document.createElement('link')
+      linkEl.rel = 'stylesheet'
+      linkEl.href = pair.googleFontsUrl
+      document.head.appendChild(linkEl)
+      nodes.push(linkEl)
+    }
+
+    return () => {
+      styleEl.remove()
+      nodes.forEach((n) => n.remove())
+    }
+  }, [fontPairKey])
 
   const isEmpty = !draft || detailStatus === 'loading' || !TemplateComponent || !publicData
 
@@ -72,6 +119,7 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
         // container keeps its scroll behaviour. Without this, wheel events on
         // the preview panel were swallowed and the user could not scroll.
         <div
+          ref={previewContainerRef}
           className="flex-1 overflow-y-auto"
           style={{ transform: 'translateZ(0)' }}
         >
