@@ -16,8 +16,8 @@ services:
       NODE_ENV: production
       # lighttpd está à frente do Node dentro do stack → trust 1 hop de proxy
       TRUST_PROXY: "1"
-      # Sempre true — em produção o tráfego é sempre HTTPS via Cloudflare Tunnel
-      SESSION_COOKIE_SECURE: "true"
+      # auto = Secure quando X-Forwarded-Proto: https (Cloudflare), sem Secure em HTTP local
+      SESSION_COOKIE_SECURE: "auto"
     healthcheck:
       test:
         - CMD
