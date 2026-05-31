@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { uploadDir } = require('../services/uploadService');
@@ -14,6 +15,18 @@ const CONTENT_TYPE_EXT = {
   'image/webp': '.webp',
   'image/gif': '.gif',
 };
+
+function urlHash(url) {
+  return crypto.createHash('sha1').update(url).digest('hex').slice(0, 16);
+}
+
+function findExistingFile(hash) {
+  for (const ext of Object.values(CONTENT_TYPE_EXT)) {
+    const filename = `poc-${hash}${ext}`;
+    if (fs.existsSync(path.join(uploadDir, filename))) return filename;
+  }
+  return null;
+}
 
 async function downloadImage(url, referer) {
   const res = await fetch(url, {
@@ -38,6 +51,7 @@ async function downloadImage(url, referer) {
 
 /**
  * Baixa até MAX_IMAGES URLs, salva em storage/uploads e retorna URLs /media/... hospedadas.
+ * Reutiliza arquivo existente se a mesma URL já foi baixada antes (deduplicação por URL).
  * Falhas individuais são ignoradas silenciosamente.
  *
  * @param {string[]} imageUrls
@@ -51,8 +65,16 @@ async function downloadAndHostImages(imageUrls, pageUrl) {
   for (const rawUrl of toProcess) {
     try {
       const absoluteUrl = new URL(rawUrl, pageUrl).href;
+      const hash = urlHash(absoluteUrl);
+
+      const existing = findExistingFile(hash);
+      if (existing) {
+        hosted.push(`/media/${existing}`);
+        continue;
+      }
+
       const { buffer, ext } = await downloadImage(absoluteUrl, pageUrl);
-      const filename = `poc-${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
+      const filename = `poc-${hash}${ext}`;
       fs.writeFileSync(path.join(uploadDir, filename), buffer);
       hosted.push(`/media/${filename}`);
     } catch {
