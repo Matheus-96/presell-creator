@@ -5,6 +5,7 @@ const { requireApiAuth } = require('../middleware/auth');
 const { attachCsrf } = require('../middleware/csrf');
 const { createExtractor } = require('../extractors/extractorFactory');
 const { downloadAndHostImages } = require('../poc/pocAssetService');
+const { extractAndHostBackgroundImage } = require('../poc/backgroundImageService');
 const { analyzeUrlForForm } = require('../poc/urlAnalyzerService');
 
 const router = express.Router();
@@ -44,7 +45,8 @@ router.post('/', async (req, res) => {
     }
 
     const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href);
-    const result = await analyzeUrlForForm(pageData, hostedImageUrls);
+    const backgroundImage = await extractAndHostBackgroundImage(pageData, parsedUrl.href);
+    const result = await analyzeUrlForForm(pageData, hostedImageUrls, backgroundImage);
 
     return res.json(result);
   } catch (err) {

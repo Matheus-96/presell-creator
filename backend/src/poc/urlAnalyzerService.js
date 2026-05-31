@@ -80,7 +80,7 @@ REGRAS:
 - Todo o conteúdo em português brasileiro`;
 }
 
-async function analyzeUrlForForm(pageData, hostedImageUrls = []) {
+async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null) {
   const { openRouterApiKey } = getEnv();
 
   const imageSection = hostedImageUrls.length > 0
@@ -184,6 +184,7 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = []) {
     theme: parsed.theme ?? null,
     settings: parsed.settings ?? {},
     hostedImageUrls,
+    backgroundImageUrl: backgroundImage?.hostedUrl ?? null,
   };
 }
 
