@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Executar deploy Docker
         env:
-          REPO_DIR: /home/victor/projetos/presell-creator
+          REPO_DIR: /home/projetos/presell-creator
           DEPLOY_BRANCH: master
           COMPOSE_FILE: docker-compose.yaml
           HEALTHCHECK_URL: http://localhost:80/health
