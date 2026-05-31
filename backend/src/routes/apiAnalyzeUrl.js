@@ -46,7 +46,9 @@ router.post('/', async (req, res) => {
 
     const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href);
     const backgroundImage = await extractAndHostBackgroundImage(pageData, parsedUrl.href);
-    const result = await analyzeUrlForForm(pageData, hostedImageUrls, backgroundImage);
+    const rawInstructions = typeof req.body.userInstructions === 'string' ? req.body.userInstructions.trim() : '';
+    const userInstructions = rawInstructions.slice(0, 500);
+    const result = await analyzeUrlForForm(pageData, hostedImageUrls, backgroundImage, userInstructions);
 
     return res.json(result);
   } catch (err) {
