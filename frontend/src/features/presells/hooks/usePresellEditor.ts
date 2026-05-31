@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useNavigate, useBlocker } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import type { UseFormSetValue } from 'react-hook-form'
 import {
   createPresell,
   deletePresell,
@@ -18,10 +17,9 @@ type Props = {
   id: number | null
   isDirty: boolean
   selectedTemplate: TemplateMetadata | null | undefined
-  setValue: UseFormSetValue<PresellFormValues>
 }
 
-export function usePresellEditor({ id, isDirty, selectedTemplate, setValue }: Props) {
+export function usePresellEditor({ id, isDirty, selectedTemplate }: Props) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
