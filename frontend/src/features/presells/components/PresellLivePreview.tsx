@@ -57,6 +57,15 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
       `[data-presell-preview="true"] {`,
       `  --p-font-heading: ${pair.headingStack};`,
       `  --p-font-body: ${pair.bodyStack};`,
+      `  font-family: ${pair.bodyStack};`,
+      `}`,
+      `[data-presell-preview="true"] h1,`,
+      `[data-presell-preview="true"] h2,`,
+      `[data-presell-preview="true"] h3,`,
+      `[data-presell-preview="true"] h4,`,
+      `[data-presell-preview="true"] h5,`,
+      `[data-presell-preview="true"] h6 {`,
+      `  font-family: ${pair.headingStack};`,
       `}`,
     ].join('\n')
     document.head.appendChild(styleEl)

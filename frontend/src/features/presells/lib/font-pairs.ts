@@ -72,6 +72,10 @@ export function buildFontCssVars(pair: FontPair): string {
     `:root {`,
     `  --p-font-heading: ${pair.headingStack};`,
     `  --p-font-body: ${pair.bodyStack};`,
+    `  font-family: ${pair.bodyStack};`,
+    `}`,
+    `h1, h2, h3, h4, h5, h6 {`,
+    `  font-family: ${pair.headingStack};`,
     `}`,
   ].join('\n')
 }
