@@ -62,108 +62,96 @@ const templateRegistry = Object.freeze(
             previewSelector: ".offer-modal-overlay"
           },
           FONT_PAIR_FIELD
-        ]
-      },
-      {
-        id: "device-frame",
-        name: "Moldura de dispositivo",
-        description: "Mostra a oferta dentro de uma moldura de navegador ou aparelho.",
-        fields: [
-          {
-            name: "frame_type",
-            label: "Tipo de moldura",
-            type: "select",
-            defaultValue: "browser",
-            options: [
-              { value: "browser", label: "Navegador" },
-              { value: "phone", label: "Celular" },
-              { value: "laptop", label: "Laptop" }
-            ],
-            previewSelector: ".device-frame-window"
-          },
-          {
-            name: "top_bar_text",
-            label: "Texto da barra superior",
-            type: "text",
-            defaultValue: "official-site.com",
-            previewSelector: ".device-frame-top-bar"
-          },
-          {
-            name: "footer_left_text",
-            label: "Texto do rodape esquerdo",
-            type: "text",
-            defaultValue: "Termos",
-            previewSelector: ".device-frame-footer"
-          },
-          {
-            name: "footer_right_text",
-            label: "Texto do rodape direito",
-            type: "text",
-            defaultValue: "Privacidade",
-            previewSelector: ".device-frame-footer"
-          },
-          {
-            name: "offer_note",
-            label: "Nota da oferta",
-            type: "textarea",
-            defaultValue: "Verifique a disponibilidade no site oficial.",
-            previewSelector: ".device-frame-offer-note"
-          },
-          FONT_PAIR_FIELD
-        ]
-      },
-      {
-        id: "app-ad",
-        name: "Anuncio in-app",
-        description: "Anuncio simples, claro e centralizado para fluxo dentro de app.",
-        fields: [
-          {
-            name: "label_text",
-            label: "Rotulo",
-            type: "text",
-            defaultValue: "Publicidade",
-            previewSelector: ".app-ad-label"
-          },
-          {
-            name: "microcopy",
-            label: "Microcopy",
-            type: "text",
-            defaultValue: "Toque para continuar no site oficial.",
-            previewSelector: ".app-ad-microcopy"
-          },
-          {
-            name: "disclaimer",
-            label: "Aviso",
-            type: "textarea",
-            defaultValue: "Voce sera redirecionado para uma pagina externa.",
-            previewSelector: ".app-ad-disclaimer"
-          },
-          {
-            name: "layout_density",
-            label: "Densidade",
-            type: "select",
-            defaultValue: "comfortable",
-            options: [
-              { value: "compact", label: "Compacta" },
-              { value: "comfortable", label: "Confortavel" },
-              { value: "spacious", label: "Espacosa" }
-            ],
-            previewSelector: ".app-ad-shell"
-          },
-          {
-            name: "button_style",
-            label: "Estilo do botao",
-            type: "select",
-            defaultValue: "solid",
-            options: [
-              { value: "solid", label: "Solido" },
-              { value: "outline", label: "Contorno" },
-              { value: "soft", label: "Suave" }
-            ],
-            previewSelector: ".app-ad-cta"
-          },
-          FONT_PAIR_FIELD
-        ]
+        ],
+        aiInstructions: `Você irá preencher um template de presell do tipo "Oferta com Modal" (offer-modal).
+
+## Quando usar este template
+Use quando:
+- O produto tem identidade visual forte (cores marcantes, imagens de destaque)
+- A oferta envolve desconto, promoção ou preço especial
+- A apresentação em modal/card centralizado sobre fundo imersivo faz sentido para o nicho
+- O produto é e-commerce, suplemento, infoproduto ou qualquer nicho com oferta promocional clara
+**Priorize este template quando uma imagem de fundo (background image) estiver disponível.**
+
+## Objetivo
+Presell visual com fundo imersivo, overlay colorido e modal central destacando a oferta. O fundo cria identidade visual enquanto o modal concentra a atenção na oferta e no desconto.
+
+## Estrutura visual (de cima para baixo)
+1. Imagem de fundo com overlay colorido
+2. Modal centralizado com:
+   - Texto de desconto em destaque
+   - Imagem do produto
+   - Título (headline)
+   - Subtítulo
+   - Avaliação em estrelas
+   - Texto de escassez
+   - Botão CTA
+   - Aviso legal (opcional)
+
+## Campos do presell
+
+**headline** — Título principal. Enfatize o benefício principal ou a oferta. Pode incluir desconto ou urgência quando adequado ao nicho.
+Exemplo: "Transforme seu corpo em 30 dias com desconto exclusivo"
+
+**subtitle** — Complementa o headline. 1–2 linhas, linguagem direta e persuasiva.
+Exemplo: "Fórmula premium com desconto especial disponível apenas por tempo limitado."
+
+**ctaText** — Texto do botão CTA. Voz imperativa, pode incluir urgência suave.
+Exemplo: "APROVEITAR DESCONTO AGORA →", "IR PARA O SITE OFICIAL →"
+
+**bullets** — Não é exibido neste template. Pode ser omitido ou deixado vazio.
+
+## Configurações (settings)
+
+**discount_text** — Texto de desconto exibido em destaque no modal. Curto e impactante.
+Exemplo: "Up to 43% OFF", "30% de desconto", "LEVE 2 PAGUE 1"
+
+**scarcity_text** — Texto de escassez exibido abaixo da nota. Cria senso de urgência leve.
+Exemplo: "Oferta por tempo limitado", "Últimas unidades disponíveis", "Promoção válida hoje"
+
+**rating** — Nota do produto como string numérica. Use valor crível para o nicho.
+Exemplo: "9.3", "4.8", "9.7"
+
+**stars_text** — Texto complementar à nota. Pode incluir contagem de avaliações.
+Exemplo: "5 estrelas", "+8.500 avaliações", "Mais de 10 mil clientes"
+
+**overlay_strength** — Intensidade do overlay sobre a imagem de fundo. Valor entre 0 e 0.9.
+Use 0.5–0.65 quando a imagem de fundo for visualmente rica; 0.7–0.85 para maior foco no modal.
+
+**font_pair** — Par tipográfico adequado ao nicho:
+- "system" — neutro. Use quando não houver preferência.
+- "modern" — Inter. Ideal para tecnologia, finanças, SaaS.
+- "serious" — Merriweather + Lato. Ideal para saúde, medicina, jurídico.
+- "friendly" — Poppins + Nunito. Ideal para bem-estar, emagrecimento, produtos femininos.
+- "bold" — Montserrat + Open Sans. Ideal para fitness, esportes, ofertas agressivas.
+
+## Modelo de resposta JSON
+
+Responda exclusivamente com um JSON válido neste formato:
+
+\`\`\`json
+{
+  "headline": "...",
+  "subtitle": "...",
+  "ctaText": "...",
+  "bullets": [],
+  "settings": {
+    "discount_text": "...",
+    "scarcity_text": "...",
+    "rating": "9.3",
+    "stars_text": "...",
+    "overlay_strength": 0.65,
+    "font_pair": "friendly"
+  },
+  "theme": {
+    "primary": "rgba(r, g, b, 1)",
+    "secondary": "rgba(r, g, b, 1)",
+    "background": "rgba(r, g, b, 1)",
+    "surface": "rgba(r, g, b, 0.95)",
+    "textColor": "rgba(r, g, b, 1)"
+  }
+}
+\`\`\``
       },
       {
         id: "app-ad-fullscreen",
@@ -216,7 +204,99 @@ const templateRegistry = Object.freeze(
             previewSelector: ".app-ad-cta"
           },
           FONT_PAIR_FIELD
-        ]
+        ],
+        aiInstructions: `Você irá preencher um template de presell do tipo "Anúncio In-App com Fundo" (app-ad-fullscreen).
+
+## Quando usar este template
+Use quando:
+- Há uma imagem de fundo disponível e o produto se beneficia de visual imersivo
+- O produto é digital: aplicativo, curso online, SaaS, ferramenta, software, plataforma
+- O contexto é de tráfego dentro de aplicativo ou plataforma digital
+- Efeito glassmorphism (vidro fosco) combina com a identidade do produto
+**Priorize este template quando uma imagem de fundo (background image) estiver disponível e o produto for digital.**
+
+## Objetivo
+Anúncio in-app com imagem de fundo imersiva e card central com efeito vidro fosco (glassmorphism). Visual moderno e clean, adequado para produtos digitais e SaaS.
+
+## Estrutura visual (de cima para baixo)
+1. Imagem de fundo com overlay suave
+2. Card glassmorphism central com:
+   - Rótulo superior (label)
+   - Imagem do produto
+   - Título (headline)
+   - Subtítulo
+   - Microcopy
+   - Botão CTA
+   - Aviso legal (disclaimer)
+
+## Campos do presell
+
+**headline** — Título principal. Tom informativo e direto, adequado para produto digital.
+Exemplo: "O aplicativo que está revolucionando a produtividade", "Acesse a plataforma líder do mercado"
+
+**subtitle** — Complementa o headline com detalhes do produto. 1–2 linhas.
+Exemplo: "Mais de 500 mil usuários já transformaram sua rotina com nossa solução."
+
+**ctaText** — Texto do botão CTA. Voz imperativa e direta.
+Exemplo: "ACESSAR O SITE OFICIAL →", "CONHECER O APP →"
+
+**bullets** — Não é exibido neste template. Pode ser omitido ou deixado vazio.
+
+## Configurações (settings)
+
+**label_text** — Rótulo curto exibido acima da imagem no card. Deve identificar o tipo de conteúdo.
+Exemplo: "Anúncio", "Parceiro Oficial", "Patrocinado"
+
+**microcopy** — Texto pequeno de instrução abaixo do CTA. Breve e direto.
+Exemplo: "Toque para continuar no site oficial.", "Clique para ver a oferta."
+
+**disclaimer** — Aviso de redirecionamento exibido no rodapé do card.
+Exemplo: "Você será redirecionado para uma página externa."
+
+**layout_density** — Densidade do layout do card:
+- "compact": espaçamento reduzido
+- "comfortable": equilibrado (padrão)
+- "spacious": mais respiro visual
+
+**button_style** — Estilo visual do botão CTA:
+- "solid": preenchido com a cor primária (padrão, maior destaque)
+- "outline": contorno na cor primária (mais discreto)
+- "soft": preenchimento suave/pastel
+
+**font_pair** — Par tipográfico adequado ao produto digital:
+- "system" — neutro.
+- "modern" — Inter. Ideal para tecnologia, SaaS, ferramentas digitais (recomendado para este template).
+- "serious" — Merriweather + Lato. Ideal para conteúdo educacional ou financeiro.
+- "friendly" — Poppins + Nunito. Ideal para apps de bem-estar, lifestyle.
+- "bold" — Montserrat + Open Sans. Ideal para apps fitness ou gaming.
+
+## Modelo de resposta JSON
+
+Responda exclusivamente com um JSON válido neste formato:
+
+\`\`\`json
+{
+  "headline": "...",
+  "subtitle": "...",
+  "ctaText": "...",
+  "bullets": [],
+  "settings": {
+    "label_text": "Anúncio",
+    "microcopy": "Toque para continuar no site oficial.",
+    "disclaimer": "Você será redirecionado para uma página externa.",
+    "layout_density": "comfortable",
+    "button_style": "solid",
+    "font_pair": "modern"
+  },
+  "theme": {
+    "primary": "rgba(r, g, b, 1)",
+    "secondary": "rgba(r, g, b, 1)",
+    "background": "rgba(r, g, b, 1)",
+    "surface": "rgba(r, g, b, 0.95)",
+    "textColor": "rgba(r, g, b, 1)"
+  }
+}
+\`\`\``
       },
       {
         id: "urgent-offer",
