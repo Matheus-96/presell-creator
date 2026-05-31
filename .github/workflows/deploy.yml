@@ -7,15 +7,13 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-      - name: Executar deploy
+      - name: Executar deploy Docker
         env:
           REPO_DIR: /home/victor/presell-creator
           DEPLOY_BRANCH: master
-          PM2_APP_NAME: presell-backend
-          BACKEND_ENTRY: backend/src/server.js
-          ADMIN_FRONTEND_PATH: /admin-app
-          LIGHTTPD_DOCROOT: /var/www/html
-        run: bash $REPO_DIR/scripts/deploy.sh
+          COMPOSE_FILE: docker-compose.yaml
+          HEALTHCHECK_URL: http://localhost:80/health
+        run: bash $REPO_DIR/scripts/deploy-docker.sh

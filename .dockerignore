@@ -1,0 +1,62 @@
+# Deps — reinstaladas no build
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build artifacts — gerados no build stage
+frontend/dist/
+frontend/build/
+backend/dist/
+backend/build/
+dist/
+build/
+
+# Runtime — montados como volume
+storage/database.sqlite
+storage/database.sqlite-*
+storage/sessions.sqlite
+storage/sessions.sqlite-*
+storage/uploads/
+
+# Secrets e config local
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# Docs e assets de dev
+docs/
+assets/
+*.md
+!README.md
+
+# IDE e OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Testes e coverage
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Claude Code
+.claude/
+skills-lock.json
+
+# Monolith legado — não usado no container (split mode)
+src/
+controllers/
+routes/
+public/
+presell-frontend/
