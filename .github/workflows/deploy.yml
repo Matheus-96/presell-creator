@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 15
+
+    steps:
+      - name: Executar deploy
+        env:
+          REPO_DIR: /home/victor/presell-creator
+          DEPLOY_BRANCH: master
+          PM2_APP_NAME: presell-backend
+          BACKEND_ENTRY: backend/src/server.js
+          ADMIN_FRONTEND_PATH: /admin-app
+          LIGHTTPD_DOCROOT: /var/www/html
+        run: bash $REPO_DIR/scripts/deploy.sh

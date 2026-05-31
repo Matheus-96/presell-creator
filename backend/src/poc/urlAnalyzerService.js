@@ -80,14 +80,14 @@ REGRAS:
 - Todo o conteúdo em português brasileiro`;
 }
 
-async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null) {
+async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null, userInstructions = '') {
   const { openRouterApiKey } = getEnv();
 
   const imageSection = hostedImageUrls.length > 0
     ? `\nImagens do produto disponíveis (use uma dessas URLs em "heroImageUrl" se for adequada — não invente outras):\n${hostedImageUrls.join('\n')}`
     : '\n(Nenhuma imagem disponível — defina "heroImageUrl" como null)';
 
-  const textContent = [
+  const pageContent = [
     `Título da página: ${pageData.title}`,
     `Descrição: ${pageData.metaDescription}`,
     `Texto da página: ${pageData.text}`,
@@ -95,6 +95,10 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
     `CSS Variables de cor: ${JSON.stringify(pageData.cssVars)}`,
     imageSection,
   ].filter(Boolean).join('\n');
+
+  const textContent = userInstructions
+    ? `Instruções específicas do usuário: ${userInstructions}\n\n${pageContent}`
+    : pageContent;
 
   const userContent = pageData.screenshot
     ? [

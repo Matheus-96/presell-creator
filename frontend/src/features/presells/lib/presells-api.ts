@@ -27,9 +27,9 @@ export interface AnalyzeUrlResult {
   hostedImageUrls: string[]
 }
 
-export async function analyzeUrl(url: string): Promise<AnalyzeUrlResult> {
+export async function analyzeUrl(url: string, userInstructions?: string): Promise<AnalyzeUrlResult> {
   return apiClient.post<AnalyzeUrlResult>(`${adminApiPaths.presells}/analyze-url`, {
-    body: { url },
+    body: { url, ...(userInstructions ? { userInstructions } : {}) },
   })
 }
 
