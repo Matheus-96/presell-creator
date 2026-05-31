@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -43,11 +43,39 @@ type EditorFormProps = {
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const navigate = useNavigate()
 
-  const { register, handleSubmit, watch, setValue, getValues, formState } =
+  const { register, handleSubmit, watch, setValue, formState } =
     useForm<PresellFormValues>({
       resolver: zodResolver(presellFormSchema),
       defaultValues,
     })
+
+  // Bug fix: RHF's formState.isDirty can produce false positives — it fires when
+  // the deep-equality comparison of the entire form state vs defaultValues fails
+  // due to object reference changes (e.g. after the resolver normalises the
+  // `settings` or `media` objects on mount, or when switching templates). We
+  // derive a reliable "has the user actually edited anything?" signal from two
+  // sources that are each individually trustworthy:
+  //
+  //   1. formState.dirtyFields — populated field-by-field only when a registered
+  //      <input> value actually diverges from its defaultValue. Per-field dirty
+  //      tracking does NOT suffer from the cross-field object-reference problem.
+  //
+  //   2. userHasEdited ref — set to true whenever setValue() is called. All
+  //      non-registered (controlled) fields (settings, media, theme) are updated
+  //      exclusively via setValue, so this ref captures every user-initiated
+  //      change to those fields.
+  //
+  // Together they give us a signal that is false until the user deliberately
+  // edits at least one field.
+  const userHasEdited = useRef(false)
+
+  // Wrap setValue so every explicit set marks the form as edited.
+  const setValueAndMarkEdited: typeof setValue = (name, value, options) => {
+    userHasEdited.current = true
+    return setValue(name, value, options)
+  }
+
+  const hasUserEdits = userHasEdited.current || Object.keys(formState.dirtyFields).length > 0
 
   const formValues = watch()
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
@@ -60,38 +88,38 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     duplicateMutation,
     isBusy,
     handleDelete,
-  } = usePresellEditor({ id, isDirty: formState.isDirty, selectedTemplate, setValue })
+  } = usePresellEditor({ id, isDirty: hasUserEdits, selectedTemplate })
 
   function handleAnalyzeResult(result: AnalyzeUrlResult) {
     // 1. Template
-    setValue('templateId', result.templateId, { shouldDirty: true })
+    setValueAndMarkEdited('templateId', result.templateId, { shouldDirty: true })
 
     // 2. Content fields
-    if (result.headline) setValue('headline', result.headline, { shouldDirty: true })
-    if (result.subtitle) setValue('subtitle', result.subtitle, { shouldDirty: true })
-    if (result.body) setValue('body', result.body, { shouldDirty: true })
+    if (result.headline) setValueAndMarkEdited('headline', result.headline, { shouldDirty: true })
+    if (result.subtitle) setValueAndMarkEdited('subtitle', result.subtitle, { shouldDirty: true })
+    if (result.body) setValueAndMarkEdited('body', result.body, { shouldDirty: true })
     if (result.bullets?.length) {
-      setValue('bulletsText', result.bullets.join('\n'), { shouldDirty: true })
+      setValueAndMarkEdited('bulletsText', result.bullets.join('\n'), { shouldDirty: true })
     }
-    if (result.ctaText) setValue('ctaText', result.ctaText, { shouldDirty: true })
+    if (result.ctaText) setValueAndMarkEdited('ctaText', result.ctaText, { shouldDirty: true })
 
     // 3. Theme
     if (result.theme) {
-      setValue('theme', result.theme, { shouldDirty: true })
+      setValueAndMarkEdited('theme', result.theme, { shouldDirty: true })
     }
 
     // 4. Template settings — normalize AI values against template field definitions
     if (result.settings) {
       const tmplDef = templates.find((t) => t.id === result.templateId)
       const normalized = buildTemplateSettings(tmplDef ?? null, result.settings)
-      setValue('settings', normalized, { shouldDirty: true })
+      setValueAndMarkEdited('settings', normalized, { shouldDirty: true })
     }
 
     // 5. Hero image
     if (result.heroImageUrl) {
       const filename = result.heroImageUrl.replace('/media/', '')
-      setValue('media.heroImageFileName', filename, { shouldDirty: true })
-      setValue(
+      setValueAndMarkEdited('media.heroImageFileName', filename, { shouldDirty: true })
+      setValueAndMarkEdited(
         'media.heroImageReference',
         {
           fileName: filename,
@@ -226,8 +254,8 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   label="Imagem do herói"
                   value={watch('media.heroImageReference')}
                   onChange={(ref) => {
-                    setValue('media.heroImageReference', ref, { shouldDirty: true })
-                    setValue('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                    setValueAndMarkEdited('media.heroImageReference', ref, { shouldDirty: true })
+                    setValueAndMarkEdited('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
                   }}
                   isLoading={isBusy}
                 />
@@ -235,15 +263,15 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   label="Imagem de fundo"
                   value={watch('media.backgroundImageReference')}
                   onChange={(ref) => {
-                    setValue('media.backgroundImageReference', ref, { shouldDirty: true })
-                    setValue('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
+                    setValueAndMarkEdited('media.backgroundImageReference', ref, { shouldDirty: true })
+                    setValueAndMarkEdited('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
                   }}
                   isLoading={isBusy}
                 />
               </div>
               <ThemeEditor
                 theme={formValues.theme}
-                onChange={(newTheme) => setValue('theme', newTheme, { shouldDirty: true })}
+                onChange={(newTheme) => setValueAndMarkEdited('theme', newTheme, { shouldDirty: true })}
               />
             </div>
           </FormSection>
@@ -289,7 +317,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
               template={selectedTemplate}
               onChange={(fieldName, value) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setValue(`settings.${fieldName}` as any, value, { shouldDirty: true })
+                setValueAndMarkEdited(`settings.${fieldName}` as any, value, { shouldDirty: true })
               }}
             />
           </FormSection>
@@ -386,7 +414,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
         open={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
         selectedTemplate={selectedTemplate}
-        setValue={setValue}
+        setValue={setValueAndMarkEdited}
       />
     </div>
   )

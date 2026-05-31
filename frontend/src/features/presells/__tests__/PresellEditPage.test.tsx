@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
@@ -100,6 +100,30 @@ function renderPage(route: string) {
       <RouterProvider router={router} />
     </QueryClientProvider>,
   )
+}
+
+/** Like renderPage but also returns the router so tests can trigger real navigation. */
+function renderPageWithRouter(route: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+
+  const router = createMemoryRouter(
+    [
+      { path: '/presells', element: <div>List page</div> },
+      { path: '/presells/new', element: <PresellEditPage /> },
+      { path: '/presells/:id/edit', element: <PresellEditPage /> },
+    ],
+    { initialEntries: [route] },
+  )
+
+  const result = render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  )
+
+  return { ...result, router }
 }
 
 describe('PresellEditPage', () => {
@@ -204,5 +228,77 @@ describe('PresellEditPage', () => {
     })
 
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('')
+  })
+
+  // Regression tests for Bug 2 — false-positive dirty state / "unsaved work" popup
+  //
+  // Previously, RHF's formState.isDirty could be true on mount because the deep
+  // comparison of nested objects (settings, media) against defaultValues failed
+  // due to object-reference changes after resolver normalisation, or after
+  // switching templates. This caused the "Descartar alterações não salvas?"
+  // blocker to fire even when the user had not touched the form.
+  //
+  // Fix: isDirty for navigation blocking is now derived from two reliable signals:
+  //   1. formState.dirtyFields — per-field tracking, immune to object-reference
+  //      issues that affect the overall isDirty comparison.
+  //   2. userHasEdited ref — set to true only when setValueAndMarkEdited() is
+  //      called (all controlled fields go through this wrapper).
+  //
+  // NOTE: The "Voltar" button calls navigate() from a MOCKED useNavigate, so it
+  // bypasses React Router's useBlocker mechanism. To test the blocker, we trigger
+  // navigation programmatically via the real router's navigate() method, which
+  // does go through useBlocker.
+  it('does NOT show unsaved-work confirmation when navigating away without editing', async () => {
+    mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+    mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
+
+    const confirmSpy = vi.spyOn(window, 'confirm')
+
+    const { router } = renderPageWithRouter('/presells/7/edit')
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+    // Trigger real router navigation — this goes through useBlocker.
+    // Must be in act() so React can flush state updates triggered by navigation.
+    await act(async () => {
+      await router.navigate('/presells')
+    })
+
+    // The navigation blocker must NOT have asked for confirmation
+    expect(confirmSpy).not.toHaveBeenCalled()
+
+    confirmSpy.mockRestore()
+  })
+
+  it('DOES show unsaved-work confirmation after the user edits a field', async () => {
+    mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+    mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7, slug: 'original-slug' }))
+
+    // Return false so navigation is cancelled — we only care that the dialog was shown
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+    const { router } = renderPageWithRouter('/presells/7/edit')
+
+    await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+    // Actually change a registered field — this populates formState.dirtyFields
+    const slugInput = screen.getByLabelText(/slug/i) as HTMLInputElement
+    await userEvent.clear(slugInput)
+    await userEvent.type(slugInput, 'changed-slug')
+
+    // Wait for the field to show the new value (ensures React state settled)
+    await waitFor(() => {
+      expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toContain('changed-slug')
+    })
+
+    // Trigger real router navigation — this goes through useBlocker.
+    // Must be in act() so React can flush state updates triggered by navigation.
+    await act(async () => {
+      await router.navigate('/presells')
+    })
+
+    expect(confirmSpy).toHaveBeenCalledWith('Descartar alterações não salvas?')
+
+    confirmSpy.mockRestore()
   })
 })
