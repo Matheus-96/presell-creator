@@ -8,7 +8,7 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 REPO_DIR="${REPO_DIR:-/home/pi/presell-creator}"
-DEPLOY_BRANCH="${DEPLOY_BRANCH:-feat/refactor}"
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-master}"
 PM2_APP_NAME="${PM2_APP_NAME:-presell-backend}"
 LEGACY_PM2_APP_NAME="${LEGACY_PM2_APP_NAME:-presell-server}"
 BACKEND_ENTRY="${BACKEND_ENTRY:-backend/src/server.js}"
