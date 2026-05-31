@@ -120,8 +120,8 @@ server.modules += (
 Crie `/etc/lighttpd/conf-available/10-presell.conf`:
 
 ```lighttpd
-# Docroot onde o frontend buildado será copiado
-server.document-root = "/var/www/html"
+# Docroot onde o frontend buildado será copiado (desativado pois isso ja é config padrão)
+# server.document-root = "/var/www/html"
 
 # Rotas que vão para o backend Node.js
 $HTTP["url"] =~ "^/(api|go|media|health|static|p)(/|$)" {
@@ -159,7 +159,7 @@ sudo chown -R $USER:www-data /var/www/html/admin-app
 Execute o script de deploy uma vez para validar tudo antes de automatizar:
 
 ```bash
-REPO_DIR=/home/<usuario>/presell-creator \
+REPO_DIR=/home/victor/projetos/presell-creator \
 DEPLOY_BRANCH=master \
 PM2_APP_NAME=presell-backend \
 BACKEND_ENTRY=backend/src/server.js \
