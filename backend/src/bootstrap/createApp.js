@@ -5,9 +5,12 @@ const compression = require("compression");
 const { setStaticAssetCacheHeaders } = require("../config/cacheControl");
 const { getEnv } = require("../config/env");
 const { publicDir, viewsDir } = require("../config/paths");
+const { migrate } = require("../db/migrations");
+// Run migrations immediately so modules that prepare SQL statements
+// (repositories) see the updated schema when they are required below.
+migrate();
 const { getHealth } = require("../controllers/healthController");
 const { getAdminSummary } = require("../controllers/summaryController");
-const { migrate } = require("../db/migrations");
 const { SQLiteSessionStore } = require("../db/sessionStore");
 const errorHandler = require("../middleware/errorHandler");
 const notFound = require("../middleware/notFound");
@@ -34,7 +37,8 @@ function createApp() {
     trustProxy
   } = getEnv();
 
-  migrate();
+  // migrations already applied at module load to ensure repository
+  // statements see the correct schema.
 
   const app = express();
   const adminFrontendBuilt = hasBuiltAdminFrontend();
