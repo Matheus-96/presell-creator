@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { DashboardPage } from '@/features/dashboard/pages/DashboardPage.tsx'
-import type { PresellSummary, TemplateMetadata } from '@/features/presells/types.ts'
+import type { PresellSummary } from '@/features/presells/types.ts'
 import type { AnalyticsOverview, AnalyticsSummary } from '@/features/analytics/types.ts'
 
 vi.mock('@/features/analytics/lib/analytics-api.ts', () => ({
@@ -13,21 +13,15 @@ vi.mock('@/features/analytics/lib/analytics-api.ts', () => ({
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   listPresells: vi.fn(),
-  listTemplates: vi.fn(),
 }))
 
-vi.mock('@/features/templates/lib/templates-api.ts', () => ({
-  listTemplates: vi.fn(),
-}))
 
 import { getAnalyticsSummary, getAnalyticsOverview } from '@/features/analytics/lib/analytics-api.ts'
 import { listPresells } from '@/features/presells/lib/presells-api.ts'
-import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 
 const mockGetAnalyticsSummary = vi.mocked(getAnalyticsSummary)
 const mockGetAnalyticsOverview = vi.mocked(getAnalyticsOverview)
 const mockListPresells = vi.mocked(listPresells)
-const mockListTemplates = vi.mocked(listTemplates)
 
 function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
   return {
@@ -42,18 +36,12 @@ function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
     affiliateUrl: 'https://example.com',
     published: false,
     media: { heroImage: null, backgroundImage: null },
-    tracking: { googlePixelId: null },
-    timestamps: { createdAt: null, updatedAt: null },
-    ...overrides,
-  }
-}
+    tracking: { 
+      googlePixelId: null,
+      trackingParam: 'sid'
+     },
 
-function makeTemplate(overrides: Partial<TemplateMetadata> = {}): TemplateMetadata {
-  return {
-    id: 'advertorial',
-    name: 'Advertorial',
-    description: 'Classic advertorial layout',
-    fields: [],
+    timestamps: { createdAt: null, updatedAt: null },
     ...overrides,
   }
 }
@@ -96,13 +84,24 @@ describe('DashboardPage', () => {
     vi.clearAllMocks()
     mockGetAnalyticsSummary.mockResolvedValue(makeSummary())
     mockGetAnalyticsOverview.mockResolvedValue(makeOverview())
-    mockListPresells.mockResolvedValue({ items: [] })
-    mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+    mockListPresells.mockResolvedValue({ 
+      items: [makePresell({ title: 'Featured Presell' })],
+      pageInfo: {
+        hasMore: false,
+        limit: 1,
+        nextCursor: ''
+      }
+    })
   })
 
   it('renders presells returned by the API', async () => {
     mockListPresells.mockResolvedValue({
       items: [makePresell({ title: 'Featured Presell' })],
+      pageInfo: {
+        hasMore: false,
+        limit: 1,
+        nextCursor: ''
+      }
     })
     renderPage()
 

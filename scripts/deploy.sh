@@ -17,6 +17,20 @@ LIGHTTPD_DOCROOT="${LIGHTTPD_DOCROOT:-/var/www/html}"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
 BACKEND_INTERNAL_HOST="${BACKEND_INTERNAL_HOST:-127.0.0.1}"
 
+FORCE_DEPLOY=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --force)
+      FORCE_DEPLOY=true
+      ;;
+    *)
+      echo "❌ Argumento desconhecido: $arg"
+      exit 1
+      ;;
+  esac
+done
+
 if [ "$ADMIN_FRONTEND_PATH" = "/" ]; then
   FRONTEND_TARGET_DIR_DEFAULT="$LIGHTTPD_DOCROOT"
 else
@@ -82,8 +96,12 @@ LOCAL_COMMIT="$(git rev-parse HEAD)"
 REMOTE_COMMIT="$(git rev-parse "origin/$DEPLOY_BRANCH")"
 
 if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ]; then
-  echo "✅ Sem mudanças"
-  exit 0
+  if [ "$FORCE_DEPLOY" = true ]; then
+    echo "⚠️ Sem mudanças, mas continuando devido ao parâmetro --force"
+  else
+    echo "✅ Sem mudanças"
+    exit 0
+  fi
 fi
 
 echo "🚀 Atualizando projeto..."
@@ -113,8 +131,10 @@ echo "♻️ Reiniciando backend no PM2..."
 echo "   Processo: $PM2_APP_NAME"
 echo "   Entry: $BACKEND_ENTRY"
 echo "   Porta interna: ${BACKEND_INTERNAL_HOST}:${BACKEND_INTERNAL_PORT}"
-if [ "$PM2_APP_NAME" = "presell-backend" ] && [ "$LEGACY_PM2_APP_NAME" != "$PM2_APP_NAME" ] \
-  && pm2 describe "$LEGACY_PM2_APP_NAME" >/dev/null 2>&1; then
+
+if [ "$PM2_APP_NAME" = "presell-backend" ] && \
+   [ "$LEGACY_PM2_APP_NAME" != "$PM2_APP_NAME" ] && \
+   pm2 describe "$LEGACY_PM2_APP_NAME" >/dev/null 2>&1; then
   echo "🧹 Removendo processo legado do PM2: $LEGACY_PM2_APP_NAME"
   pm2 delete "$LEGACY_PM2_APP_NAME"
 fi
