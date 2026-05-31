@@ -68,11 +68,16 @@ export function PresellLivePreview({ draft, template, detailStatus }: PresellLiv
           </p>
         </div>
       ) : (
+        // Bug fix: pointerEvents:none is on the INNER wrapper so the outer
+        // container keeps its scroll behaviour. Without this, wheel events on
+        // the preview panel were swallowed and the user could not scroll.
         <div
           className="flex-1 overflow-y-auto"
-          style={{ transform: 'translateZ(0)', pointerEvents: 'none' }}
+          style={{ transform: 'translateZ(0)' }}
         >
-          <TemplateComponent presell={publicData} />
+          <div style={{ pointerEvents: 'none' }}>
+            <TemplateComponent presell={publicData} />
+          </div>
         </div>
       )}
     </div>
