@@ -32,6 +32,17 @@ router.post('/', async (req, res) => {
   try {
     const extractor = createExtractor();
     const pageData = await extractor.extract(parsedUrl.href);
+
+    if (
+      pageData.title === 'Presell nao encontrada' ||
+      pageData.text?.includes('Esta presell nao esta publicada ou nao existe')
+    ) {
+      return res.status(400).json({
+        error: 'A URL informada não está acessível. Verifique se o produto está publicado e tente novamente.',
+        code: 'PAGE_NOT_FOUND',
+      });
+    }
+
     const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href);
     const result = await analyzeUrlForForm(pageData, hostedImageUrls);
 
