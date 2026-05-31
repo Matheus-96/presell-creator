@@ -42,13 +42,16 @@ function CleanAuthority({ presell }: TemplateComponentProps) {
   }
 
   return (
-    <div
+    <div className="clean-authority-root"
       style={{
+        display: 'flex',
+        flexDirection: 'column',
         minHeight: '100dvh',
         backgroundColor: colors.background,
         paddingBottom: 'calc(var(--p-cta-min-height) + var(--p-space-8))',
       }}
     >
+      <div className="clean-authority-inner" style={{ flex: 1 }}>
       {/* Content */}
       <div
         style={{
@@ -289,6 +292,7 @@ function CleanAuthority({ presell }: TemplateComponentProps) {
             {disclaimer}
           </p>
         )}
+      </div>
       </div>
     </div>
   )
