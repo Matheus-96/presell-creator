@@ -3,7 +3,7 @@
 const { getEnv } = require('../config/env');
 const { listTemplateManifests } = require('../templates/registry');
 
-function buildSystemPrompt() {
+function buildSystemPrompt(hasBackgroundImage = false) {
   const templates = listTemplateManifests();
 
   const templatesCatalog = templates.map(t => {
@@ -22,8 +22,13 @@ function buildSystemPrompt() {
       return desc;
     }).join('\n');
 
-    return `### Template: "${t.id}"\nNome: ${t.name}\nDescrição: ${t.description}\nCampos específicos:\n${fieldsDesc}`;
+    const instructions = t.aiInstructions ? `\nInstruções de uso:\n${t.aiInstructions}` : '';
+    return `### Template: "${t.id}"\nNome: ${t.name}\nDescrição: ${t.description}\nCampos específicos:\n${fieldsDesc}${instructions}`;
   }).join('\n\n');
+
+  const backgroundHint = hasBackgroundImage
+    ? '\n\n## Imagem de fundo disponível\nUma imagem de fundo (background image) foi extraída da página de destino e está disponível no conteúdo da mensagem. Priorize os templates "offer-modal" ou "app-ad-fullscreen" pois ambos tiram proveito de imagem de fundo imersiva. Use o campo "backgroundImage" com a URL fornecida quando o template escolhido suportar imagem de fundo.'
+    : '';
 
   return `Você é um especialista em copywriting e design de presell pages de alta conversão.
 
@@ -38,6 +43,7 @@ Você deve:
 ## Templates disponíveis
 
 ${templatesCatalog}
+${backgroundHint}
 
 ## Formato de resposta
 
@@ -87,6 +93,10 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
     ? `\nImagens do produto disponíveis (use uma dessas URLs em "heroImageUrl" se for adequada — não invente outras):\n${hostedImageUrls.join('\n')}`
     : '\n(Nenhuma imagem disponível — defina "heroImageUrl" como null)';
 
+  const backgroundImageSection = backgroundImage?.hostedUrl
+    ? `\nImagem de fundo extraída da página (use esta URL no campo "backgroundImage" do template quando aplicável): ${backgroundImage.hostedUrl}`
+    : '';
+
   const pageContent = [
     `Título da página: ${pageData.title}`,
     `Descrição: ${pageData.metaDescription}`,
@@ -94,20 +104,29 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
     `Cores identificadas: ${pageData.colors.join(', ')}`,
     `CSS Variables de cor: ${JSON.stringify(pageData.cssVars)}`,
     imageSection,
+    backgroundImageSection,
   ].filter(Boolean).join('\n');
 
   const textContent = userInstructions
     ? `Instruções específicas do usuário: ${userInstructions}\n\n${pageContent}`
     : pageContent;
 
-  const userContent = pageData.screenshot
-    ? [
-        {
-          type: 'image_url',
-          image_url: { url: `data:image/png;base64,${pageData.screenshot.toString('base64')}` }
-        },
-        { type: 'text', text: textContent }
-      ]
+  const imageParts = [];
+  if (pageData.screenshot) {
+    imageParts.push({
+      type: 'image_url',
+      image_url: { url: `data:image/png;base64,${pageData.screenshot.toString('base64')}` }
+    });
+  }
+  if (backgroundImage?.base64) {
+    imageParts.push({
+      type: 'image_url',
+      image_url: { url: backgroundImage.base64 }
+    });
+  }
+
+  const userContent = imageParts.length > 0
+    ? [...imageParts, { type: 'text', text: textContent }]
     : textContent;
 
   let response;
@@ -121,9 +140,9 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
       },
       body: JSON.stringify({
         model: 'google/gemini-2.0-flash-001',
-        temperature: 0.3,
+        temperature: 0.6,
         messages: [
-          { role: 'system', content: buildSystemPrompt() },
+          { role: 'system', content: buildSystemPrompt(!!backgroundImage?.hostedUrl) },
           { role: 'user', content: userContent },
         ],
       }),
