@@ -1,5 +1,20 @@
 const { normalizeTemplateManifest } = require("../contracts/templateManifest");
 
+const FONT_PAIR_FIELD = {
+  name: "font_pair",
+  label: "Tipografia",
+  type: "select",
+  defaultValue: "system",
+  helpText: "Escolha a personalidade tipográfica da página.",
+  options: [
+    { value: "system", label: "Padrão do sistema" },
+    { value: "modern", label: "Moderno" },
+    { value: "serious", label: "Sério" },
+    { value: "friendly", label: "Amigável" },
+    { value: "bold", label: "Impactante" }
+  ]
+};
+
 const templateRegistry = Object.freeze(
   Object.fromEntries(
     [
@@ -45,7 +60,8 @@ const templateRegistry = Object.freeze(
             max: 0.9,
             step: 0.05,
             previewSelector: ".offer-modal-overlay"
-          }
+          },
+          FONT_PAIR_FIELD
         ]
       },
       {
@@ -92,7 +108,8 @@ const templateRegistry = Object.freeze(
             type: "textarea",
             defaultValue: "Verifique a disponibilidade no site oficial.",
             previewSelector: ".device-frame-offer-note"
-          }
+          },
+          FONT_PAIR_FIELD
         ]
       },
       {
@@ -144,7 +161,8 @@ const templateRegistry = Object.freeze(
               { value: "soft", label: "Suave" }
             ],
             previewSelector: ".app-ad-cta"
-          }
+          },
+          FONT_PAIR_FIELD
         ]
       },
       {
@@ -196,7 +214,8 @@ const templateRegistry = Object.freeze(
               { value: "soft", label: "Suave" }
             ],
             previewSelector: ".app-ad-cta"
-          }
+          },
+          FONT_PAIR_FIELD
         ]
       },
       {
@@ -254,7 +273,8 @@ const templateRegistry = Object.freeze(
             defaultValue: "",
             helpText: "Texto pequeno no rodapé. Deixe vazio para ocultar.",
             previewSelector: ".urgent-offer-disclaimer"
-          }
+          },
+          FONT_PAIR_FIELD
         ],
         aiInstructions: `Você irá preencher um template de presell do tipo "Oferta Urgente".
 
@@ -307,6 +327,13 @@ Exemplo: "Restam apenas 7 unidades nesta condição"
 **disclaimer** — Aviso legal exibido no rodapé em texto pequeno e centralizado. Omita para ocultar.
 Exemplo: "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde."
 
+**font_pair** — Escolha o par tipográfico que melhor combina com o nicho e o tom do produto.
+- "system" — padrão neutro, sem carregamento externo. Use quando não houver preferência.
+- "modern" — Inter em tudo. Ideal para produtos de tecnologia, finanças, SaaS, cursos profissionais.
+- "serious" — Merriweather + Lato. Ideal para saúde, medicina, jurídico, e-books técnicos, finanças conservadoras.
+- "friendly" — Poppins + Nunito. Ideal para bem-estar, emagrecimento, alimentação saudável, produtos femininos, autoajuda.
+- "bold" — Montserrat + Open Sans. Ideal para fitness, esportes, produtos masculinos, ofertas agressivas de preço.
+
 ## Modelo de resposta JSON
 
 Responda exclusivamente com um JSON válido neste formato:
@@ -323,7 +350,8 @@ Responda exclusivamente com um JSON válido neste formato:
     "original_price": "...",
     "current_price": "...",
     "scarcity_text": "...",
-    "disclaimer": "..."
+    "disclaimer": "...",
+    "font_pair": "friendly"
   }
 }
 \`\`\``
