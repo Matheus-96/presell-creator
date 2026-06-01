@@ -9,7 +9,7 @@ const { buildApiError } = require('../contracts/shared');
 const { createExtractor } = require('../extractors/extractorFactory');
 const { downloadAndHostImages } = require('../poc/pocAssetService');
 const { extractAndHostBackgroundImage } = require('../poc/backgroundImageService');
-const { analyzeUrlForForm } = require('../poc/urlAnalyzerService');
+const { analyzeUrlForForm, analyzeUrlForFormMultiVariant } = require('../poc/urlAnalyzerService');
 const { buildExtractedImages } = require('../poc/analyzeUrlImages');
 const { mapToErrorCode, FRIENDLY_MESSAGES } = require('../poc/analyzeUrlErrors');
 const {
@@ -61,10 +61,12 @@ router.post('/', async (req, res) => {
     : '';
   const userInstructions = rawInstructions.slice(0, 500);
 
+  const multiVariant = req.body.multiVariant === true;
+
   const jobId = crypto.randomUUID();
   createJob(jobId, req.sessionID, Date.now() + JOB_TTL_MS);
 
-  processJob(jobId, parsedUrl.href, userInstructions).catch((err) => {
+  processJob(jobId, parsedUrl.href, userInstructions, multiVariant).catch((err) => {
     console.error(`[analyze-url] Unhandled error in processJob ${jobId}:`, err);
   });
 
@@ -112,7 +114,7 @@ router.get('/:jobId', async (req, res) => {
   });
 });
 
-async function processJob(jobId, url, userInstructions) {
+async function processJob(jobId, url, userInstructions, multiVariant = false) {
   try {
     updateJob(jobId, { status: 'extracting', message: 'Abrindo a página com o browser…' });
 
@@ -143,11 +145,14 @@ async function processJob(jobId, url, userInstructions) {
     updateJob(jobId, { status: 'analyzing', message: 'Consultando a IA…' });
 
     // Build raw extracted images — no downloads happen here.
-    // The user picks which ones to download via POST /download-images.
     const extractedImages = buildExtractedImages(pageData);
 
-    // AI analysis proceeds without any hosted images
-    const result = await analyzeUrlForForm(pageData, [], null, userInstructions);
+    let result;
+    if (multiVariant) {
+      result = await analyzeUrlForFormMultiVariant(pageData, userInstructions);
+    } else {
+      result = await analyzeUrlForForm(pageData, [], null, userInstructions);
+    }
 
     result.extractedImages = extractedImages;
 
