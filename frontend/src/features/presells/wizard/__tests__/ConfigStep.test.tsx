@@ -111,11 +111,9 @@ describe('ConfigStep', () => {
 
   // --- Cycle 4: Instructions textarea max 500 chars ---
 
-  it('limits instructions textarea to 500 characters', async () => {
+  it('limits instructions textarea to 500 characters', () => {
     renderConfigStep()
     const textarea = screen.getByRole('textbox', { name: /instruções adicionais/i })
-    const longText = 'a'.repeat(501)
-    await userEvent.type(textarea, longText)
-    expect((textarea as HTMLTextAreaElement).value).toHaveLength(500)
+    expect((textarea as HTMLTextAreaElement).maxLength).toBe(500)
   })
 })

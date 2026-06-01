@@ -59,6 +59,36 @@ describe("serializePresellSummary — theme", () => {
   });
 });
 
+// ── serializePresellSummary — galleryImages ───────────────────────────────────
+
+describe("serializePresellSummary — galleryImages", () => {
+  const baseRow = {
+    id: 1,
+    slug: "test",
+    status: "draft",
+    template: "advertorial",
+    title: "T",
+    headline: "H",
+    cta_text: "CTA",
+    affiliate_url: "https://example.com",
+  };
+
+  test("returns galleryImages=[] when row.gallery_images is null", () => {
+    const result = serializePresellSummary({ ...baseRow, gallery_images: null });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns galleryImages=[] when row.gallery_images is undefined", () => {
+    const result = serializePresellSummary({ ...baseRow });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns parsed array when row.gallery_images is a JSON string", () => {
+    const result = serializePresellSummary({ ...baseRow, gallery_images: '["a.jpg","b.jpg"]' });
+    expect(result.galleryImages).toEqual(["a.jpg", "b.jpg"]);
+  });
+});
+
 // ── serializePresellDetail ────────────────────────────────────────────────────
 
 describe("serializePresellDetail — theme", () => {
@@ -91,6 +121,36 @@ describe("serializePresellDetail — theme", () => {
   });
 });
 
+// ── serializePresellDetail — galleryImages ────────────────────────────────────
+
+describe("serializePresellDetail — galleryImages", () => {
+  const baseRow = {
+    id: 1,
+    slug: "test",
+    status: "draft",
+    template: "advertorial",
+    title: "T",
+    headline: "H",
+    cta_text: "CTA",
+    affiliate_url: "https://example.com",
+  };
+
+  test("returns galleryImages=[] when row.gallery_images is null", () => {
+    const result = serializePresellDetail({ ...baseRow, gallery_images: null });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns galleryImages=[] when row.gallery_images is undefined", () => {
+    const result = serializePresellDetail({ ...baseRow });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns parsed array when row.gallery_images is a JSON string", () => {
+    const result = serializePresellDetail({ ...baseRow, gallery_images: '["a.jpg","b.jpg"]' });
+    expect(result.galleryImages).toEqual(["a.jpg", "b.jpg"]);
+  });
+});
+
 // ── serializePublicPresell ────────────────────────────────────────────────────
 
 describe("serializePublicPresell — theme", () => {
@@ -115,7 +175,60 @@ describe("serializePublicPresell — theme", () => {
   });
 });
 
+// ── serializePublicPresell — galleryImages ────────────────────────────────────
+
+describe("serializePublicPresell — galleryImages", () => {
+  const baseRow = {
+    id: 1,
+    slug: "test",
+    template: "advertorial",
+    headline: "H",
+    cta_text: "CTA",
+    affiliate_url: "https://example.com",
+  };
+
+  test("returns galleryImages=[] when row.gallery_images is null", () => {
+    const result = serializePublicPresell({ ...baseRow, gallery_images: null });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns galleryImages=[] when row.gallery_images is undefined", () => {
+    const result = serializePublicPresell({ ...baseRow });
+    expect(result.galleryImages).toEqual([]);
+  });
+
+  test("returns parsed array when row.gallery_images is a JSON string", () => {
+    const result = serializePublicPresell({ ...baseRow, gallery_images: '["a.jpg","b.jpg"]' });
+    expect(result.galleryImages).toEqual(["a.jpg", "b.jpg"]);
+  });
+});
+
 // ── deserializePresellWriteInput ──────────────────────────────────────────────
+
+// ── deserializePresellWriteInput — galleryImages ──────────────────────────────
+
+describe("deserializePresellWriteInput — galleryImages", () => {
+  const basePayload = {
+    slug: "test",
+    templateId: "advertorial",
+    affiliateUrl: "https://example.com",
+  };
+
+  test("stores gallery_images as JSON string when array provided", () => {
+    const result = deserializePresellWriteInput({ ...basePayload, galleryImages: ["a.jpg", "b.jpg"] });
+    expect(result.gallery_images).toBe('["a.jpg","b.jpg"]');
+  });
+
+  test("stores gallery_images as '[]' when galleryImages is omitted", () => {
+    const result = deserializePresellWriteInput({ ...basePayload });
+    expect(result.gallery_images).toBe("[]");
+  });
+
+  test("stores gallery_images as '[]' when galleryImages is null", () => {
+    const result = deserializePresellWriteInput({ ...basePayload, galleryImages: null });
+    expect(result.gallery_images).toBe("[]");
+  });
+});
 
 describe("deserializePresellWriteInput — theme", () => {
   const basePayload = {
