@@ -9,6 +9,7 @@ const { createExtractor } = require('../extractors/extractorFactory');
 const { downloadAndHostImages } = require('../poc/pocAssetService');
 const { extractAndHostBackgroundImage } = require('../poc/backgroundImageService');
 const { analyzeUrlForForm } = require('../poc/urlAnalyzerService');
+const { mapToErrorCode, FRIENDLY_MESSAGES } = require('../poc/analyzeUrlErrors');
 const {
   createJob,
   getJob,
@@ -96,7 +97,8 @@ router.get('/:jobId', async (req, res) => {
     return res.json({
       status: job.status,
       message: job.message,
-      error: job.error
+      error: job.error,
+      errorCode: job.error_code
     });
   }
 
@@ -110,25 +112,42 @@ async function processJob(jobId, url, userInstructions) {
   try {
     updateJob(jobId, { status: 'extracting', message: 'Abrindo a página com o browser…' });
 
-    const extractor = createExtractor();
-    const pageData = await extractor.extract(url);
+    let pageData;
+    try {
+      const extractor = createExtractor();
+      pageData = await extractor.extract(url);
+    } catch (err) {
+      const siteErr = new Error(err.message);
+      siteErr.code = 'SITE_UNREACHABLE';
+      throw siteErr;
+    }
 
     if (
       pageData.title === 'Presell nao encontrada' ||
       pageData.text?.includes('Esta presell nao esta publicada ou nao existe')
     ) {
+      const errorCode = 'site_unreachable';
       updateJob(jobId, {
         status: 'failed',
-        message: 'A URL informada não está acessível. Verifique se o produto está publicado e tente novamente.',
-        error: 'A URL informada não está acessível. Verifique se o produto está publicado e tente novamente.'
+        message: FRIENDLY_MESSAGES[errorCode],
+        error: FRIENDLY_MESSAGES[errorCode],
+        error_code: errorCode
       });
       return;
     }
 
     updateJob(jobId, { status: 'downloading', message: 'Baixando imagens do produto…' });
 
-    const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], url);
-    const backgroundImage = await extractAndHostBackgroundImage(pageData, url);
+    let hostedImageUrls;
+    let backgroundImage;
+    try {
+      hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], url);
+      backgroundImage = await extractAndHostBackgroundImage(pageData, url);
+    } catch (err) {
+      const imgErr = new Error(err.message);
+      imgErr.code = 'IMAGE_EXTRACTION_FAILED';
+      throw imgErr;
+    }
 
     updateJob(jobId, { status: 'analyzing', message: 'Consultando a IA…' });
 
@@ -140,12 +159,10 @@ async function processJob(jobId, url, userInstructions) {
       result: JSON.stringify(result)
     });
   } catch (err) {
-    const code = err.code || 'UNKNOWN_ERROR';
-    const message = code === 'AI_TIMEOUT'
-      ? 'A IA demorou demais para responder. Tente novamente.'
-      : err.message;
+    const errorCode = mapToErrorCode(err.code);
+    const message = FRIENDLY_MESSAGES[errorCode];
 
-    updateJob(jobId, { status: 'failed', message, error: message });
+    updateJob(jobId, { status: 'failed', message, error: message, error_code: errorCode });
   }
 }
 

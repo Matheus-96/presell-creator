@@ -31,7 +31,7 @@ function getActiveJobBySession(sessionId) {
   return getActiveJobBySessionStmt.get(sessionId, Date.now()) ?? null;
 }
 
-function updateJob(id, { status, message, result, error } = {}) {
+function updateJob(id, { status, message, result, error, error_code } = {}) {
   const fields = [];
   const values = [];
 
@@ -39,6 +39,7 @@ function updateJob(id, { status, message, result, error } = {}) {
   if (message !== undefined) { fields.push('message = ?'); values.push(message); }
   if (result !== undefined) { fields.push('result = ?'); values.push(result); }
   if (error !== undefined) { fields.push('error = ?'); values.push(error); }
+  if (error_code !== undefined) { fields.push('error_code = ?'); values.push(error_code); }
 
   if (fields.length === 0) return;
 
