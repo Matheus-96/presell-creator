@@ -96,6 +96,10 @@ function migrate() {
     CREATE INDEX IF NOT EXISTS idx_jobs_session_id ON jobs(session_id);
     CREATE INDEX IF NOT EXISTS idx_jobs_expires_at ON jobs(expires_at);
   `);
+
+  runMigration("007_add_gallery_images", `
+    ALTER TABLE presells ADD COLUMN gallery_images TEXT;
+  `);
 }
 
 function runMigration(name, sql) {
