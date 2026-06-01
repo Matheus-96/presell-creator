@@ -51,10 +51,11 @@ export async function startAnalyzeUrl(
     if (err instanceof ApiClientError && err.status === 409) {
       try {
         const payload = JSON.parse(err.details) as {
-          error?: { code?: string; jobId?: string }
+          error?: { code?: string; details?: { jobId?: string } }
         }
-        if (payload.error?.code === 'job_in_progress' && payload.error.jobId) {
-          return { jobId: payload.error.jobId }
+        const jobId = payload.error?.details?.jobId
+        if (payload.error?.code === 'job_in_progress' && jobId) {
+          return { jobId }
         }
       } catch {
         // fall through
