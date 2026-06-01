@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const path = require('path');
 const express = require('express');
 const { requireApiAuth } = require('../middleware/auth');
 const { attachCsrf } = require('../middleware/csrf');
@@ -9,6 +10,8 @@ const { createExtractor } = require('../extractors/extractorFactory');
 const { downloadAndHostImages } = require('../poc/pocAssetService');
 const { extractAndHostBackgroundImage } = require('../poc/backgroundImageService');
 const { analyzeUrlForForm, analyzeUrlForFormMultiVariant } = require('../poc/urlAnalyzerService');
+const { buildExtractedImages } = require('../poc/analyzeUrlImages');
+const { mapToErrorCode, FRIENDLY_MESSAGES } = require('../poc/analyzeUrlErrors');
 const {
   createJob,
   getJob,
@@ -16,6 +19,8 @@ const {
   updateJob,
   deleteJob
 } = require('../repositories/jobsRepository');
+
+const MAX_DOWNLOAD_IMAGES = 10;
 
 const JOB_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -98,7 +103,8 @@ router.get('/:jobId', async (req, res) => {
     return res.json({
       status: job.status,
       message: job.message,
-      error: job.error
+      error: job.error,
+      errorCode: job.error_code
     });
   }
 
@@ -112,34 +118,43 @@ async function processJob(jobId, url, userInstructions, multiVariant = false) {
   try {
     updateJob(jobId, { status: 'extracting', message: 'Abrindo a página com o browser…' });
 
-    const extractor = createExtractor();
-    const pageData = await extractor.extract(url);
+    let pageData;
+    try {
+      const extractor = createExtractor();
+      pageData = await extractor.extract(url);
+    } catch (err) {
+      const siteErr = new Error(err.message);
+      siteErr.code = 'SITE_UNREACHABLE';
+      throw siteErr;
+    }
 
     if (
       pageData.title === 'Presell nao encontrada' ||
       pageData.text?.includes('Esta presell nao esta publicada ou nao existe')
     ) {
+      const errorCode = 'site_unreachable';
       updateJob(jobId, {
         status: 'failed',
-        message: 'A URL informada não está acessível. Verifique se o produto está publicado e tente novamente.',
-        error: 'A URL informada não está acessível. Verifique se o produto está publicado e tente novamente.'
+        message: FRIENDLY_MESSAGES[errorCode],
+        error: FRIENDLY_MESSAGES[errorCode],
+        error_code: errorCode
       });
       return;
     }
 
-    updateJob(jobId, { status: 'downloading', message: 'Baixando imagens do produto…' });
-
-    const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], url);
-    const backgroundImage = await extractAndHostBackgroundImage(pageData, url);
-
     updateJob(jobId, { status: 'analyzing', message: 'Consultando a IA…' });
+
+    // Build raw extracted images — no downloads happen here.
+    const extractedImages = buildExtractedImages(pageData);
 
     let result;
     if (multiVariant) {
       result = await analyzeUrlForFormMultiVariant(pageData, userInstructions);
     } else {
-      result = await analyzeUrlForForm(pageData, hostedImageUrls, backgroundImage, userInstructions);
+      result = await analyzeUrlForForm(pageData, [], null, userInstructions);
     }
+
+    result.extractedImages = extractedImages;
 
     updateJob(jobId, {
       status: 'done',
@@ -147,13 +162,71 @@ async function processJob(jobId, url, userInstructions, multiVariant = false) {
       result: JSON.stringify(result)
     });
   } catch (err) {
-    const code = err.code || 'UNKNOWN_ERROR';
-    const message = code === 'AI_TIMEOUT'
-      ? 'A IA demorou demais para responder. Tente novamente.'
-      : err.message;
+    const errorCode = mapToErrorCode(err.code);
+    const message = FRIENDLY_MESSAGES[errorCode];
 
-    updateJob(jobId, { status: 'failed', message, error: message });
+    updateJob(jobId, { status: 'failed', message, error: message, error_code: errorCode });
   }
 }
 
+// POST /download-images — download user-selected images and return local filenames
+router.post('/download-images', async (req, res) => {
+  const { images } = req.body;
+
+  if (!Array.isArray(images)) {
+    return res.status(400).json(buildApiError('INVALID_IMAGES', 'O campo "images" deve ser um array.'));
+  }
+
+  if (images.length === 0) {
+    return res.json({});
+  }
+
+  if (images.length > MAX_DOWNLOAD_IMAGES) {
+    return res.status(400).json(buildApiError(
+      'TOO_MANY_IMAGES',
+      `Máximo de ${MAX_DOWNLOAD_IMAGES} imagens por requisição.`
+    ));
+  }
+
+  const result = {};
+
+  // Separate images by role
+  const heroImages = images.filter(i => i.role === 'hero');
+  const backgroundImages = images.filter(i => i.role === 'background');
+  const galleryImages = images.filter(i => i.role === 'gallery');
+
+  // Download hero image (first only)
+  if (heroImages.length > 0) {
+    const heroUrls = heroImages.map(i => i.url);
+    // Use the first image URL as the page referer (best-effort)
+    const referer = heroUrls[0];
+    const hosted = await downloadAndHostImages(heroUrls.slice(0, 1), referer);
+    if (hosted.length > 0) {
+      result.hero = path.basename(hosted[0]);
+    }
+  }
+
+  // Download background image
+  if (backgroundImages.length > 0) {
+    const bgUrl = backgroundImages[0].url;
+    // Build a minimal pageData-like object so extractAndHostBackgroundImage can work
+    const fakePageData = { ogImage: bgUrl, imageUrls: [] };
+    const bg = await extractAndHostBackgroundImage(fakePageData, bgUrl);
+    if (bg?.hostedUrl) {
+      result.background = path.basename(bg.hostedUrl);
+    }
+  }
+
+  // Download gallery images
+  if (galleryImages.length > 0) {
+    const galleryUrls = galleryImages.map(i => i.url);
+    const referer = galleryUrls[0];
+    const hosted = await downloadAndHostImages(galleryUrls, referer);
+    result.gallery = hosted.map(u => path.basename(u));
+  }
+
+  return res.json(result);
+});
+
 module.exports = router;
+module.exports.processJob = processJob;
