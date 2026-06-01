@@ -181,12 +181,11 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             </Button>
           </div>
 
-          {/* Preencher com IA */}
+          {/* Re-analisar a partir de uma URL */}
           <FormSection
-            title="Preencher com IA"
-            description="Analise a URL do produto para preencher os campos automaticamente"
+            title="Re-analisar a partir de uma URL"
             collapsible
-            defaultOpen={true}
+            defaultOpen={false}
           >
             <AnalyzeUrlSection
               onResult={handleAnalyzeResult}
