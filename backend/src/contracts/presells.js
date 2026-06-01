@@ -165,7 +165,8 @@ function serializePresellSummary(presell) {
       createdAt: presell.created_at || null,
       updatedAt: presell.updated_at || null
     },
-    theme: presell.theme ? JSON.parse(presell.theme) : null
+    theme: presell.theme ? JSON.parse(presell.theme) : null,
+    galleryImages: presell.gallery_images ? JSON.parse(presell.gallery_images) : []
   };
 }
 
@@ -236,7 +237,8 @@ function deserializePresellWriteInput(payload = {}) {
       : normalizeMediaPath(String(payload.current_background_image_path || "")),
     remove_image: hasHeroImage && media.heroImage === null,
     remove_background_image: hasBackgroundImage && media.backgroundImage === null,
-    theme: payload.theme != null ? JSON.stringify(payload.theme) : null
+    theme: payload.theme != null ? JSON.stringify(payload.theme) : null,
+    gallery_images: Array.isArray(payload.galleryImages) ? JSON.stringify(payload.galleryImages) : "[]"
   };
 }
 
@@ -326,7 +328,8 @@ function serializePublicPresell(presell) {
     imageUrl: buildMediaUrl(presell.image_path) || null,
     backgroundImageUrl: buildMediaUrl(presell.background_image_path) || null,
     settings: parsePresellSettings(presell),
-    theme: presell.theme ? JSON.parse(presell.theme) : null
+    theme: presell.theme ? JSON.parse(presell.theme) : null,
+    galleryImages: presell.gallery_images ? JSON.parse(presell.gallery_images) : []
   };
 }
 
