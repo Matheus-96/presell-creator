@@ -9,6 +9,13 @@ export const adminRoutes = [
   presellsRoute,
 ] satisfies AdminRouteDefinition[]
 
+const LazyPresellWizardPage = createElement(
+  lazy(async () => {
+    const module = await import('@/features/presells/wizard/PresellWizardPage.tsx')
+    return { default: module.PresellWizardPage }
+  }),
+)
+
 const LazyPresellEditPage = createElement(
   lazy(async () => {
     const module = await import('@/features/presells/pages/PresellEditPage.tsx')
@@ -39,7 +46,7 @@ function toRouteObject(route: AdminRouteDefinition): RouteObject {
 
 export const adminRouteObjects: RouteObject[] = [
   ...adminRoutes.map(toRouteObject),
-  { path: 'presells/new', element: LazyPresellEditPage },
+  { path: 'presells/new', element: LazyPresellWizardPage },
   { path: 'presells/:id/edit', element: LazyPresellEditPage },
   { path: 'presells/:id/analytics', element: LazyPresellAnalyticsPage },
 ]
