@@ -301,4 +301,48 @@ describe('PresellEditPage', () => {
 
     confirmSpy.mockRestore()
   })
+
+  // Issue #121 — AnalyzeUrlSection collapsed by default in edit mode
+  describe('Re-analisar section (collapsed by default)', () => {
+    it('does NOT show the AnalyzeUrlSection URL input before expanding', async () => {
+      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
+
+      renderPage('/presells/7/edit')
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+      // The URL input inside AnalyzeUrlSection should not be visible without interaction
+      const urlInput = screen.queryByPlaceholderText('https://exemplo.com/produto')
+      expect(urlInput).toBeNull()
+    })
+
+    it('shows the section title "Re-analisar a partir de uma URL"', async () => {
+      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
+
+      renderPage('/presells/7/edit')
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+      expect(screen.getByText('Re-analisar a partir de uma URL')).toBeDefined()
+    })
+
+    it('shows the AnalyzeUrlSection URL input after clicking the section header', async () => {
+      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
+      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
+
+      renderPage('/presells/7/edit')
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+      // Click the collapsed section header to expand it
+      await userEvent.click(screen.getByText('Re-analisar a partir de uma URL'))
+
+      // Now the URL input inside AnalyzeUrlSection should be visible
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://exemplo.com/produto')).toBeDefined()
+      })
+    })
+  })
 })
