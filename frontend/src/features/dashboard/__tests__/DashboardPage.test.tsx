@@ -13,15 +13,17 @@ vi.mock('@/features/analytics/lib/analytics-api.ts', () => ({
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   listPresells: vi.fn(),
+  listTemplates: vi.fn(),
 }))
 
 
 import { getAnalyticsSummary, getAnalyticsOverview } from '@/features/analytics/lib/analytics-api.ts'
-import { listPresells } from '@/features/presells/lib/presells-api.ts'
+import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
 
 const mockGetAnalyticsSummary = vi.mocked(getAnalyticsSummary)
 const mockGetAnalyticsOverview = vi.mocked(getAnalyticsOverview)
 const mockListPresells = vi.mocked(listPresells)
+const mockListTemplates = vi.mocked(listTemplates)
 
 function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
   return {
@@ -84,7 +86,7 @@ describe('DashboardPage', () => {
     vi.clearAllMocks()
     mockGetAnalyticsSummary.mockResolvedValue(makeSummary())
     mockGetAnalyticsOverview.mockResolvedValue(makeOverview())
-    mockListPresells.mockResolvedValue({ 
+    mockListPresells.mockResolvedValue({
       items: [makePresell({ title: 'Featured Presell' })],
       pageInfo: {
         hasMore: false,
@@ -92,6 +94,7 @@ describe('DashboardPage', () => {
         nextCursor: ''
       }
     })
+    mockListTemplates.mockResolvedValue({ items: [] })
   })
 
   it('renders presells returned by the API', async () => {
@@ -117,7 +120,7 @@ describe('DashboardPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText('1.2K')).toBeDefined()
+      expect(screen.getByText('1,2 mil')).toBeDefined()
     })
   })
 

@@ -2,11 +2,27 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { PresellWizardPage } from '@/features/presells/wizard/PresellWizardPage.tsx'
 
-const mockUseWizardState = vi.fn()
-
 vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
   useWizardState: () => mockUseWizardState(),
 }))
+
+vi.mock('@/features/presells/wizard/steps/ConfigStep.tsx', () => ({
+  ConfigStep: () => <div>Config Step</div>,
+}))
+
+vi.mock('@/features/presells/wizard/steps/AnalyzingStep.tsx', () => ({
+  AnalyzingStep: () => <div>Analyzing Step</div>,
+}))
+
+vi.mock('@/features/presells/wizard/steps/ImagesStep.tsx', () => ({
+  ImagesStep: () => <div>Images Step</div>,
+}))
+
+vi.mock('@/features/presells/wizard/steps/ReviewStep.tsx', () => ({
+  ReviewStep: () => <div>Review Step</div>,
+}))
+
+const mockUseWizardState = vi.fn()
 
 function makeState(step: string) {
   return {

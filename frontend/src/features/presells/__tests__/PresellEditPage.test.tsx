@@ -141,6 +141,7 @@ describe('PresellEditPage', () => {
       expect(screen.getByRole('button', { name: /salvar/i })).toBeDefined()
     })
 
+    await userEvent.click(screen.getByText('Publicação'))
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('loaded-slug')
   })
 
@@ -150,6 +151,10 @@ describe('PresellEditPage', () => {
 
     renderPage('/presells/new')
 
+    await waitFor(() => expect(screen.getByRole('button', { name: /criar presell/i })).toBeDefined())
+
+    await userEvent.click(screen.getByText('Conversão'))
+    await userEvent.click(screen.getByText('Publicação'))
     await waitFor(() => expect(screen.getByLabelText(/slug/i)).toBeDefined())
 
     await userEvent.type(screen.getByLabelText(/slug/i), 'new-slug')
@@ -227,6 +232,7 @@ describe('PresellEditPage', () => {
       expect(screen.getByRole('button', { name: /criar presell/i })).toBeDefined()
     })
 
+    await userEvent.click(screen.getByText('Publicação'))
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('')
   })
 
@@ -280,6 +286,8 @@ describe('PresellEditPage', () => {
     const { router } = renderPageWithRouter('/presells/7/edit')
 
     await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
+
+    await userEvent.click(screen.getByText('Publicação'))
 
     // Actually change a registered field — this populates formState.dirtyFields
     const slugInput = screen.getByLabelText(/slug/i) as HTMLInputElement
