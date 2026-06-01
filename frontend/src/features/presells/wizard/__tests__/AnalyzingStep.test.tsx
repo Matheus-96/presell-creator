@@ -74,7 +74,18 @@ describe('AnalyzingStep', () => {
     mockPollAnalyzeJob.mockResolvedValue({
       status: 'done',
       message: 'Concluído',
-      result: { templateId: 'urgent-offer', headline: 'Test' },
+      result: {
+        templateId: 'urgent-offer',
+        headline: 'Test',
+        subtitle: '',
+        body: '',
+        bullets: [],
+        ctaText: '',
+        heroImageUrl: null,
+        theme: null,
+        settings: {},
+        hostedImageUrls: [],
+      },
     })
     const goToImages = vi.fn()
     renderAnalyzingStep({ jobId: 'job-2', goToImages })
