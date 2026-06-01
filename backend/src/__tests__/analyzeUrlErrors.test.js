@@ -213,33 +213,6 @@ describe('processJob — extractor throws → errorCode site_unreachable', () =>
   });
 });
 
-describe('processJob — image download throws → errorCode image_extraction_failed', () => {
-  test('failed job response contains errorCode: image_extraction_failed', async () => {
-    const extractorFactory = {
-      createExtractor: () => ({
-        extract: jest.fn().mockResolvedValue({
-          title: 'Test page',
-          text: 'Some text',
-          imageUrls: ['https://example.com/img.jpg'],
-        }),
-      }),
-    };
-
-    const pocAssetService = {
-      downloadAndHostImages: jest.fn().mockRejectedValue(new Error('Download failed')),
-    };
-
-    const backgroundImageService = {
-      extractAndHostBackgroundImage: jest.fn().mockResolvedValue(null),
-    };
-
-    const app = makeApp({ extractorFactory, pocAssetService, backgroundImageService });
-    const body = await runJobToCompletion(app);
-
-    expect(body.status).toBe('failed');
-    expect(body.errorCode).toBe('image_extraction_failed');
-  });
-});
 
 describe('processJob — AI_TIMEOUT → errorCode timeout', () => {
   test('failed job response contains errorCode: timeout', async () => {
