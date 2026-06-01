@@ -12,7 +12,7 @@ export function PresellWizardPage() {
       {state.step === 'config' && <ConfigStep />}
       {state.step === 'analyzing' && <AnalyzingStep jobId="" goToImages={() => {}} onRetry={() => {}} />}
       {state.step === 'images' && <ImagesStep extractedImages={[]} onComplete={() => {}} />}
-      {state.step === 'review' && <ReviewStep />}
+      {state.step === 'review' && <ReviewStep jobResult={{ templateId: '', headline: '', subtitle: '', body: '', bullets: [], ctaText: '', heroImageUrl: null, theme: null, settings: {} }} onSave={() => {}} />}
     </div>
   )
 }
