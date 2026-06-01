@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
-import { analyzeUrl, type AnalyzeUrlResult } from '../lib/presells-api.ts'
+import {
+  AnalyzeJobExpiredError,
+  pollAnalyzeJob,
+  startAnalyzeUrl,
+  type AnalyzeUrlResult,
+} from '../lib/presells-api.ts'
+
+const POLL_INTERVAL_MS = 5000
 
 interface AnalyzeUrlSectionProps {
   onResult: (result: AnalyzeUrlResult) => void
@@ -11,15 +18,61 @@ interface AnalyzeUrlSectionProps {
 export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps) {
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [urlError, setUrlError] = useState<string | null>(null)
   const [userInstructions, setUserInstructions] = useState('')
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  function clearPolling() {
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      clearPolling()
+    }
+  }, [])
 
   function validateUrl(value: string): string | null {
     if (!value.startsWith('http://') && !value.startsWith('https://')) {
       return 'A URL deve começar com http:// ou https://'
     }
     return null
+  }
+
+  function startPolling(jobId: string) {
+    intervalRef.current = setInterval(() => {
+      void pollAnalyzeJob(jobId)
+        .then((status) => {
+          if (status.status === 'done') {
+            clearPolling()
+            setLoading(false)
+            setStatusMessage(null)
+            onResult(status.result)
+          } else if (status.status === 'failed') {
+            clearPolling()
+            setLoading(false)
+            setStatusMessage(null)
+            setError(status.message)
+          } else {
+            setStatusMessage(status.message)
+          }
+        })
+        .catch((err: unknown) => {
+          clearPolling()
+          setLoading(false)
+          setStatusMessage(null)
+          if (err instanceof AnalyzeJobExpiredError) {
+            setError(err.message)
+          } else {
+            setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
+          }
+        })
+    }, POLL_INTERVAL_MS)
   }
 
   async function handleAnalyze() {
@@ -31,14 +84,14 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
     setUrlError(null)
     setError(null)
     setLoading(true)
+    setStatusMessage(null)
     try {
       const instructions = userInstructions.trim() || undefined
-      const result = await analyzeUrl(url.trim(), instructions)
-      onResult(result)
+      const { jobId } = await startAnalyzeUrl(url.trim(), instructions)
+      startPolling(jobId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
-    } finally {
       setLoading(false)
+      setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
     }
   }
 
@@ -109,7 +162,7 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
       )}
       {loading && (
         <p style={{ fontSize: '0.875rem', color: 'var(--p-muted)', margin: 0 }}>
-          Isso pode levar até 1 minuto — o servidor está abrindo a página e consultando a IA…
+          {statusMessage ?? 'Isso pode levar até 1 minuto — o servidor está abrindo a página e consultando a IA…'}
         </p>
       )}
     </div>

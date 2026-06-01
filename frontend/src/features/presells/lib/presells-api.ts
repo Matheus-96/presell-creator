@@ -27,10 +27,54 @@ export interface AnalyzeUrlResult {
   hostedImageUrls: string[]
 }
 
-export async function analyzeUrl(url: string, userInstructions?: string): Promise<AnalyzeUrlResult> {
-  return apiClient.post<AnalyzeUrlResult>(`${adminApiPaths.presells}/analyze-url`, {
-    body: { url, ...(userInstructions ? { userInstructions } : {}) },
-  })
+export type AnalyzeJobStatus =
+  | { status: 'extracting' | 'downloading' | 'analyzing'; message: string }
+  | { status: 'done'; message: string; result: AnalyzeUrlResult }
+  | { status: 'failed'; message: string; error: string }
+
+export class AnalyzeJobExpiredError extends Error {
+  constructor() {
+    super('A análise expirou. Tente novamente.')
+    this.name = 'AnalyzeJobExpiredError'
+  }
+}
+
+export async function startAnalyzeUrl(
+  url: string,
+  userInstructions?: string,
+): Promise<{ jobId: string }> {
+  try {
+    return await apiClient.post<{ jobId: string }>(`${adminApiPaths.presells}/analyze-url`, {
+      body: { url, ...(userInstructions ? { userInstructions } : {}) },
+    })
+  } catch (err) {
+    if (err instanceof ApiClientError && err.status === 409) {
+      try {
+        const payload = JSON.parse(err.details) as {
+          error?: { code?: string; jobId?: string }
+        }
+        if (payload.error?.code === 'job_in_progress' && payload.error.jobId) {
+          return { jobId: payload.error.jobId }
+        }
+      } catch {
+        // fall through
+      }
+    }
+    throw err
+  }
+}
+
+export async function pollAnalyzeJob(jobId: string): Promise<AnalyzeJobStatus> {
+  try {
+    return await apiClient.get<AnalyzeJobStatus>(
+      `${adminApiPaths.presells}/analyze-url/${jobId}`,
+    )
+  } catch (err) {
+    if (err instanceof ApiClientError && err.status === 404) {
+      throw new AnalyzeJobExpiredError()
+    }
+    throw err
+  }
 }
 
 export function getPublicPresell(slug: string) {
