@@ -1,48 +1,81 @@
-import { useState } from 'react'
-import type { AnalyzeUrlResult } from '@/features/presells/lib/presells-api.ts'
+import { useState, useEffect } from 'react'
 
-export type WizardStep = 'url' | 'analyzing' | 'images' | 'review'
+export type WizardStep = 'config' | 'analyzing' | 'images' | 'review'
 
-export interface WizardState {
+export type WizardConfig = {
+  url: string
+  language: string
+  prompt: string
+  multiVariant: boolean
+}
+
+export type WizardState = {
   step: WizardStep
+  config: WizardConfig | null
   jobId: string | null
-  jobResult: AnalyzeUrlResult | null
-  selectedImages: string[]
+  jobResult: unknown | null
+  selectedImages: unknown[]
 }
 
-export interface WizardActions {
-  startAnalysis: (jobId: string) => void
-  goToImages: (selectedImages: string[]) => void
-  goToReview: (result: AnalyzeUrlResult) => void
-  goBack: () => void
+const STORAGE_KEY = 'presell_wizard_job'
+const TTL_MS = 5 * 60 * 1000 // 5 minutes
+
+type StoredJob = {
+  jobId: string
+  config: WizardConfig
+  timestamp: number
 }
 
-export function useWizardState(): WizardState & WizardActions {
-  const [step, setStep] = useState<WizardStep>('url')
-  const [jobId, setJobId] = useState<string | null>(null)
-  const [jobResult, setJobResult] = useState<AnalyzeUrlResult | null>(null)
-  const [selectedImages, setSelectedImages] = useState<string[]>([])
+function loadFromStorage(): { jobId: string; config: WizardConfig } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const stored: StoredJob = JSON.parse(raw)
+    if (Date.now() - stored.timestamp > TTL_MS) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    return { jobId: stored.jobId, config: stored.config }
+  } catch {
+    return null
+  }
+}
 
-  function startAnalysis(id: string) {
-    setJobId(id)
-    setStep('analyzing')
+export function useWizardState() {
+  const [state, setState] = useState<WizardState>({
+    step: 'config',
+    config: null,
+    jobId: null,
+    jobResult: null,
+    selectedImages: [],
+  })
+
+  useEffect(() => {
+    const recovered = loadFromStorage()
+    if (recovered) {
+      setState((prev) => ({
+        ...prev,
+        step: 'analyzing',
+        jobId: recovered.jobId,
+        config: recovered.config,
+      }))
+    }
+  }, [])
+
+  function startAnalysis(config: WizardConfig) {
+    const jobId = crypto.randomUUID()
+    const stored: StoredJob = { jobId, config, timestamp: Date.now() }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
+    setState((prev) => ({ ...prev, step: 'analyzing', config, jobId }))
   }
 
-  function goToImages(images: string[]) {
-    setSelectedImages(images)
-    setStep('images')
+  function goToImages(selectedImages: unknown[]) {
+    setState((prev) => ({ ...prev, step: 'images', selectedImages }))
   }
 
-  function goToReview(result: AnalyzeUrlResult) {
-    setJobResult(result)
-    setStep('review')
+  function goToReview(jobResult: unknown) {
+    setState((prev) => ({ ...prev, step: 'review', jobResult }))
   }
 
-  function goBack() {
-    if (step === 'analyzing') setStep('url')
-    else if (step === 'images') setStep('analyzing')
-    else if (step === 'review') setStep('images')
-  }
-
-  return { step, jobId, jobResult, selectedImages, startAnalysis, goToImages, goToReview, goBack }
+  return { state, startAnalysis, goToImages, goToReview }
 }
