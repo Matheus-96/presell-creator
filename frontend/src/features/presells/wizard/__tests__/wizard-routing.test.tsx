@@ -17,6 +17,10 @@ vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
   }),
 }))
 
+vi.mock('@/features/presells/wizard/steps/ConfigStep.tsx', () => ({
+  ConfigStep: () => <div>Config Step</div>,
+}))
+
 import { PresellWizardPage } from '@/features/presells/wizard/PresellWizardPage.tsx'
 
 function renderAtPath(path: string) {

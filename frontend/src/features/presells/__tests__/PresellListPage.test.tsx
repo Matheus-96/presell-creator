@@ -96,7 +96,7 @@ describe('PresellListPage', () => {
 
     await waitFor(() => expect(mockListPresells).toHaveBeenCalled())
 
-    await userEvent.click(screen.getByRole('button', { name: /new presell/i }))
+    await userEvent.click(screen.getByRole('button', { name: /novo presell/i }))
 
     expect(mockNavigate).toHaveBeenCalledWith('/presells/new')
   })
@@ -150,7 +150,7 @@ describe('PresellListPage', () => {
 
     await userEvent.type(screen.getByRole('searchbox'), 'zzz-no-match')
 
-    expect(screen.getByText(/no presells match/i)).toBeDefined()
+    expect(screen.getByText(/nenhum presell/i)).toBeDefined()
   })
 
   it('shows error state when the API fails', async () => {
@@ -158,7 +158,7 @@ describe('PresellListPage', () => {
     renderPage()
 
     await waitFor(() => {
-      expect(screen.getByText(/could not load/i)).toBeDefined()
+      expect(screen.getByText(/não foi possível/i)).toBeDefined()
     })
   })
 })
