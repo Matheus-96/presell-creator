@@ -10,7 +10,7 @@ export function PresellWizardPage() {
   return (
     <div>
       {state.step === 'config' && <ConfigStep />}
-      {state.step === 'analyzing' && <AnalyzingStep />}
+      {state.step === 'analyzing' && <AnalyzingStep jobId="" goToImages={() => {}} onRetry={() => {}} />}
       {state.step === 'images' && <ImagesStep extractedImages={[]} onComplete={() => {}} />}
       {state.step === 'review' && <ReviewStep />}
     </div>

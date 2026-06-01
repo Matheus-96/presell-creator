@@ -30,7 +30,7 @@ export interface AnalyzeUrlResult {
 export type AnalyzeJobStatus =
   | { status: 'extracting' | 'downloading' | 'analyzing'; message: string }
   | { status: 'done'; message: string; result: AnalyzeUrlResult }
-  | { status: 'failed'; message: string; error: string }
+  | { status: 'failed'; message: string; error: string; errorCode?: string }
 
 export class AnalyzeJobExpiredError extends Error {
   constructor() {
