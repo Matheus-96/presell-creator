@@ -12,7 +12,7 @@ const puppeteer = require('puppeteer');
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const MOBILE_USER_AGENT =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15';
-const GOTO_TIMEOUT_MS = 15000;
+const GOTO_TIMEOUT_MS = 45000;
 
 /**
  * Seletores inspecionados para extração de cores via getComputedStyle.
@@ -60,14 +60,24 @@ class PuppeteerExtractor {
   async extract(url) {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--ignore-certificate-errors'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--ignore-certificate-errors',
+        '--disable-dev-shm-usage',  // usa /tmp em vez de /dev/shm (crítico em Docker com pouca memória)
+        '--disable-gpu',
+        '--disable-extensions',
+        '--no-zygote',
+      ],
     });
 
     try {
       const page = await browser.newPage();
       await page.setViewport(MOBILE_VIEWPORT);
       await page.setUserAgent(MOBILE_USER_AGENT);
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: GOTO_TIMEOUT_MS });
+      // 'load' aguarda todos os recursos (scripts, imagens) sem exigir rede ociosa.
+      // 'networkidle2' falha em páginas com analytics/WebSocket contínuos.
+      await page.goto(url, { waitUntil: 'load', timeout: GOTO_TIMEOUT_MS });
 
       const screenshot = await page.screenshot({ fullPage: true, type: 'png' });
 
