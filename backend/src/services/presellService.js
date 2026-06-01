@@ -123,7 +123,8 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     settingsJson: JSON.stringify(settings),
     googlePixel: googlePixel || null,
     trackingParam: rawTrackingParam,
-    theme: input.theme != null ? input.theme : null
+    theme: input.theme != null ? input.theme : null,
+    galleryImages: input.gallery_images ?? "[]"
   };
 }
 
