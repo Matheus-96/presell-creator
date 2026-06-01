@@ -1,7 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
-import { analyzeUrl, type AnalyzeUrlResult } from '../lib/presells-api.ts'
+import {
+  AnalyzeJobExpiredError,
+  pollAnalyzeJob,
+  startAnalyzeUrl,
+  type AnalyzeUrlResult,
+} from '../lib/presells-api.ts'
+
+const POLL_INTERVAL_MS = 5_000
 
 interface AnalyzeUrlSectionProps {
   onResult: (result: AnalyzeUrlResult) => void
@@ -11,9 +19,47 @@ interface AnalyzeUrlSectionProps {
 export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps) {
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
+  const [jobId, setJobId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [urlError, setUrlError] = useState<string | null>(null)
   const [userInstructions, setUserInstructions] = useState('')
+
+  const { data: jobStatus, error: pollError } = useQuery({
+    queryKey: ['analyze-job', jobId],
+    queryFn: () => pollAnalyzeJob(jobId!),
+    enabled: jobId !== null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status
+      return status === 'done' || status === 'failed' ? false : POLL_INTERVAL_MS
+    },
+    retry: false,
+  })
+
+  useEffect(() => {
+    if (!jobStatus) return
+    if (jobStatus.status === 'done') {
+      onResult(jobStatus.result)
+      setJobId(null)
+      setLoading(false)
+    } else if (jobStatus.status === 'failed') {
+      setError(jobStatus.message)
+      setJobId(null)
+      setLoading(false)
+    }
+  }, [jobStatus, onResult])
+
+  useEffect(() => {
+    if (!pollError) return
+    const message =
+      pollError instanceof AnalyzeJobExpiredError
+        ? pollError.message
+        : pollError instanceof Error
+          ? pollError.message
+          : 'Ocorreu um erro inesperado'
+    setError(message)
+    setJobId(null)
+    setLoading(false)
+  }, [pollError])
 
   function validateUrl(value: string): string | null {
     if (!value.startsWith('http://') && !value.startsWith('https://')) {
@@ -33,14 +79,18 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
     setLoading(true)
     try {
       const instructions = userInstructions.trim() || undefined
-      const result = await analyzeUrl(url.trim(), instructions)
-      onResult(result)
+      const { jobId: id } = await startAnalyzeUrl(url.trim(), instructions)
+      setJobId(id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
-    } finally {
       setLoading(false)
+      setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
     }
   }
+
+  const statusMessage =
+    jobStatus && jobStatus.status !== 'done' && jobStatus.status !== 'failed'
+      ? jobStatus.message
+      : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-space-3)' }}>
@@ -109,7 +159,7 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
       )}
       {loading && (
         <p style={{ fontSize: '0.875rem', color: 'var(--p-muted)', margin: 0 }}>
-          Isso pode levar até 1 minuto — o servidor está abrindo a página e consultando a IA…
+          {statusMessage ?? 'Isso pode levar até 1 minuto — o servidor está abrindo a página e consultando a IA…'}
         </p>
       )}
     </div>
