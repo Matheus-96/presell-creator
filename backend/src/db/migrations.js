@@ -81,6 +81,21 @@ function migrate() {
   runMigration("005_add_theme_to_presells", `
     ALTER TABLE presells ADD COLUMN theme TEXT;
   `);
+
+  runMigration("006_jobs", `
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      message TEXT NOT NULL,
+      result TEXT,
+      error TEXT,
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_jobs_session_id ON jobs(session_id);
+    CREATE INDEX IF NOT EXISTS idx_jobs_expires_at ON jobs(expires_at);
+  `);
 }
 
 function runMigration(name, sql) {
