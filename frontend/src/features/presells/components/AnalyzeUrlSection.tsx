@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import {
@@ -8,7 +9,7 @@ import {
   type AnalyzeUrlResult,
 } from '../lib/presells-api.ts'
 
-const POLL_INTERVAL_MS = 5000
+const POLL_INTERVAL_MS = 5_000
 
 interface AnalyzeUrlSectionProps {
   onResult: (result: AnalyzeUrlResult) => void
@@ -18,61 +19,53 @@ interface AnalyzeUrlSectionProps {
 export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps) {
   const [url, setUrl] = useState('')
   const [loading, setLoading] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const [jobId, setJobId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [urlError, setUrlError] = useState<string | null>(null)
   const [userInstructions, setUserInstructions] = useState('')
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  function clearPolling() {
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }
+  const { data: jobStatus, error: pollError } = useQuery({
+    queryKey: ['analyze-job', jobId],
+    queryFn: () => pollAnalyzeJob(jobId!),
+    enabled: jobId !== null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status
+      return status === 'done' || status === 'failed' ? false : POLL_INTERVAL_MS
+    },
+    retry: false,
+  })
 
   useEffect(() => {
-    return () => {
-      clearPolling()
+    if (!jobStatus) return
+    if (jobStatus.status === 'done') {
+      onResult(jobStatus.result)
+      setJobId(null)
+      setLoading(false)
+    } else if (jobStatus.status === 'failed') {
+      setError(jobStatus.message)
+      setJobId(null)
+      setLoading(false)
     }
-  }, [])
+  }, [jobStatus, onResult])
+
+  useEffect(() => {
+    if (!pollError) return
+    const message =
+      pollError instanceof AnalyzeJobExpiredError
+        ? pollError.message
+        : pollError instanceof Error
+          ? pollError.message
+          : 'Ocorreu um erro inesperado'
+    setError(message)
+    setJobId(null)
+    setLoading(false)
+  }, [pollError])
 
   function validateUrl(value: string): string | null {
     if (!value.startsWith('http://') && !value.startsWith('https://')) {
       return 'A URL deve começar com http:// ou https://'
     }
     return null
-  }
-
-  function startPolling(jobId: string) {
-    intervalRef.current = setInterval(() => {
-      void pollAnalyzeJob(jobId)
-        .then((status) => {
-          if (status.status === 'done') {
-            clearPolling()
-            setLoading(false)
-            setStatusMessage(null)
-            onResult(status.result)
-          } else if (status.status === 'failed') {
-            clearPolling()
-            setLoading(false)
-            setStatusMessage(null)
-            setError(status.message)
-          } else {
-            setStatusMessage(status.message)
-          }
-        })
-        .catch((err: unknown) => {
-          clearPolling()
-          setLoading(false)
-          setStatusMessage(null)
-          if (err instanceof AnalyzeJobExpiredError) {
-            setError(err.message)
-          } else {
-            setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
-          }
-        })
-    }, POLL_INTERVAL_MS)
   }
 
   async function handleAnalyze() {
@@ -84,16 +77,20 @@ export function AnalyzeUrlSection({ onResult, disabled }: AnalyzeUrlSectionProps
     setUrlError(null)
     setError(null)
     setLoading(true)
-    setStatusMessage(null)
     try {
       const instructions = userInstructions.trim() || undefined
-      const { jobId } = await startAnalyzeUrl(url.trim(), instructions)
-      startPolling(jobId)
+      const { jobId: id } = await startAnalyzeUrl(url.trim(), instructions)
+      setJobId(id)
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Ocorreu um erro inesperado')
     }
   }
+
+  const statusMessage =
+    jobStatus && jobStatus.status !== 'done' && jobStatus.status !== 'failed'
+      ? jobStatus.message
+      : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-space-3)' }}>
