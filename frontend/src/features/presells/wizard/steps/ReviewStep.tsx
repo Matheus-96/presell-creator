@@ -232,11 +232,13 @@ export function ReviewStep({ jobResult, onSave }: ReviewStepProps) {
         </p>
       </div>
 
-      {isSingleVariant(jobResult) ? (
-        <SingleVariantView variant={jobResult} onSave={onSave} />
-      ) : (
-        <MultiVariantView variants={jobResult.variants} onSave={onSave} />
-      )}
+      <div className="max-h-[calc(100vh-480px)] overflow-y-auto rounded-lg border border-slate-200 p-4 bg-white">
+        {isSingleVariant(jobResult) ? (
+          <SingleVariantView variant={jobResult} onSave={onSave} />
+        ) : (
+          <MultiVariantView variants={jobResult.variants} onSave={onSave} />
+        )}
+      </div>
     </div>
   )
 }
