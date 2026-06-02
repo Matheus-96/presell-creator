@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWizardState } from '@/features/presells/wizard/useWizardState.ts'
 import type { WizardStep } from '@/features/presells/wizard/useWizardState.ts'
@@ -9,7 +9,6 @@ import type { ImageSelection } from '@/features/presells/wizard/steps/ImagesStep
 import { createPresell, downloadAndHostImages } from '@/features/presells/lib/presells-api.ts'
 import type { PresellWritePayload } from '@/features/presells/types.ts'
 import { cn } from '@/lib/utils.ts'
-import { Button as AlertButton } from '@/components/ui/button.tsx'
 
 const STEPS: { id: WizardStep; label: string }[] = [
   { id: 'config', label: 'Configurar' },
@@ -65,7 +64,12 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
 export function PresellWizardPage() {
   const navigate = useNavigate()
   const { state, startAnalysis, goToImages, markJobFailed, resetWizard } = useWizardState()
-  const [imageSelections, setImageSelections] = useState<ImageSelection[]>([])
+
+  useEffect(() => {
+    if (state.step === 'config') {
+      resetWizard()
+    }
+  }, [state.step, resetWizard])
 
   const currentIndex = STEP_ORDER.indexOf(state.step)
 
@@ -176,8 +180,9 @@ export function PresellWizardPage() {
           <AnalyzingStep
             jobId={state.jobId}
             goToImages={goToImages}
+            onFail={markJobFailed}
             onRetry={() => {
-              markJobFailed()
+              resetWizard()
               navigate('/presells/new')
             }}
           />

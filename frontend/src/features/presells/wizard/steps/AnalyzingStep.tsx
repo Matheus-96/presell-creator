@@ -24,9 +24,10 @@ interface AnalyzingStepProps {
   jobId: string
   goToImages: (extractedImages: { url: string; type: string }[], jobResult: unknown) => void
   onRetry: () => void
+  onFail?: () => void
 }
 
-export function AnalyzingStep({ jobId, goToImages, onRetry }: AnalyzingStepProps) {
+export function AnalyzingStep({ jobId, goToImages, onRetry, onFail }: AnalyzingStepProps) {
   const { data: jobStatus } = useQuery({
     queryKey: ['analyze-job', jobId],
     queryFn: () => pollAnalyzeJob(jobId),
@@ -44,8 +45,9 @@ export function AnalyzingStep({ jobId, goToImages, onRetry }: AnalyzingStepProps
       goToImages(jobStatus.result.extractedImages, jobStatus.result)
     } else if (jobStatus.status === 'failed') {
       toast.error(getFriendlyErrorMessage(jobStatus.errorCode))
+      onFail?.()
     }
-  }, [jobStatus, goToImages])
+  }, [jobStatus, goToImages, onFail])
 
   const isFailed = jobStatus?.status === 'failed'
   const message =

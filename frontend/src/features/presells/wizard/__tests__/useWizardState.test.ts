@@ -99,6 +99,7 @@ describe('useWizardState', () => {
         jobId: 'abc-123',
         config: sampleConfig,
         timestamp: Date.now(),
+        status: 'in_progress',
       }
       localStorage.setItem('presell_wizard_job', JSON.stringify(stored))
 
@@ -115,6 +116,7 @@ describe('useWizardState', () => {
         jobId: 'old-job',
         config: sampleConfig,
         timestamp: staleTimestamp,
+        status: 'in_progress',
       }
       localStorage.setItem('presell_wizard_job', JSON.stringify(stored))
 
@@ -123,6 +125,54 @@ describe('useWizardState', () => {
       expect(result.current.state.step).toBe('config')
       expect(result.current.state.jobId).toBeNull()
       expect(localStorage.getItem('presell_wizard_job')).toBeNull()
+    })
+
+    it('starts at config and does not recover when stored status is failed', async () => {
+      const stored = {
+        jobId: 'failed-job',
+        config: sampleConfig,
+        timestamp: Date.now(),
+        status: 'failed' as const,
+      }
+      localStorage.setItem('presell_wizard_job', JSON.stringify(stored))
+
+      const { result } = renderHook(() => useWizardState())
+      await act(async () => {})
+      expect(result.current.state.step).toBe('config')
+      expect(result.current.state.jobId).toBeNull()
+      expect(localStorage.getItem('presell_wizard_job')).toBeNull()
+    })
+  })
+
+  describe('markJobFailed', () => {
+    it('resets wizard state and marks job as failed in localStorage', () => {
+      const { result } = renderHook(() => useWizardState())
+      act(() => result.current.startAnalysis(sampleConfig, 'job-123'))
+      expect(result.current.state.step).toBe('analyzing')
+      expect(result.current.state.jobId).toBe('job-123')
+
+      act(() => result.current.markJobFailed())
+      expect(result.current.state.step).toBe('config')
+      expect(result.current.state.jobId).toBeNull()
+      expect(result.current.state.config).toBeNull()
+
+      const stored = JSON.parse(localStorage.getItem('presell_wizard_job')!)
+      expect(stored.status).toBe('failed')
+    })
+  })
+
+  describe('resetWizard', () => {
+    it('clears localStorage and resets state to initial', () => {
+      const { result } = renderHook(() => useWizardState())
+      act(() => result.current.startAnalysis(sampleConfig, 'job-456'))
+      expect(localStorage.getItem('presell_wizard_job')).not.toBeNull()
+
+      act(() => result.current.resetWizard())
+      expect(localStorage.getItem('presell_wizard_job')).toBeNull()
+      expect(result.current.state.step).toBe('config')
+      expect(result.current.state.jobId).toBeNull()
+      expect(result.current.state.config).toBeNull()
+      expect(result.current.state.jobResult).toBeNull()
     })
   })
 })

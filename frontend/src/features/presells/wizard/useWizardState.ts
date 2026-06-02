@@ -80,7 +80,16 @@ export function useWizardState() {
   }
 
   function markJobFailed() {
-    localStorage.removeItem(STORAGE_KEY)
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const stored: StoredJob = JSON.parse(raw)
+        stored.status = 'failed'
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
+      }
+    } catch {
+      // ignore parse errors
+    }
     setState((prev) => ({ ...prev, step: 'config', jobId: null, jobResult: null, config: null }))
   }
 
