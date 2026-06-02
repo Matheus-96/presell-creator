@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWizardState } from '@/features/presells/wizard/useWizardState.ts'
 import type { WizardStep } from '@/features/presells/wizard/useWizardState.ts'
 import { ConfigStep } from '@/features/presells/wizard/steps/ConfigStep.tsx'
 import { AnalyzingStep } from '@/features/presells/wizard/steps/AnalyzingStep.tsx'
 import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
+import type { ImageSelection } from '@/features/presells/wizard/steps/ImagesStep.tsx'
 import { createPresell } from '@/features/presells/lib/presells-api.ts'
 import type { PresellWritePayload } from '@/features/presells/types.ts'
 import { cn } from '@/lib/utils.ts'
@@ -62,10 +64,11 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
 export function PresellWizardPage() {
   const navigate = useNavigate()
   const { state, startAnalysis, goToImages, markJobFailed } = useWizardState()
+  const [imageSelections, setImageSelections] = useState<ImageSelection[]>([])
 
   const currentIndex = STEP_ORDER.indexOf(state.step)
 
-  async function handleCreatePresell() {
+  async function handleCreatePresell(selections: ImageSelection[]) {
     if (!state.jobResult) return
 
     const jobResult = state.jobResult as {
@@ -77,6 +80,7 @@ export function PresellWizardPage() {
       ctaText: string
       theme: object | null
       settings: Record<string, unknown>
+      extractedImages?: { url: string; type: string }[]
     }
 
     const draft: PresellDraft = {
@@ -90,7 +94,29 @@ export function PresellWizardPage() {
       settings: jobResult.settings,
     }
 
-    const result = await createPresell(draftToPayload(draft))
+    const payload = draftToPayload(draft)
+
+    // Apply selected images to settings
+    const heroImage = selections.find(s => s.role === 'hero')
+    const backgroundImage = selections.find(s => s.role === 'background')
+    const galleryImages = selections.filter(s => s.role === 'gallery')
+
+    if (heroImage || backgroundImage || galleryImages.length > 0) {
+      payload.media = {}
+      if (heroImage) {
+        payload.media.heroImage = { fileName: heroImage.url }
+      }
+      if (backgroundImage) {
+        payload.media.backgroundImage = { fileName: backgroundImage.url }
+      }
+    }
+
+    // Add gallery images to settings if template supports it
+    if (galleryImages.length > 0) {
+      payload.settings.galleryImages = galleryImages.map(img => img.url)
+    }
+
+    const result = await createPresell(payload)
     navigate(`/presells/${result.id}/edit`)
   }
 

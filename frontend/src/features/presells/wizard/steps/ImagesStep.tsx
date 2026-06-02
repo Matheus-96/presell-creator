@@ -11,7 +11,7 @@ export type ImageSelection = {
 
 interface ImagesStepProps {
   extractedImages: { url: string; type: string }[]
-  onComplete: () => void
+  onComplete: (selections: ImageSelection[]) => void
 }
 
 type RoleMap = Record<number, ImageRole>
@@ -45,6 +45,13 @@ export function ImagesStep({ extractedImages, onComplete }: ImagesStepProps) {
       next[index] = role
       return next
     })
+  }
+
+  function handleComplete() {
+    const selections: ImageSelection[] = extractedImages
+      .map((img, i) => ({ url: img.url, role: roles[i] ?? null }))
+      .filter((s): s is ImageSelection => s.role !== null)
+    onComplete(selections)
   }
 
   return (
@@ -110,7 +117,7 @@ export function ImagesStep({ extractedImages, onComplete }: ImagesStepProps) {
       )}
 
       <div className="flex justify-end">
-        <Button type="button" onClick={onComplete}>
+        <Button type="button" onClick={handleComplete}>
           Salvar como draft
         </Button>
       </div>
