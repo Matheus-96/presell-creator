@@ -84,9 +84,21 @@ export function useWizardState() {
     setState((prev) => ({ ...prev, step: 'config', jobId: null, jobResult: null, config: null }))
   }
 
+  function resetWizard() {
+    localStorage.removeItem(STORAGE_KEY)
+    setState({
+      step: 'config',
+      config: null,
+      jobId: null,
+      jobResult: null,
+      selectedImages: [],
+      imageSelections: [],
+    })
+  }
+
   function goToImages(extractedImages: { url: string; type: string }[], jobResult: unknown) {
     setState((prev) => ({ ...prev, step: 'images', selectedImages: extractedImages, jobResult }))
   }
 
-  return { state, startAnalysis, goToImages, markJobFailed }
+  return { state, startAnalysis, goToImages, markJobFailed, resetWizard }
 }

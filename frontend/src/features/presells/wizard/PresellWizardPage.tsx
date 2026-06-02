@@ -64,7 +64,7 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
 
 export function PresellWizardPage() {
   const navigate = useNavigate()
-  const { state, startAnalysis, goToImages, markJobFailed } = useWizardState()
+  const { state, startAnalysis, goToImages, markJobFailed, resetWizard } = useWizardState()
   const [imageSelections, setImageSelections] = useState<ImageSelection[]>([])
 
   const currentIndex = STEP_ORDER.indexOf(state.step)
@@ -121,6 +121,7 @@ export function PresellWizardPage() {
     }
 
     const result = await createPresell(payload)
+    resetWizard()
     navigate(`/presells/${result.id}/edit`)
   }
 
