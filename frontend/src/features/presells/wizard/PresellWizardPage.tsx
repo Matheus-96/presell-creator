@@ -6,9 +6,10 @@ import { ConfigStep } from '@/features/presells/wizard/steps/ConfigStep.tsx'
 import { AnalyzingStep } from '@/features/presells/wizard/steps/AnalyzingStep.tsx'
 import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
 import type { ImageSelection } from '@/features/presells/wizard/steps/ImagesStep.tsx'
-import { createPresell } from '@/features/presells/lib/presells-api.ts'
+import { createPresell, downloadAndHostImages } from '@/features/presells/lib/presells-api.ts'
 import type { PresellWritePayload } from '@/features/presells/types.ts'
 import { cn } from '@/lib/utils.ts'
+import { Button as AlertButton } from '@/components/ui/button.tsx'
 
 const STEPS: { id: WizardStep; label: string }[] = [
   { id: 'config', label: 'Configurar' },
@@ -96,24 +97,27 @@ export function PresellWizardPage() {
 
     const payload = draftToPayload(draft)
 
-    // Apply selected images to settings
-    const heroImage = selections.find(s => s.role === 'hero')
-    const backgroundImage = selections.find(s => s.role === 'background')
-    const galleryImages = selections.filter(s => s.role === 'gallery')
+    // Download and host selected images before creating presell
+    if (selections.length > 0) {
+      try {
+        const hostedImages = await downloadAndHostImages(selections)
 
-    if (heroImage || backgroundImage || galleryImages.length > 0) {
-      payload.media = {}
-      if (heroImage) {
-        payload.media.heroImage = { fileName: heroImage.url }
-      }
-      if (backgroundImage) {
-        payload.media.backgroundImage = { fileName: backgroundImage.url }
-      }
-    }
+        payload.media = {}
+        if (hostedImages.hero) {
+          payload.media.heroImage = { fileName: hostedImages.hero }
+        }
+        if (hostedImages.background) {
+          payload.media.backgroundImage = { fileName: hostedImages.background }
+        }
 
-    // Add gallery images to settings if template supports it
-    if (galleryImages.length > 0) {
-      payload.settings.galleryImages = galleryImages.map(img => img.url)
+        // Add gallery images to settings if template supports it
+        if (hostedImages.gallery && hostedImages.gallery.length > 0) {
+          payload.settings.galleryImages = hostedImages.gallery
+        }
+      } catch (err) {
+        console.error('Failed to download images:', err)
+        alert('Erro ao baixar imagens. Criando presell sem imagens.')
+      }
     }
 
     const result = await createPresell(payload)

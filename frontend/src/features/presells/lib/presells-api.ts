@@ -83,6 +83,33 @@ export async function pollAnalyzeJob(jobId: string): Promise<AnalyzeJobStatus> {
   }
 }
 
+export type ImageSelectionWithRole = {
+  url: string
+  role: 'hero' | 'background' | 'gallery'
+}
+
+export type HostedImagesResult = {
+  hero?: string
+  background?: string
+  gallery?: string[]
+}
+
+export async function downloadAndHostImages(
+  images: ImageSelectionWithRole[],
+): Promise<HostedImagesResult> {
+  try {
+    return await apiClient.post<HostedImagesResult>(
+      `${adminApiPaths.presells}/analyze-url/download-images`,
+      {
+        body: { images },
+      },
+    )
+  } catch (err) {
+    console.error('Failed to download and host images:', err)
+    throw err
+  }
+}
+
 export function getPublicPresell(slug: string) {
   const qs = window.location.search
   return apiClient.get<PresellPublicData>(`/public/presells/${slug}${qs}`)
