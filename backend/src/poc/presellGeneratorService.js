@@ -2,7 +2,7 @@
 
 /**
  * @module presellGeneratorService
- * Chama OpenRouter (google/gemini-2.0-flash) para gerar um array de blocos de presell
+ * Chama OpenRouter (google/gemini-2.5-flash-lite) para gerar um array de blocos de presell
  * a partir de dados extraídos de uma página via IPageExtractor.
  */
 
@@ -222,7 +222,7 @@ async function generatePresellBlocks(pageData, hostedImageUrls = []) {
         'HTTP-Referer': 'https://presell-creator.local'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
+        model: 'google/gemini-2.5-flash-lite',
         temperature: 0.3,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },

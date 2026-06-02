@@ -4,16 +4,20 @@ import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { ConfigStep } from '@/features/presells/wizard/steps/ConfigStep.tsx'
 
-const mockStartAnalysis = vi.fn()
+const mockOnStartAnalysis = vi.fn()
 
-vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
-  useWizardState: () => ({ startAnalysis: mockStartAnalysis }),
-}))
+vi.mock('@/features/presells/lib/presells-api.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/features/presells/lib/presells-api.ts')>()
+  return { ...actual, startAnalyzeUrl: vi.fn() }
+})
+
+import { startAnalyzeUrl } from '@/features/presells/lib/presells-api.ts'
+const mockStartAnalyzeUrl = vi.mocked(startAnalyzeUrl)
 
 function renderConfigStep() {
   return render(
     <MemoryRouter>
-      <ConfigStep />
+      <ConfigStep onStartAnalysis={mockOnStartAnalysis} />
     </MemoryRouter>,
   )
 }
@@ -21,6 +25,7 @@ function renderConfigStep() {
 describe('ConfigStep', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockStartAnalyzeUrl.mockResolvedValue({ jobId: 'mock-job-id' })
   })
 
   // --- Cycle 1: Form renders required fields ---
@@ -43,11 +48,6 @@ describe('ConfigStep', () => {
   it('renders an instructions textarea', () => {
     renderConfigStep()
     expect(screen.getByRole('textbox', { name: /instruções adicionais/i })).toBeDefined()
-  })
-
-  it('renders the multi-variant checkbox/toggle', () => {
-    renderConfigStep()
-    expect(screen.getByRole('checkbox', { name: /gerar 3 variantes/i })).toBeDefined()
   })
 
   it('renders the "Analisar" submit button', () => {
@@ -84,7 +84,7 @@ describe('ConfigStep', () => {
 
   // --- Cycle 3: Submitting calls startAnalysis with correct config ---
 
-  it('calls startAnalysis with correct config on submit', async () => {
+  it('calls onStartAnalysis with correct config on submit', async () => {
     renderConfigStep()
 
     const urlInput = screen.getByRole('textbox', { name: /url do produto/i })
@@ -96,17 +96,13 @@ describe('ConfigStep', () => {
     const instructionsTextarea = screen.getByRole('textbox', { name: /instruções adicionais/i })
     await userEvent.type(instructionsTextarea, 'test prompt')
 
-    const multiVariantCheckbox = screen.getByRole('checkbox', { name: /gerar 3 variantes/i })
-    await userEvent.click(multiVariantCheckbox)
-
     await userEvent.click(screen.getByRole('button', { name: /analisar/i }))
 
-    expect(mockStartAnalysis).toHaveBeenCalledWith({
-      url: 'https://example.com',
-      language: 'en-US',
-      prompt: 'test prompt',
-      multiVariant: true,
-    })
+    expect(mockStartAnalyzeUrl).toHaveBeenCalledWith('https://example.com', 'test prompt', 'en-US')
+    expect(mockOnStartAnalysis).toHaveBeenCalledWith(
+      { url: 'https://example.com', language: 'en-US', prompt: 'test prompt' },
+      'mock-job-id',
+    )
   })
 
   // --- Cycle 4: Instructions textarea max 500 chars ---

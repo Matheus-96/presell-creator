@@ -24,7 +24,7 @@ export interface AnalyzeUrlResult {
   heroImageUrl: string | null
   theme: PresellTheme | null
   settings: Record<string, unknown>
-  hostedImageUrls: string[]
+  extractedImages: { url: string; type: string }[]
 }
 
 export type AnalyzeJobStatus =
@@ -42,10 +42,15 @@ export class AnalyzeJobExpiredError extends Error {
 export async function startAnalyzeUrl(
   url: string,
   userInstructions?: string,
+  language: string = 'pt-BR',
 ): Promise<{ jobId: string }> {
   try {
     return await apiClient.post<{ jobId: string }>(`${adminApiPaths.presells}/analyze-url`, {
-      body: { url, ...(userInstructions ? { userInstructions } : {}) },
+      body: {
+        url,
+        language,
+        ...(userInstructions ? { userInstructions } : {}),
+      },
     })
   } catch (err) {
     if (err instanceof ApiClientError && err.status === 409) {
@@ -74,6 +79,33 @@ export async function pollAnalyzeJob(jobId: string): Promise<AnalyzeJobStatus> {
     if (err instanceof ApiClientError && err.status === 404) {
       throw new AnalyzeJobExpiredError()
     }
+    throw err
+  }
+}
+
+export type ImageSelectionWithRole = {
+  url: string
+  role: 'hero' | 'background' | 'gallery'
+}
+
+export type HostedImagesResult = {
+  hero?: string
+  background?: string
+  gallery?: string[]
+}
+
+export async function downloadAndHostImages(
+  images: ImageSelectionWithRole[],
+): Promise<HostedImagesResult> {
+  try {
+    return await apiClient.post<HostedImagesResult>(
+      `${adminApiPaths.presells}/analyze-url/download-images`,
+      {
+        body: { images },
+      },
+    )
+  } catch (err) {
+    console.error('Failed to download and host images:', err)
     throw err
   }
 }
