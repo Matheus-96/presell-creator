@@ -63,9 +63,7 @@ export function useWizardState() {
 
   useEffect(() => {
     const recovered = loadFromStorage()
-    console.log('[DEBUG-wizard] useEffect mount - recovered:', recovered)
     if (recovered) {
-      console.log('[DEBUG-wizard] Restoring job from storage:', recovered.jobId)
       setState((prev) => ({
         ...prev,
         step: 'analyzing',
@@ -87,9 +85,7 @@ export function useWizardState() {
   }
 
   function resetWizard() {
-    console.log('[DEBUG-wizard] resetWizard called - clearing localStorage')
     localStorage.removeItem(STORAGE_KEY)
-    console.log('[DEBUG-wizard] localStorage after remove:', localStorage.getItem(STORAGE_KEY))
     setState({
       step: 'config',
       config: null,
