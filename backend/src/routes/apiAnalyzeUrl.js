@@ -30,7 +30,7 @@ router.use(requireApiAuth);
 
 // POST / — enqueue a new analysis job
 router.post('/', async (req, res) => {
-  const { url } = req.body;
+  const { url, language = 'pt-BR' } = req.body;
 
   if (!url || typeof url !== 'string' || !url.trim()) {
     return res.status(400).json(buildApiError('MISSING_URL', 'O campo "url" é obrigatório.'));
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
   const jobId = crypto.randomUUID();
   createJob(jobId, req.sessionID, Date.now() + JOB_TTL_MS);
 
-  processJob(jobId, parsedUrl.href, userInstructions).catch((err) => {
+  processJob(jobId, parsedUrl.href, userInstructions, language).catch((err) => {
     console.error(`[analyze-url] Unhandled error in processJob ${jobId}:`, err);
   });
 
@@ -112,7 +112,7 @@ router.get('/:jobId', async (req, res) => {
   });
 });
 
-async function processJob(jobId, url, userInstructions) {
+async function processJob(jobId, url, userInstructions, language = 'pt-BR') {
   try {
     updateJob(jobId, { status: 'extracting', message: 'Abrindo a página com o browser…' });
 
@@ -145,7 +145,7 @@ async function processJob(jobId, url, userInstructions) {
     // Build raw extracted images — no downloads happen here.
     const extractedImages = buildExtractedImages(pageData);
 
-    const result = await analyzeUrlForForm(pageData, [], null, userInstructions);
+    const result = await analyzeUrlForForm(pageData, [], null, userInstructions, language);
     result.extractedImages = extractedImages;
 
     updateJob(jobId, {

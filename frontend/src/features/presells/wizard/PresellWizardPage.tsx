@@ -61,7 +61,7 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
 
 export function PresellWizardPage() {
   const navigate = useNavigate()
-  const { state, startAnalysis, goToImages } = useWizardState()
+  const { state, startAnalysis, goToImages, markJobFailed } = useWizardState()
 
   const currentIndex = STEP_ORDER.indexOf(state.step)
 
@@ -145,7 +145,10 @@ export function PresellWizardPage() {
           <AnalyzingStep
             jobId={state.jobId}
             goToImages={goToImages}
-            onRetry={() => navigate('/presells/new')}
+            onRetry={() => {
+              markJobFailed()
+              navigate('/presells/new')
+            }}
           />
         )}
         {state.step === 'images' && state.jobResult && (

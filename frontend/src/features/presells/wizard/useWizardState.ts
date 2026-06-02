@@ -28,6 +28,7 @@ const TTL_MS = 5 * 60 * 1000 // 5 minutes
 type StoredJob = {
   jobId: string
   config: WizardConfig
+  status: 'in_progress' | 'failed' | 'completed'
   timestamp: number
 }
 
@@ -37,6 +38,10 @@ function loadFromStorage(): { jobId: string; config: WizardConfig } | null {
     if (!raw) return null
     const stored: StoredJob = JSON.parse(raw)
     if (Date.now() - stored.timestamp > TTL_MS) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    if (stored.status === 'failed') {
       localStorage.removeItem(STORAGE_KEY)
       return null
     }
@@ -69,14 +74,19 @@ export function useWizardState() {
   }, [])
 
   function startAnalysis(config: WizardConfig, jobId: string) {
-    const stored: StoredJob = { jobId, config, timestamp: Date.now() }
+    const stored: StoredJob = { jobId, config, status: 'in_progress', timestamp: Date.now() }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
     setState((prev) => ({ ...prev, step: 'analyzing', config, jobId }))
+  }
+
+  function markJobFailed() {
+    localStorage.removeItem(STORAGE_KEY)
+    setState((prev) => ({ ...prev, step: 'config', jobId: null, jobResult: null, config: null }))
   }
 
   function goToImages(extractedImages: { url: string; type: string }[], jobResult: unknown) {
     setState((prev) => ({ ...prev, step: 'images', selectedImages: extractedImages, jobResult }))
   }
 
-  return { state, startAnalysis, goToImages }
+  return { state, startAnalysis, goToImages, markJobFailed }
 }

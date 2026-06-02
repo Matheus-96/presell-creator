@@ -33,7 +33,7 @@ export function ConfigStep({ onStartAnalysis }: ConfigStepProps) {
     if (!urlValid || loading) return
     setLoading(true)
     try {
-      const { jobId } = await startAnalyzeUrl(url, prompt || undefined)
+      const { jobId } = await startAnalyzeUrl(url, prompt || undefined, language)
       onStartAnalysis({ url, language, prompt }, jobId)
     } finally {
       setLoading(false)

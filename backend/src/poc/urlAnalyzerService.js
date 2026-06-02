@@ -3,8 +3,31 @@
 const { getEnv } = require('../config/env');
 const { listTemplateManifests } = require('../templates/registry');
 
-function buildSystemPrompt(hasBackgroundImage = false) {
+function getLanguageInstructions(language) {
+  const instructions = {
+    'pt-BR': {
+      lang: 'português brasileiro',
+      tone: 'Use um tom persuasivo e envolvente apropriado para o mercado brasileiro.',
+    },
+    'en-US': {
+      lang: 'English (US)',
+      tone: 'Use an engaging and persuasive tone appropriate for the US market.',
+    },
+    'es': {
+      lang: 'Spanish',
+      tone: 'Usa un tono persuasivo y atractivo apropiado para el mercado hispanohablante.',
+    },
+    'fr': {
+      lang: 'French',
+      tone: 'Utilisez un ton persuasif et engageant approprié au marché français.',
+    },
+  };
+  return instructions[language] || instructions['pt-BR'];
+}
+
+function buildSystemPrompt(hasBackgroundImage = false, language = 'pt-BR') {
   const templates = listTemplateManifests();
+  const langInfo = getLanguageInstructions(language);
 
   const templatesCatalog = templates.map(t => {
     const fieldsDesc = t.fields.map(f => {
@@ -27,7 +50,7 @@ function buildSystemPrompt(hasBackgroundImage = false) {
   }).join('\n\n');
 
   const backgroundHint = hasBackgroundImage
-    ? '\n\n## Imagem de fundo disponível\nUma imagem de fundo (background image) foi extraída da página de destino e está disponível no conteúdo da mensagem. Priorize os templates "offer-modal" ou "app-ad-fullscreen" pois ambos tiram proveito de imagem de fundo imersiva. Use o campo "backgroundImage" com a URL fornecida quando o template escolhido suportar imagem de fundo.'
+    ? `\n\n## Imagem de fundo disponível\nUma imagem de fundo (background image) foi extraída da página de destino e está disponível no conteúdo da mensagem. Priorize os templates "offer-modal" ou "app-ad-fullscreen" pois ambos tiram proveito de imagem de fundo imersiva. Use o campo "backgroundImage" com a URL fornecida quando o template escolhido suportar imagem de fundo.`
     : '';
 
   return `Você é um especialista em copywriting e design de presell pages de alta conversão.
@@ -36,9 +59,11 @@ Sua tarefa é analisar os dados de uma página de produto e preencher automatica
 
 Você deve:
 1. Escolher o template mais adequado dentre os disponíveis (com base no tipo de produto, visual da página e screenshot)
-2. Gerar o conteúdo persuasivo em português brasileiro
+2. Gerar o conteúdo persuasivo em ${langInfo.lang}
 3. Extrair o tema de cores da identidade visual do site
 4. Preencher os campos específicos do template escolhido
+
+${langInfo.tone}
 
 ## Templates disponíveis
 
@@ -86,7 +111,7 @@ REGRAS:
 - Todo o conteúdo em português brasileiro`;
 }
 
-async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null, userInstructions = '') {
+async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null, userInstructions = '', language = 'pt-BR') {
   const { openRouterApiKey } = getEnv();
 
   const imageSection = hostedImageUrls.length > 0
@@ -142,7 +167,7 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
         model: 'google/gemini-2.5-flash-lite',
         temperature: 0.3,
         messages: [
-          { role: 'system', content: buildSystemPrompt(!!backgroundImage?.hostedUrl) },
+          { role: 'system', content: buildSystemPrompt(!!backgroundImage?.hostedUrl, language) },
           { role: 'user', content: userContent },
         ],
       }),

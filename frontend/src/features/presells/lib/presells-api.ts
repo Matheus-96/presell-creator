@@ -42,11 +42,13 @@ export class AnalyzeJobExpiredError extends Error {
 export async function startAnalyzeUrl(
   url: string,
   userInstructions?: string,
+  language: string = 'pt-BR',
 ): Promise<{ jobId: string }> {
   try {
     return await apiClient.post<{ jobId: string }>(`${adminApiPaths.presells}/analyze-url`, {
       body: {
         url,
+        language,
         ...(userInstructions ? { userInstructions } : {}),
       },
     })
