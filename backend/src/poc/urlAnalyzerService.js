@@ -93,9 +93,7 @@ REGRAS:
 - "settings" deve conter apenas os campos do template escolhido
 - Campos de "settings" do tipo "range" devem ser números dentro do min/max especificado
 - O JSON deve ser válido — sem vírgulas finais, sem comentários
-- Todo o conteúdo em português brasileiro
-
-IMPORTANTE: Gere EXCLUSIVAMENTE o conteúdo em ${getLanguageName(language)}, não em português.`;
+- Gere EXCLUSIVAMENTE o conteúdo em ${getLanguageName(language)}`;
 }
 
 async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage = null, userInstructions = '', language = 'pt-BR') {

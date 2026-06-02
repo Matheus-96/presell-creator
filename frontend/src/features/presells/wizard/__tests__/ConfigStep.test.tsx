@@ -98,7 +98,7 @@ describe('ConfigStep', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /analisar/i }))
 
-    expect(mockStartAnalyzeUrl).toHaveBeenCalledWith('https://example.com', 'test prompt')
+    expect(mockStartAnalyzeUrl).toHaveBeenCalledWith('https://example.com', 'test prompt', 'en-US')
     expect(mockOnStartAnalysis).toHaveBeenCalledWith(
       { url: 'https://example.com', language: 'en-US', prompt: 'test prompt' },
       'mock-job-id',
