@@ -5,7 +5,7 @@ import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
 
 function renderImagesStep(props: {
   extractedImages?: { url: string; type: string }[]
-  onComplete?: (selections: { url: string; role: 'hero' | 'background' | 'gallery' | null }[]) => void
+  onComplete?: (selections: { url: string; role: 'hero' | 'background' | 'gallery' }[]) => void
 }) {
   return render(
     <ImagesStep

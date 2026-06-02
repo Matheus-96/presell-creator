@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { PresellWizardPage } from '@/features/presells/wizard/PresellWizardPage.tsx'
 
 vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
@@ -7,7 +8,11 @@ vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
 }))
 
 vi.mock('@/features/presells/wizard/steps/ConfigStep.tsx', () => ({
-  ConfigStep: () => <div>Config Step</div>,
+  ConfigStep: ({ onStartAnalysis }: any) => (
+    <div data-testid="config-step" onClick={() => onStartAnalysis({} as any, 'test-id')}>
+      Config Step
+    </div>
+  ),
 }))
 
 vi.mock('@/features/presells/wizard/steps/AnalyzingStep.tsx', () => ({
@@ -32,6 +37,7 @@ function makeState(step: string) {
       jobId: null,
       jobResult: null,
       selectedImages: [],
+      imageSelections: [],
     },
     startAnalysis: vi.fn(),
     goToImages: vi.fn(),
@@ -44,33 +50,50 @@ describe('PresellWizardPage', () => {
     vi.clearAllMocks()
   })
 
+  function renderPage() {
+    return render(
+      <MemoryRouter>
+        <PresellWizardPage />
+      </MemoryRouter>,
+    )
+  }
+
   it('renders ConfigStep when step is config', () => {
     mockUseWizardState.mockReturnValue(makeState('config'))
-    render(<PresellWizardPage />)
+    renderPage()
     expect(screen.getByText('Config Step')).toBeDefined()
   })
 
   it('does not render AnalyzingStep when step is config', () => {
     mockUseWizardState.mockReturnValue(makeState('config'))
-    render(<PresellWizardPage />)
+    renderPage()
     expect(screen.queryByText('Analyzing Step')).toBeNull()
   })
 
-  it('renders AnalyzingStep when step is analyzing', () => {
-    mockUseWizardState.mockReturnValue(makeState('analyzing'))
-    render(<PresellWizardPage />)
+  it('renders AnalyzingStep when step is analyzing and jobId is set', () => {
+    mockUseWizardState.mockReturnValue({
+      ...makeState('analyzing'),
+      state: { ...makeState('analyzing').state, jobId: 'job-123' },
+    })
+    renderPage()
     expect(screen.getByText('Analyzing Step')).toBeDefined()
   })
 
   it('renders ImagesStep when step is images', () => {
     mockUseWizardState.mockReturnValue(makeState('images'))
-    render(<PresellWizardPage />)
+    renderPage()
     expect(screen.getByText('Images Step')).toBeDefined()
   })
 
-  it('renders ReviewStep when step is review', () => {
-    mockUseWizardState.mockReturnValue(makeState('review'))
-    render(<PresellWizardPage />)
+  it('renders ReviewStep when step is review and jobResult is set', () => {
+    mockUseWizardState.mockReturnValue({
+      ...makeState('review'),
+      state: {
+        ...makeState('review').state,
+        jobResult: { templateId: 't1', headline: 'H', subtitle: '', body: '', bullets: [], ctaText: '', heroImageUrl: null, theme: null, settings: {} },
+      },
+    })
+    renderPage()
     expect(screen.getByText('Review Step')).toBeDefined()
   })
 })

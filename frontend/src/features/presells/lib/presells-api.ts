@@ -24,7 +24,12 @@ export interface AnalyzeUrlResult {
   heroImageUrl: string | null
   theme: PresellTheme | null
   settings: Record<string, unknown>
-  hostedImageUrls: string[]
+  extractedImages: { url: string; type: string }[]
+}
+
+export interface MultiVariantAnalyzeUrlResult {
+  variants: Array<{ angle: string } & Omit<AnalyzeUrlResult, 'extractedImages'>>
+  extractedImages: { url: string; type: string }[]
 }
 
 export type AnalyzeJobStatus =
@@ -42,10 +47,15 @@ export class AnalyzeJobExpiredError extends Error {
 export async function startAnalyzeUrl(
   url: string,
   userInstructions?: string,
+  multiVariant?: boolean,
 ): Promise<{ jobId: string }> {
   try {
     return await apiClient.post<{ jobId: string }>(`${adminApiPaths.presells}/analyze-url`, {
-      body: { url, ...(userInstructions ? { userInstructions } : {}) },
+      body: {
+        url,
+        ...(userInstructions ? { userInstructions } : {}),
+        ...(multiVariant ? { multiVariant } : {}),
+      },
     })
   } catch (err) {
     if (err instanceof ApiClientError && err.status === 409) {

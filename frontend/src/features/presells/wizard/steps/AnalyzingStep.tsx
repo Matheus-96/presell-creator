@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button.tsx'
 import { pollAnalyzeJob } from '@/features/presells/lib/presells-api.ts'
 
 const POLL_INTERVAL_MS = 2_000
@@ -20,7 +22,7 @@ function getFriendlyErrorMessage(errorCode?: string): string {
 
 interface AnalyzingStepProps {
   jobId: string
-  goToImages: (selectedImages: string[]) => void
+  goToImages: (extractedImages: { url: string; type: string }[], jobResult: unknown) => void
   onRetry: () => void
 }
 
@@ -39,7 +41,7 @@ export function AnalyzingStep({ jobId, goToImages, onRetry }: AnalyzingStepProps
   useEffect(() => {
     if (!jobStatus) return
     if (jobStatus.status === 'done') {
-      goToImages([])
+      goToImages(jobStatus.result.extractedImages, jobStatus.result)
     } else if (jobStatus.status === 'failed') {
       toast.error(getFriendlyErrorMessage(jobStatus.errorCode))
     }
@@ -52,15 +54,32 @@ export function AnalyzingStep({ jobId, goToImages, onRetry }: AnalyzingStepProps
       : null
 
   return (
-    <div>
+    <div className="section-card flex flex-col items-center gap-6 text-center">
       {!isFailed && (
-        <span role="status" aria-label="Analisando…" />
+        <div className="flex flex-col items-center gap-4">
+          <span role="status" aria-label="Analisando…">
+            <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" aria-hidden="true" />
+          </span>
+          <div className="flex flex-col gap-1">
+            <p className="font-semibold text-slate-700">Analisando o site…</p>
+            {message && <p className="text-sm text-slate-500">{message}</p>}
+          </div>
+        </div>
       )}
-      {message && <p>{message}</p>}
+
       {isFailed && (
-        <button type="button" onClick={onRetry}>
-          Tentar novamente
-        </button>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-500 text-xl font-bold">
+            !
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="font-semibold text-slate-700">Não foi possível concluir</p>
+            <p className="text-sm text-slate-500">Verifique a URL e tente novamente.</p>
+          </div>
+          <Button variant="outline" type="button" onClick={onRetry}>
+            Tentar novamente
+          </Button>
+        </div>
       )}
     </div>
   )

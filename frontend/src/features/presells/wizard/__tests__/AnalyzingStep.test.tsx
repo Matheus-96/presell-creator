@@ -30,7 +30,7 @@ function makeQueryClient() {
 
 function renderAnalyzingStep(props: {
   jobId: string
-  goToImages?: (images: string[]) => void
+  goToImages?: (images: { url: string; type: string }[], jobResult: unknown) => void
   onRetry?: () => void
 }) {
   const qc = makeQueryClient()
@@ -84,13 +84,18 @@ describe('AnalyzingStep', () => {
         heroImageUrl: null,
         theme: null,
         settings: {},
-        hostedImageUrls: [],
+        extractedImages: [{ url: 'https://a.com/img.jpg', type: 'hero' }],
       },
     })
     const goToImages = vi.fn()
     renderAnalyzingStep({ jobId: 'job-2', goToImages })
     await vi.advanceTimersByTimeAsync(2000)
-    await waitFor(() => expect(goToImages).toHaveBeenCalledWith([]))
+    await waitFor(() =>
+      expect(goToImages).toHaveBeenCalledWith(
+        [{ url: 'https://a.com/img.jpg', type: 'hero' }],
+        expect.objectContaining({ templateId: 'urgent-offer' }),
+      ),
+    )
   })
 
   // Cycle 3: toast and retry on failure

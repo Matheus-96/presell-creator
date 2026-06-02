@@ -162,6 +162,7 @@ async function processJob(jobId, url, userInstructions, multiVariant = false) {
       result: JSON.stringify(result)
     });
   } catch (err) {
+    console.log(err)
     const errorCode = mapToErrorCode(err.code);
     const message = FRIENDLY_MESSAGES[errorCode];
 

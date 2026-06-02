@@ -139,8 +139,8 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
         'HTTP-Referer': 'https://presell-creator.local',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
-        temperature: 0.6,
+        model: 'google/gemini-2.5-flash-lite',
+        temperature: 0.3,
         messages: [
           { role: 'system', content: buildSystemPrompt(!!backgroundImage?.hostedUrl) },
           { role: 'user', content: userContent },
@@ -349,8 +349,8 @@ async function analyzeUrlForFormMultiVariant(pageData, userInstructions = '') {
         'HTTP-Referer': 'https://presell-creator.local',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.0-flash-001',
-        temperature: 0.8,
+        model: 'google/gemini-2.5-flash-lite',
+        temperature: 0.3,
         messages: [
           { role: 'system', content: buildMultiVariantSystemPrompt() },
           { role: 'user', content: userContent },

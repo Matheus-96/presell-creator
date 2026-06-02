@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 export type WizardStep = 'config' | 'analyzing' | 'images' | 'review'
 
@@ -9,36 +9,18 @@ export type WizardConfig = {
   multiVariant: boolean
 }
 
+export type ImageSelection = {
+  url: string
+  role: 'hero' | 'background' | 'gallery'
+}
+
 export type WizardState = {
   step: WizardStep
   config: WizardConfig | null
   jobId: string | null
   jobResult: unknown | null
-  selectedImages: unknown[]
-}
-
-const STORAGE_KEY = 'presell_wizard_job'
-const TTL_MS = 5 * 60 * 1000 // 5 minutes
-
-type StoredJob = {
-  jobId: string
-  config: WizardConfig
-  timestamp: number
-}
-
-function loadFromStorage(): { jobId: string; config: WizardConfig } | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
-    const stored: StoredJob = JSON.parse(raw)
-    if (Date.now() - stored.timestamp > TTL_MS) {
-      localStorage.removeItem(STORAGE_KEY)
-      return null
-    }
-    return { jobId: stored.jobId, config: stored.config }
-  } catch {
-    return null
-  }
+  selectedImages: { url: string; type: string }[]
+  imageSelections: ImageSelection[]
 }
 
 export function useWizardState() {
@@ -48,33 +30,19 @@ export function useWizardState() {
     jobId: null,
     jobResult: null,
     selectedImages: [],
+    imageSelections: [],
   })
 
-  useEffect(() => {
-    const recovered = loadFromStorage()
-    if (recovered) {
-      setState((prev) => ({
-        ...prev,
-        step: 'analyzing',
-        jobId: recovered.jobId,
-        config: recovered.config,
-      }))
-    }
-  }, [])
-
-  function startAnalysis(config: WizardConfig) {
-    const jobId = crypto.randomUUID()
-    const stored: StoredJob = { jobId, config, timestamp: Date.now() }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
+  function startAnalysis(config: WizardConfig, jobId: string) {
     setState((prev) => ({ ...prev, step: 'analyzing', config, jobId }))
   }
 
-  function goToImages(selectedImages: unknown[]) {
-    setState((prev) => ({ ...prev, step: 'images', selectedImages }))
+  function goToImages(extractedImages: { url: string; type: string }[], jobResult: unknown) {
+    setState((prev) => ({ ...prev, step: 'images', selectedImages: extractedImages, jobResult }))
   }
 
-  function goToReview(jobResult: unknown) {
-    setState((prev) => ({ ...prev, step: 'review', jobResult }))
+  function goToReview(imageSelections: ImageSelection[]) {
+    setState((prev) => ({ ...prev, step: 'review', imageSelections }))
   }
 
   return { state, startAnalysis, goToImages, goToReview }
