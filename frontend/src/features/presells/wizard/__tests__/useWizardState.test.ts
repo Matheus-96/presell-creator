@@ -12,7 +12,6 @@ describe('useWizardState', () => {
     url: 'https://example.com',
     language: 'pt-BR',
     prompt: 'test prompt',
-    multiVariant: false,
   }
 
   describe('initial state', () => {
@@ -93,36 +92,6 @@ describe('useWizardState', () => {
     })
   })
 
-  describe('goToReview', () => {
-    it('transitions step to review', () => {
-      const { result } = renderHook(() => useWizardState())
-      act(() => result.current.startAnalysis(sampleConfig, 'job-id'))
-      act(() => result.current.goToImages(sampleImages, sampleJobResult))
-      const selections = [{ url: 'img1.jpg', role: 'hero' as const }]
-      act(() => result.current.goToReview(selections))
-      expect(result.current.state.step).toBe('review')
-    })
-
-    it('stores imageSelections passed to goToReview', () => {
-      const { result } = renderHook(() => useWizardState())
-      act(() => result.current.startAnalysis(sampleConfig, 'job-id'))
-      act(() => result.current.goToImages(sampleImages, sampleJobResult))
-      const selections = [
-        { url: 'img1.jpg', role: 'hero' as const },
-        { url: 'img2.jpg', role: 'gallery' as const },
-      ]
-      act(() => result.current.goToReview(selections))
-      expect(result.current.state.imageSelections).toEqual(selections)
-    })
-
-    it('preserves jobResult set by goToImages', () => {
-      const { result } = renderHook(() => useWizardState())
-      act(() => result.current.startAnalysis(sampleConfig, 'job-id'))
-      act(() => result.current.goToImages(sampleImages, sampleJobResult))
-      act(() => result.current.goToReview([]))
-      expect(result.current.state.jobResult).toEqual(sampleJobResult)
-    })
-  })
 
   describe('localStorage recovery on mount', () => {
     it('recovers jobId and sets step to analyzing when storage is fresh', async () => {

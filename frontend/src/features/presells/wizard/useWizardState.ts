@@ -1,12 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export type WizardStep = 'config' | 'analyzing' | 'images' | 'review'
+export type WizardStep = 'config' | 'analyzing' | 'images'
 
 export type WizardConfig = {
   url: string
   language: string
   prompt: string
-  multiVariant: boolean
 }
 
 export type ImageSelection = {
@@ -23,6 +22,30 @@ export type WizardState = {
   imageSelections: ImageSelection[]
 }
 
+const STORAGE_KEY = 'presell_wizard_job'
+const TTL_MS = 5 * 60 * 1000 // 5 minutes
+
+type StoredJob = {
+  jobId: string
+  config: WizardConfig
+  timestamp: number
+}
+
+function loadFromStorage(): { jobId: string; config: WizardConfig } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const stored: StoredJob = JSON.parse(raw)
+    if (Date.now() - stored.timestamp > TTL_MS) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
+    return { jobId: stored.jobId, config: stored.config }
+  } catch {
+    return null
+  }
+}
+
 export function useWizardState() {
   const [state, setState] = useState<WizardState>({
     step: 'config',
@@ -33,7 +56,21 @@ export function useWizardState() {
     imageSelections: [],
   })
 
+  useEffect(() => {
+    const recovered = loadFromStorage()
+    if (recovered) {
+      setState((prev) => ({
+        ...prev,
+        step: 'analyzing',
+        jobId: recovered.jobId,
+        config: recovered.config,
+      }))
+    }
+  }, [])
+
   function startAnalysis(config: WizardConfig, jobId: string) {
+    const stored: StoredJob = { jobId, config, timestamp: Date.now() }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
     setState((prev) => ({ ...prev, step: 'analyzing', config, jobId }))
   }
 
@@ -41,9 +78,5 @@ export function useWizardState() {
     setState((prev) => ({ ...prev, step: 'images', selectedImages: extractedImages, jobResult }))
   }
 
-  function goToReview(imageSelections: ImageSelection[]) {
-    setState((prev) => ({ ...prev, step: 'review', imageSelections }))
-  }
-
-  return { state, startAnalysis, goToImages, goToReview }
+  return { state, startAnalysis, goToImages }
 }

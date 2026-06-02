@@ -4,8 +4,6 @@ import type { WizardStep } from '@/features/presells/wizard/useWizardState.ts'
 import { ConfigStep } from '@/features/presells/wizard/steps/ConfigStep.tsx'
 import { AnalyzingStep } from '@/features/presells/wizard/steps/AnalyzingStep.tsx'
 import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
-import { ReviewStep } from '@/features/presells/wizard/steps/ReviewStep.tsx'
-import type { PresellDraft } from '@/features/presells/wizard/steps/ReviewStep.tsx'
 import { createPresell } from '@/features/presells/lib/presells-api.ts'
 import type { PresellWritePayload } from '@/features/presells/types.ts'
 import { cn } from '@/lib/utils.ts'
@@ -14,10 +12,9 @@ const STEPS: { id: WizardStep; label: string }[] = [
   { id: 'config', label: 'Configurar' },
   { id: 'analyzing', label: 'Analisar' },
   { id: 'images', label: 'Imagens' },
-  { id: 'review', label: 'Revisão' },
 ]
 
-const STEP_ORDER: WizardStep[] = ['config', 'analyzing', 'images', 'review']
+const STEP_ORDER: WizardStep[] = ['config', 'analyzing', 'images']
 
 function slugify(text: string): string {
   return (
@@ -30,6 +27,17 @@ function slugify(text: string): string {
       .replace(/\s+/g, '-')
       .slice(0, 40) || 'presell'
   )
+}
+
+interface PresellDraft {
+  templateId: string
+  headline: string
+  subtitle: string
+  body: string
+  bullets: string[]
+  ctaText: string
+  theme: object | null
+  settings: Record<string, unknown>
 }
 
 function draftToPayload(draft: PresellDraft): PresellWritePayload {
@@ -53,17 +61,37 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
 
 export function PresellWizardPage() {
   const navigate = useNavigate()
-  const { state, startAnalysis, goToImages, goToReview } = useWizardState()
+  const { state, startAnalysis, goToImages } = useWizardState()
 
   const currentIndex = STEP_ORDER.indexOf(state.step)
 
-  async function handleSave(drafts: PresellDraft[]) {
-    const results = await Promise.all(drafts.map((d) => createPresell(draftToPayload(d))))
-    if (results.length === 1) {
-      navigate(`/presells/${results[0].id}/edit`)
-    } else {
-      navigate('/presells')
+  async function handleCreatePresell() {
+    if (!state.jobResult) return
+
+    const jobResult = state.jobResult as {
+      templateId: string
+      headline: string
+      subtitle: string
+      body: string
+      bullets: string[]
+      ctaText: string
+      theme: object | null
+      settings: Record<string, unknown>
     }
+
+    const draft: PresellDraft = {
+      templateId: jobResult.templateId,
+      headline: jobResult.headline,
+      subtitle: jobResult.subtitle,
+      body: jobResult.body,
+      bullets: jobResult.bullets,
+      ctaText: jobResult.ctaText,
+      theme: jobResult.theme,
+      settings: jobResult.settings,
+    }
+
+    const result = await createPresell(draftToPayload(draft))
+    navigate(`/presells/${result.id}/edit`)
   }
 
   return (
@@ -120,18 +148,10 @@ export function PresellWizardPage() {
             onRetry={() => navigate('/presells/new')}
           />
         )}
-        {state.step === 'images' && (
+        {state.step === 'images' && state.jobResult && (
           <ImagesStep
             extractedImages={state.selectedImages}
-            onComplete={(selections) => goToReview(selections)}
-          />
-        )}
-        {state.step === 'review' && state.jobResult && (
-          <ReviewStep
-            jobResult={
-              state.jobResult as React.ComponentProps<typeof ReviewStep>['jobResult']
-            }
-            onSave={handleSave}
+            onComplete={handleCreatePresell}
           />
         )}
       </div>

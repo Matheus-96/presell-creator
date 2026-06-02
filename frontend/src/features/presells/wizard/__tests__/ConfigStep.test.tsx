@@ -50,11 +50,6 @@ describe('ConfigStep', () => {
     expect(screen.getByRole('textbox', { name: /instruções adicionais/i })).toBeDefined()
   })
 
-  it('renders the multi-variant checkbox/toggle', () => {
-    renderConfigStep()
-    expect(screen.getByRole('checkbox', { name: /gerar 3 variantes/i })).toBeDefined()
-  })
-
   it('renders the "Analisar" submit button', () => {
     renderConfigStep()
     expect(screen.getByRole('button', { name: /analisar/i })).toBeDefined()
@@ -101,14 +96,11 @@ describe('ConfigStep', () => {
     const instructionsTextarea = screen.getByRole('textbox', { name: /instruções adicionais/i })
     await userEvent.type(instructionsTextarea, 'test prompt')
 
-    const multiVariantCheckbox = screen.getByRole('checkbox', { name: /gerar 3 variantes/i })
-    await userEvent.click(multiVariantCheckbox)
-
     await userEvent.click(screen.getByRole('button', { name: /analisar/i }))
 
-    expect(mockStartAnalyzeUrl).toHaveBeenCalledWith('https://example.com', 'test prompt', true)
+    expect(mockStartAnalyzeUrl).toHaveBeenCalledWith('https://example.com', 'test prompt')
     expect(mockOnStartAnalysis).toHaveBeenCalledWith(
-      { url: 'https://example.com', language: 'en-US', prompt: 'test prompt', multiVariant: true },
+      { url: 'https://example.com', language: 'en-US', prompt: 'test prompt' },
       'mock-job-id',
     )
   })

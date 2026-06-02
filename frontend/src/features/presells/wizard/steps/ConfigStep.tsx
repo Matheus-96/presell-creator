@@ -24,7 +24,6 @@ export function ConfigStep({ onStartAnalysis }: ConfigStepProps) {
   const [url, setUrl] = useState('')
   const [language, setLanguage] = useState('pt-BR')
   const [prompt, setPrompt] = useState('')
-  const [multiVariant, setMultiVariant] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const urlValid = isValidUrl(url)
@@ -34,8 +33,8 @@ export function ConfigStep({ onStartAnalysis }: ConfigStepProps) {
     if (!urlValid || loading) return
     setLoading(true)
     try {
-      const { jobId } = await startAnalyzeUrl(url, prompt || undefined, multiVariant || undefined)
-      onStartAnalysis({ url, language, prompt, multiVariant }, jobId)
+      const { jobId } = await startAnalyzeUrl(url, prompt || undefined)
+      onStartAnalysis({ url, language, prompt }, jobId)
     } finally {
       setLoading(false)
     }
@@ -91,18 +90,6 @@ export function ConfigStep({ onStartAnalysis }: ConfigStepProps) {
           />
           <span className="text-xs text-slate-400 self-end">{prompt.length}/500</span>
         </div>
-
-        <label className="flex items-center gap-3 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={multiVariant}
-            onChange={(e) => setMultiVariant(e.target.checked)}
-            className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          <span className="text-sm font-medium text-slate-700">
-            Gerar 3 variantes para comparar
-          </span>
-        </label>
 
         <div className="flex items-center justify-between pt-1">
           <Link

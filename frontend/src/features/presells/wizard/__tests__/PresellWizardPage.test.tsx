@@ -23,10 +23,6 @@ vi.mock('@/features/presells/wizard/steps/ImagesStep.tsx', () => ({
   ImagesStep: () => <div>Images Step</div>,
 }))
 
-vi.mock('@/features/presells/wizard/steps/ReviewStep.tsx', () => ({
-  ReviewStep: () => <div>Review Step</div>,
-}))
-
 const mockUseWizardState = vi.fn()
 
 function makeState(step: string) {
@@ -79,21 +75,16 @@ describe('PresellWizardPage', () => {
     expect(screen.getByText('Analyzing Step')).toBeDefined()
   })
 
-  it('renders ImagesStep when step is images', () => {
-    mockUseWizardState.mockReturnValue(makeState('images'))
+  it('renders ImagesStep when step is images and jobResult is set', () => {
+    mockUseWizardState.mockReturnValue({
+      ...makeState('images'),
+      state: {
+        ...makeState('images').state,
+        jobResult: { templateId: 't1', headline: 'H', subtitle: '', body: '', bullets: [], ctaText: '', heroImageUrl: null, theme: null, settings: {}, extractedImages: [] },
+      },
+    })
     renderPage()
     expect(screen.getByText('Images Step')).toBeDefined()
   })
 
-  it('renders ReviewStep when step is review and jobResult is set', () => {
-    mockUseWizardState.mockReturnValue({
-      ...makeState('review'),
-      state: {
-        ...makeState('review').state,
-        jobResult: { templateId: 't1', headline: 'H', subtitle: '', body: '', bullets: [], ctaText: '', heroImageUrl: null, theme: null, settings: {} },
-      },
-    })
-    renderPage()
-    expect(screen.getByText('Review Step')).toBeDefined()
-  })
 })

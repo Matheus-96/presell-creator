@@ -27,11 +27,6 @@ export interface AnalyzeUrlResult {
   extractedImages: { url: string; type: string }[]
 }
 
-export interface MultiVariantAnalyzeUrlResult {
-  variants: Array<{ angle: string } & Omit<AnalyzeUrlResult, 'extractedImages'>>
-  extractedImages: { url: string; type: string }[]
-}
-
 export type AnalyzeJobStatus =
   | { status: 'extracting' | 'downloading' | 'analyzing'; message: string }
   | { status: 'done'; message: string; result: AnalyzeUrlResult }
@@ -47,14 +42,12 @@ export class AnalyzeJobExpiredError extends Error {
 export async function startAnalyzeUrl(
   url: string,
   userInstructions?: string,
-  multiVariant?: boolean,
 ): Promise<{ jobId: string }> {
   try {
     return await apiClient.post<{ jobId: string }>(`${adminApiPaths.presells}/analyze-url`, {
       body: {
         url,
         ...(userInstructions ? { userInstructions } : {}),
-        ...(multiVariant ? { multiVariant } : {}),
       },
     })
   } catch (err) {

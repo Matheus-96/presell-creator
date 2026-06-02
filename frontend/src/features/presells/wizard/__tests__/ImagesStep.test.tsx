@@ -5,7 +5,7 @@ import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
 
 function renderImagesStep(props: {
   extractedImages?: { url: string; type: string }[]
-  onComplete?: (selections: { url: string; role: 'hero' | 'background' | 'gallery' }[]) => void
+  onComplete?: () => void
 }) {
   return render(
     <ImagesStep
@@ -104,8 +104,8 @@ describe('ImagesStep', () => {
     expect(galButtons[1]).toHaveAttribute('aria-pressed', 'true')
   })
 
-  // Cycle 5 — "Avançar" calls onComplete with only assigned images
-  it('calls onComplete with only images that have a role assigned', async () => {
+  // Cycle 5 — "Salvar como draft" button calls onComplete
+  it('calls onComplete when "Salvar como draft" is clicked', async () => {
     const user = userEvent.setup()
     const onComplete = vi.fn()
     renderImagesStep({
@@ -117,54 +117,27 @@ describe('ImagesStep', () => {
     })
     const heroButtons = screen.getAllByRole('button', { name: /hero/i })
     await user.click(heroButtons[0])
-    await user.click(screen.getByRole('button', { name: /avançar/i }))
-    expect(onComplete).toHaveBeenCalledWith([{ url: 'https://a.com/img1.jpg', role: 'hero' }])
+    await user.click(screen.getByRole('button', { name: /salvar como draft/i }))
+    expect(onComplete).toHaveBeenCalled()
   })
 
-  it('onComplete receives background role correctly', async () => {
-    const user = userEvent.setup()
-    const onComplete = vi.fn()
-    renderImagesStep({
-      extractedImages: [{ url: 'https://a.com/bg.jpg', type: 'background' }],
-      onComplete,
-    })
-    const bgButtons = screen.getAllByRole('button', { name: /background/i })
-    await user.click(bgButtons[0])
-    await user.click(screen.getByRole('button', { name: /avançar/i }))
-    expect(onComplete).toHaveBeenCalledWith([{ url: 'https://a.com/bg.jpg', role: 'background' }])
-  })
-
-  it('onComplete receives gallery role correctly', async () => {
-    const user = userEvent.setup()
-    const onComplete = vi.fn()
-    renderImagesStep({
-      extractedImages: [{ url: 'https://a.com/gal.jpg', type: 'generic' }],
-      onComplete,
-    })
-    const galButtons = screen.getAllByRole('button', { name: /galeria/i })
-    await user.click(galButtons[0])
-    await user.click(screen.getByRole('button', { name: /avançar/i }))
-    expect(onComplete).toHaveBeenCalledWith([{ url: 'https://a.com/gal.jpg', role: 'gallery' }])
-  })
-
-  // Cycle 6 — "Avançar" works with no selections
-  it('calls onComplete with empty array when no roles are assigned', async () => {
+  it('calls onComplete regardless of image selections', async () => {
     const user = userEvent.setup()
     const onComplete = vi.fn()
     renderImagesStep({
       extractedImages: [{ url: 'https://a.com/img1.jpg', type: 'hero' }],
       onComplete,
     })
-    await user.click(screen.getByRole('button', { name: /avançar/i }))
-    expect(onComplete).toHaveBeenCalledWith([])
+    await user.click(screen.getByRole('button', { name: /salvar como draft/i }))
+    expect(onComplete).toHaveBeenCalled()
   })
 
-  it('calls onComplete with empty array when extractedImages is empty', async () => {
+  it('calls onComplete when extractedImages is empty', async () => {
     const user = userEvent.setup()
     const onComplete = vi.fn()
     renderImagesStep({ extractedImages: [], onComplete })
-    await user.click(screen.getByRole('button', { name: /avançar/i }))
-    expect(onComplete).toHaveBeenCalledWith([])
+    await user.click(screen.getByRole('button', { name: /salvar como draft/i }))
+    expect(onComplete).toHaveBeenCalled()
   })
 
   // Toggle off: clicking same role button again deselects it
