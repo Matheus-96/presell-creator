@@ -53,10 +53,3 @@ npm-debug.log*
 # Claude Code
 .claude/
 skills-lock.json
-
-# Monolith legado — não usado no container (split mode)
-src/
-controllers/
-routes/
-public/
-presell-frontend/
