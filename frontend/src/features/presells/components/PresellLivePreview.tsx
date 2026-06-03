@@ -4,6 +4,7 @@ import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
 import { getFontPair } from '@/features/presells/lib/font-pairs.ts'
+import { DEFAULT_TRACKING_PARAM } from '@/features/presells/lib/constants.ts'
 
 type PresellLivePreviewProps = {
   draft: PresellFormState | null
@@ -27,7 +28,7 @@ function formStateToPublicData(draft: PresellFormState): PresellPublicData {
     ctaText: draft.ctaText || 'Continuar',
     affiliateUrl: draft.affiliateUrl,
     googlePixelId: draft.googlePixelId || null,
-    trackingParam: draft.trackingParam || 'gclid',
+    trackingParam: draft.trackingParam || DEFAULT_TRACKING_PARAM,
     imageUrl: draft.media.heroImageReference?.url ?? null,
     backgroundImageUrl: draft.media.backgroundImageReference?.url ?? null,
     settings: draft.settings,

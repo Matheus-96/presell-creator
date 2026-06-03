@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button.tsx'
+import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils.ts'
 
 export type ImageRole = 'hero' | 'background' | 'gallery' | null
@@ -11,7 +12,7 @@ export type ImageSelection = {
 
 interface ImagesStepProps {
   extractedImages: { url: string; type: string }[]
-  onComplete: (selections: ImageSelection[]) => void
+  onComplete: (selections: ImageSelection[]) => Promise<void> | void
 }
 
 type RoleMap = Record<number, ImageRole>
@@ -24,6 +25,7 @@ const ROLES: { id: 'hero' | 'background' | 'gallery'; label: string }[] = [
 
 export function ImagesStep({ extractedImages, onComplete }: ImagesStepProps) {
   const [roles, setRoles] = useState<RoleMap>({})
+  const [saving, setSaving] = useState(false)
 
   function assignRole(index: number, role: 'hero' | 'background' | 'gallery') {
     setRoles((prev) => {
@@ -47,11 +49,16 @@ export function ImagesStep({ extractedImages, onComplete }: ImagesStepProps) {
     })
   }
 
-  function handleComplete() {
-    const selections: ImageSelection[] = extractedImages
-      .map((img, i) => ({ url: img.url, role: roles[i] ?? null }))
-      .filter((s): s is ImageSelection => s.role !== null)
-    onComplete(selections)
+  async function handleComplete() {
+    setSaving(true)
+    try {
+      const selections: ImageSelection[] = extractedImages
+        .map((img, i) => ({ url: img.url, role: roles[i] ?? null }))
+        .filter((s): s is ImageSelection => s.role !== null)
+      await onComplete(selections)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -117,7 +124,8 @@ export function ImagesStep({ extractedImages, onComplete }: ImagesStepProps) {
       )}
 
       <div className="flex justify-end">
-        <Button type="button" onClick={handleComplete}>
+        <Button type="button" onClick={handleComplete} disabled={saving}>
+          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Salvar como draft
         </Button>
       </div>

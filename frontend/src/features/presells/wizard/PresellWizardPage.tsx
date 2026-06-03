@@ -6,8 +6,10 @@ import { ConfigStep } from '@/features/presells/wizard/steps/ConfigStep.tsx'
 import { AnalyzingStep } from '@/features/presells/wizard/steps/AnalyzingStep.tsx'
 import { ImagesStep } from '@/features/presells/wizard/steps/ImagesStep.tsx'
 import type { ImageSelection } from '@/features/presells/wizard/steps/ImagesStep.tsx'
-import { createPresell, downloadAndHostImages } from '@/features/presells/lib/presells-api.ts'
+import { createPresell, downloadAndHostImages, getApiErrorMessage } from '@/features/presells/lib/presells-api.ts'
 import type { PresellWritePayload } from '@/features/presells/types.ts'
+import { DEFAULT_TRACKING_PARAM } from '@/features/presells/lib/constants.ts'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils.ts'
 
 const STEPS: { id: WizardStep; label: string }[] = [
@@ -56,7 +58,7 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
     legalText: '',
     affiliateUrl: 'https://link-afiliado.com',
     googlePixelId: null,
-    trackingParam: '',
+    trackingParam: DEFAULT_TRACKING_PARAM,
     settings: draft.settings as Record<string, string | number | boolean>,
     theme: draft.theme as PresellWritePayload['theme'],
   }
@@ -127,9 +129,14 @@ export function PresellWizardPage() {
       }
     }
 
-    const result = await createPresell(payload)
-    resetWizard()
-    navigate(`/presells/${result.id}/edit`)
+    try {
+      const result = await createPresell(payload)
+      resetWizard()
+      navigate(`/presells/${result.id}/edit`)
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Erro ao criar presell'))
+      throw err
+    }
   }
 
   return (
