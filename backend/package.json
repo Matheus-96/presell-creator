@@ -23,7 +23,8 @@
     "puppeteer": "^25.1.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "jest": "^30.4.2",
