@@ -56,3 +56,17 @@ npm run build:frontend  # Production build → frontend/dist/
 - Feature-slice: each domain is self-contained — no cross-feature imports except through `src/lib/` or `src/components/`.
 - Presell templates live at `frontend/src/features/presells/templates/` — see the **create-template** skill for adding new ones.
 - The backend serves `frontend/dist/` when it exists; always rebuild before testing production routing.
+
+## Styling rule (active migration)
+
+**Use Tailwind classes — never `style={{}}`.**
+
+Older components (`MediaPicker`, `AnalyzeUrlSection`, `ThemeEditor`, `FormSection`, `BenefitsList`, `PublishReadinessBlock`) still use inline styles. When touching any of these files, migrate the changed sections to Tailwind before committing. Do not do big-bang rewrites — migrate incrementally as you touch each component. This rule stays active until all inline styles are eliminated.
+
+Design tokens (`var(--p-*)`) that have no Tailwind equivalent should be extracted to `global.css` as `@layer utilities` or `@layer components` classes — do not reference them as inline `style` props.
+
+## API calls rule
+
+All HTTP calls must go through `src/lib/api/api-client.ts` (`apiClient`). Never use raw `fetch()` or axios directly — `api-client` injects the CSRF token and normalizes errors automatically.
+
+Current violation to fix: `features/presells/api/media-api.ts:9` uses direct `fetch()` — replace with `apiClient.get()`.
