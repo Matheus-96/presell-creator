@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture
 
-### Two deployment modes coexist on this branch
+### Split deployment model
 
-The repo contains both the **legacy monolith** (`src/`) and the **refactored split** (`backend/` + `frontend/`). The root `package.json` scripts use `:monolith` / `:split` / `:backend` / `:frontend` suffixes to target each.
+The repo uses a **split architecture** (`backend/` + `frontend/`). The root `package.json` scripts use `:split` / `:backend` / `:frontend` suffixes to target each. The legacy monolith (`src/`) has been removed.
 

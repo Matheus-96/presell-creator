@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { Loader2 } from 'lucide-react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -67,39 +68,64 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Presell Creator</CardTitle>
-          <CardDescription>Acesse o painel administrativo</CardDescription>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50 p-4">
+      <Card className="w-full max-w-sm border-slate-200 bg-white shadow-lg">
+        <CardHeader className="space-y-2 pb-6">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+              Presell Creator
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-600">
+              Acesse o painel administrativo
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="username">Username</Label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-semibold text-slate-900">
+                Usuário
+              </Label>
               <Input
                 id="username"
+                type="text"
                 autoComplete="username"
-                placeholder="admin"
+                placeholder="Digite seu usuário"
+                className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                 {...register('username')}
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-semibold text-slate-900">
+                Senha
+              </Label>
               <Input
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder="Digite sua senha"
+                className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                 {...register('password')}
               />
             </div>
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in…' : 'Sign in'}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-6 w-full bg-indigo-600 font-semibold text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Autenticando...
+                </span>
+              ) : (
+                'Entrar'
+              )}
             </Button>
           </form>
+
         </CardContent>
       </Card>
     </div>

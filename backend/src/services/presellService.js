@@ -68,25 +68,18 @@ function parseBullets(presell) {
 }
 
 function normalizePresellInput(input, imagePath, backgroundImagePath, existingPresell = null) {
+  // Normalization only - validation now happens in the controller via Zod schemas
   const slug = String(input.slug || "")
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-  if (!slug) throw new Error("Slug obrigatorio.");
-
   const template = allowedTemplates.includes(input.template)
     ? input.template
     : "advertorial";
   const status = input.status === "published" ? "published" : "draft";
   const affiliateUrl = String(input.affiliate_url || "").trim();
-
-  try {
-    new URL(affiliateUrl);
-  } catch {
-    throw new Error("Link afiliado invalido.");
-  }
 
   const existingSettings = existingPresell
     ? parseSettingsJson(existingPresell.settings_json)
@@ -98,14 +91,7 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
   );
 
   const googlePixel = String(input.google_pixel || "").trim();
-  if (googlePixel && googlePixel.length > 50) {
-    throw new Error("Google Pixel ID deve ter no maximo 50 caracteres.");
-  }
-
   const rawTrackingParam = String(input.tracking_param || "gclid").trim() || "gclid";
-  if (!/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/.test(rawTrackingParam)) {
-    throw new Error("Parâmetro de rastreamento inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra).");
-  }
 
   return {
     slug,
