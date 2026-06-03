@@ -67,39 +67,88 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Presell Creator</CardTitle>
-          <CardDescription>Acesse o painel administrativo</CardDescription>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-slate-50 to-indigo-50 p-4">
+      <Card className="w-full max-w-sm border-slate-200 bg-white shadow-lg">
+        <CardHeader className="space-y-2 pb-6">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">
+              Presell Creator
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-600">
+              Acesse o painel administrativo
+            </CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="username">Username</Label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-semibold text-slate-900">
+                Usuário
+              </Label>
               <Input
                 id="username"
+                type="text"
                 autoComplete="username"
-                placeholder="admin"
+                placeholder="Digite seu usuário"
+                className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                 {...register('username')}
               />
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-semibold text-slate-900">
+                Senha
+              </Label>
               <Input
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder="Digite sua senha"
+                className="border-slate-300 bg-white text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:ring-indigo-500"
                 {...register('password')}
               />
             </div>
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in…' : 'Sign in'}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-6 w-full bg-indigo-600 font-semibold text-white hover:bg-indigo-700 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Autenticando...
+                </span>
+              ) : (
+                'Entrar'
+              )}
             </Button>
           </form>
+
+          <div className="mt-6 border-t border-slate-200 pt-4">
+            <p className="text-center text-xs text-slate-600">
+              Credenciais de teste: admin / admin
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
