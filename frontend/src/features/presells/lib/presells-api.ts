@@ -4,14 +4,12 @@ import type {
   PresellListResponse,
   PresellTheme,
   PresellWritePayload,
-  TemplateCatalogResponse,
   UploadResponse,
 } from '@/features/presells/types.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 
 const adminApiPaths = {
   presells: '/admin/presells',
-  templates: '/admin/templates',
 } as const
 
 export interface AnalyzeUrlResult {
@@ -113,10 +111,6 @@ export async function downloadAndHostImages(
 export function getPublicPresell(slug: string) {
   const qs = window.location.search
   return apiClient.get<PresellPublicData>(`/public/presells/${slug}${qs}`)
-}
-
-export function listTemplates() {
-  return apiClient.get<TemplateCatalogResponse>(adminApiPaths.templates)
 }
 
 export function listPresells(limit: number) {

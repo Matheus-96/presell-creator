@@ -32,7 +32,7 @@ function makeResult(overrides: Partial<AnalyzeUrlResult> = {}): AnalyzeUrlResult
     heroImageUrl: '/media/hero.jpg',
     theme: null,
     settings: {},
-    hostedImageUrls: [],
+    extractedImages: [],
     ...overrides,
   }
 }

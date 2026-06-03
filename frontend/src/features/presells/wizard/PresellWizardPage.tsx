@@ -53,6 +53,7 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
     body: draft.body,
     bullets: draft.bullets,
     ctaText: draft.ctaText,
+    legalText: '',
     affiliateUrl: 'https://link-afiliado.com',
     googlePixelId: null,
     trackingParam: '',
@@ -102,9 +103,12 @@ export function PresellWizardPage() {
     const payload = draftToPayload(draft)
 
     // Download and host selected images before creating presell
-    if (selections.length > 0) {
+    const selectionsWithRole = selections.filter(
+      (s): s is { url: string; role: 'hero' | 'background' | 'gallery' } => s.role !== null,
+    )
+    if (selectionsWithRole.length > 0) {
       try {
-        const hostedImages = await downloadAndHostImages(selections)
+        const hostedImages = await downloadAndHostImages(selectionsWithRole)
 
         payload.media = {}
         if (hostedImages.hero) {
@@ -112,11 +116,6 @@ export function PresellWizardPage() {
         }
         if (hostedImages.background) {
           payload.media.backgroundImage = { fileName: hostedImages.background }
-        }
-
-        // Add gallery images to settings if template supports it
-        if (hostedImages.gallery && hostedImages.gallery.length > 0) {
-          payload.settings.galleryImages = hostedImages.gallery
         }
       } catch (err) {
         console.error('Failed to download images:', err)
@@ -188,7 +187,7 @@ export function PresellWizardPage() {
             }}
           />
         )}
-        {state.step === 'images' && state.jobResult && (
+        {state.step === 'images' && !!state.jobResult && (
           <ImagesStep
             extractedImages={state.selectedImages}
             onComplete={handleCreatePresell}

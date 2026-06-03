@@ -8,7 +8,7 @@ describe('ApiClient', () => {
   beforeEach(() => {
     apiClient = new ApiClient({ baseUrl: 'http://localhost:3000' })
     fetchMock = vi.fn()
-    global.fetch = fetchMock
+    vi.stubGlobal('fetch', fetchMock)
     vi.clearAllMocks()
   })
 

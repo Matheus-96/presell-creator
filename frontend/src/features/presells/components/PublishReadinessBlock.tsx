@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import type { FieldErrors } from 'react-hook-form'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 import type { TabId } from '@/features/presells/components/EditorTabs.tsx'
@@ -40,14 +41,14 @@ export function PublishReadinessBlock({
   onNavigateToTab,
   onPublish,
   isBusy,
-}: PublishReadinessBlockProps): JSX.Element {
+}: PublishReadinessBlockProps) {
   const missingFields = REQUIRED_FIELDS.filter(({ field }) =>
     isMissing(field, errors, values),
   )
 
   const allValid = missingFields.length === 0
 
-  const containerStyle: React.CSSProperties = {
+  const containerStyle: CSSProperties = {
     borderRadius: '8px',
     border: `1px solid ${allValid ? 'rgba(22, 163, 74, 0.3)' : 'rgba(217, 119, 6, 0.3)'}`,
     borderLeft: `4px solid ${allValid ? '#16a34a' : '#d97706'}`,
