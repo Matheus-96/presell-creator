@@ -179,11 +179,13 @@ export class ApiClient {
     if (!response.ok) {
       const error = await ApiClientError.fromResponse(response)
 
-      if (
-        error.code === 'auth_required'
-        && typeof window !== 'undefined'
-        && response.url.includes('/api/admin/')
-      ) {
+      // Check for expired session via error code or 401 HTTP status
+      const isAdminUrl = response.url.includes('/api/admin/')
+      const isLoginUrl = response.url.includes('/api/admin/auth/login')
+      const isSessionExpired =
+        error.code === 'auth_required' || (response.status === 401 && !isLoginUrl)
+
+      if (isSessionExpired && isAdminUrl && typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent(ADMIN_AUTH_REQUIRED_EVENT))
       }
 
