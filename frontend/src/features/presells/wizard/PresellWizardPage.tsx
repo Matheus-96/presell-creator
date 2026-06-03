@@ -117,6 +117,10 @@ export function PresellWizardPage() {
         if (hostedImages.background) {
           payload.media.backgroundImage = { fileName: hostedImages.background }
         }
+
+        if (hostedImages.gallery && hostedImages.gallery.length > 0) {
+          payload.settings.galleryImages = hostedImages.gallery
+        }
       } catch (err) {
         console.error('Failed to download images:', err)
         alert('Erro ao baixar imagens. Criando presell sem imagens.')
