@@ -1,5 +1,5 @@
 const { z } = require("zod");
-const { parsePresellSettings } = require("../services/presellTemplates");
+const { parsePresellSettings, allowedTemplates } = require("../services/presellTemplates");
 const { parseBullets } = require("../services/presellService");
 const {
   createPageInfo,
@@ -13,56 +13,8 @@ const { normalizeMediaPath, buildMediaUrl } = require("../services/mediaPathServ
 
 const presellStatusValues = ["draft", "published"];
 
-// Zod schemas for input validation
-const zodPresellWriteSchema = z.object({
-  slug: z.string().min(1, "slug é obrigatório"),
-  affiliate_url: z.string().url("affiliate_url deve ser uma URL válida").optional(),
-  affiliateUrl: z.string().url("affiliateUrl deve ser uma URL válida").optional(),
-  template: z.string().optional(),
-  templateId: z.string().optional(),
-  status: z.enum(presellStatusValues).optional(),
-  title: z.string().optional(),
-  headline: z.string().optional(),
-  subtitle: z.string().optional(),
-  body: z.string().optional(),
-  bullets: z.union([z.string(), z.array(z.string())]).optional(),
-  legalText: z.string().optional(),
-  legal_text: z.string().optional(),
-  ctaText: z.string().optional(),
-  cta_text: z.string().optional(),
-  google_pixel: z.string().max(50, "google_pixel deve ter no máximo 50 caracteres").nullable().optional(),
-  googlePixelId: z.string().max(50, "googlePixelId deve ter no máximo 50 caracteres").nullable().optional(),
-  tracking_param: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/, "tracking_param inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra)").optional(),
-  trackingParam: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/, "trackingParam inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra)").optional(),
-  settings: z.object({}).passthrough().optional(),
-  theme: z.any().optional(),
-  galleryImages: z.array(z.any()).optional(),
-  media: z.object({
-    heroImage: z.any().optional(),
-    backgroundImage: z.any().optional()
-  }).optional(),
-  current_image_path: z.string().optional(),
-  current_background_image_path: z.string().optional(),
-  id: z.number().optional()
-}).refine(
-  (data) => data.affiliate_url || data.affiliateUrl,
-  { message: "affiliate_url ou affiliateUrl é obrigatório", path: ["affiliate_url"] }
-).refine(
-  (data) => {
-    try {
-      const { allowedTemplates } = require("../services/presellTemplates");
-      const template = data.template || data.templateId || "advertorial";
-      return !template || allowedTemplates.includes(template);
-    } catch {
-      // If import fails, allow it to pass validation (will be caught in service)
-      return true;
-    }
-  },
-  { message: "template inválido", path: ["template"] }
-);
-
-// Patch schema - all fields optional for PATCH requests
-const zodPresellPatchSchema = z.object({
+// Base shape — all fields optional; used to derive Write and Patch schemas
+const zodPresellBaseSchema = z.object({
   slug: z.string().min(1, "slug é obrigatório").optional(),
   affiliate_url: z.string().url("affiliate_url deve ser uma URL válida").optional(),
   affiliateUrl: z.string().url("affiliateUrl deve ser uma URL válida").optional(),
@@ -92,19 +44,31 @@ const zodPresellPatchSchema = z.object({
   current_image_path: z.string().optional(),
   current_background_image_path: z.string().optional(),
   id: z.number().optional()
-}).refine(
-  (data) => {
-    try {
-      const { allowedTemplates } = require("../services/presellTemplates");
+});
+
+const zodPresellWriteSchema = zodPresellBaseSchema
+  .extend({ slug: z.string().min(1, "slug é obrigatório") })
+  .refine(
+    (data) => data.affiliate_url || data.affiliateUrl,
+    { message: "affiliate_url ou affiliateUrl é obrigatório", path: ["affiliate_url"] }
+  )
+  .refine(
+    (data) => {
+      const template = data.template || data.templateId || "advertorial";
+      return allowedTemplates.includes(template);
+    },
+    { message: "template inválido", path: ["template"] }
+  );
+
+// Patch schema — all fields optional; template refine skips when omitted
+const zodPresellPatchSchema = zodPresellBaseSchema
+  .refine(
+    (data) => {
       const template = data.template || data.templateId;
       return !template || allowedTemplates.includes(template);
-    } catch {
-      // If import fails, allow it to pass validation (will be caught in service)
-      return true;
-    }
-  },
-  { message: "template inválido", path: ["template"] }
-);
+    },
+    { message: "template inválido", path: ["template"] }
+  );
 
 const presellWriteSchema = {
   type: "object",
