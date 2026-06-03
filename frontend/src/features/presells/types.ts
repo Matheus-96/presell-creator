@@ -158,7 +158,7 @@ export type TemplateCatalogResponse = {
   items: TemplateMetadata[]
 }
 
-export type TemplateSettingValue = string | number | boolean
+export type TemplateSettingValue = string | number | boolean | string[]
 
 export type PresellFormState = {
   id: number | null
