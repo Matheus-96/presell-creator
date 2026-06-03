@@ -89,6 +89,7 @@ export function createEmptyPresellForm(template: TemplateMetadata | null): Prese
     subtitle: '',
     body: '',
     bulletsText: '',
+    legalText: '',
     ctaText: 'Continuar',
     affiliateUrl: '',
     googlePixelId: '',
@@ -125,6 +126,7 @@ export function createPresellForm(
     subtitle: detail.subtitle ?? '',
     body: detail.body,
     bulletsText: detail.bullets.join('\n'),
+    legalText: detail.legalText ?? '',
     ctaText: detail.ctaText,
     affiliateUrl: detail.affiliateUrl,
     googlePixelId: detail.tracking.googlePixelId ?? '',
@@ -181,6 +183,7 @@ export function buildPresellPayload(
       .split(/\r?\n/)
       .map((item) => item.trim())
       .filter(Boolean),
+    legalText: form.legalText.trim(),
     ctaText: form.ctaText.trim(),
     affiliateUrl: form.affiliateUrl.trim(),
     googlePixelId: form.googlePixelId.trim() || null,

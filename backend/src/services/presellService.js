@@ -116,6 +116,7 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     subtitle: String(input.subtitle || "").trim(),
     body: String(input.body || "").trim(),
     bullets: String(input.bullets || "").trim(),
+    legalText: String(input.legal_text || "").trim(),
     ctaText: String(input.cta_text || "Continuar").trim(),
     affiliateUrl,
     imagePath: imagePath === null ? null : (imagePath !== undefined ? imagePath : (input.current_image_path || "")),

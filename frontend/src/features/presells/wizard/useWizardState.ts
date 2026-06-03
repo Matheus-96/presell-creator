@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 export type WizardStep = 'config' | 'analyzing' | 'images'
 
@@ -93,7 +93,7 @@ export function useWizardState() {
     setState((prev) => ({ ...prev, step: 'config', jobId: null, jobResult: null, config: null }))
   }
 
-  function resetWizard() {
+  const resetWizard = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY)
     setState({
       step: 'config',
@@ -103,7 +103,7 @@ export function useWizardState() {
       selectedImages: [],
       imageSelections: [],
     })
-  }
+  }, [])
 
   function goToImages(extractedImages: { url: string; type: string }[], jobResult: unknown) {
     setState((prev) => ({ ...prev, step: 'images', selectedImages: extractedImages, jobResult }))

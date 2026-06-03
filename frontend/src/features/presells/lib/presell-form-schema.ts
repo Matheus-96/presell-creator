@@ -10,6 +10,7 @@ export const presellFormSchema = z.object({
   subtitle: z.string(),
   body: z.string(),
   bulletsText: z.string(),
+  legalText: z.string(),
   ctaText: z.string().min(1, 'Texto do botão é obrigatório'),
   affiliateUrl: z.union([z.literal(''), z.string().url('Insira uma URL válida')]),
   googlePixelId: z.string(),

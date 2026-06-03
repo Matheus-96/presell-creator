@@ -10,16 +10,17 @@ import {
   updatePresell,
 } from '@/features/presells/lib/presells-api.ts'
 import { buildPresellPayload } from '@/features/presells/lib/presell-editor.ts'
-import type { PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
+import type { PresellDetail, PresellFormState, TemplateMetadata } from '@/features/presells/types.ts'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 
 type Props = {
   id: number | null
   isDirty: boolean
   selectedTemplate: TemplateMetadata | null | undefined
+  onSaveSuccess?: (saved: PresellDetail) => void
 }
 
-export function usePresellEditor({ id, isDirty, selectedTemplate }: Props) {
+export function usePresellEditor({ id, isDirty, selectedTemplate, onSaveSuccess }: Props) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -44,6 +45,7 @@ export function usePresellEditor({ id, isDirty, selectedTemplate }: Props) {
       queryClient.invalidateQueries({ queryKey: ['presells'] })
       if (id) {
         queryClient.invalidateQueries({ queryKey: ['presell', id] })
+        onSaveSuccess?.(saved)
         toast.success('Presell salvo')
       } else {
         navigate(`/presells/${saved.id}/edit`)

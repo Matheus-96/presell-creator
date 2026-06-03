@@ -49,7 +49,7 @@ const listDuplicateSlugsStmt = db.prepare(
 const updatePresellStmt = db.prepare(`
   UPDATE presells
   SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
-      subtitle = ?, body = ?, bullets = ?, cta_text = ?, affiliate_url = ?,
+      subtitle = ?, body = ?, bullets = ?, legal_text = ?, cta_text = ?, affiliate_url = ?,
       image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?,
       tracking_param = ?, theme = ?, gallery_images = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?
@@ -57,8 +57,8 @@ const updatePresellStmt = db.prepare(`
 const createPresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param, theme, gallery_images
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    legal_text, cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param, theme, gallery_images
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const duplicatePresellStmt = db.prepare(`
   INSERT INTO presells (
@@ -122,6 +122,7 @@ function updatePresell(id, data) {
     data.subtitle,
     data.body,
     data.bullets,
+    data.legalText ?? "",
     data.ctaText,
     data.affiliateUrl,
     data.imagePath,
@@ -147,6 +148,7 @@ function createPresell(data) {
     data.subtitle,
     data.body,
     data.bullets,
+    data.legalText ?? "",
     data.ctaText,
     data.affiliateUrl,
     data.imagePath,

@@ -29,6 +29,7 @@ const presellWriteSchema = {
         { type: "array", items: { type: "string" } }
       ]
     },
+    legalText: { type: "string" },
     ctaText: { type: "string" },
     affiliateUrl: { type: "string" },
     googlePixelId: { type: ["string", "null"] },
@@ -175,6 +176,7 @@ function serializePresellDetail(presell) {
     ...serializePresellSummary(presell),
     body: String(presell.body || ""),
     bullets: parseBullets(presell),
+    legalText: String(presell.legal_text || ""),
     settings: parsePresellSettings(presell),
     urls: {
       publicPage: `/p/${encodeURIComponent(presell.slug || "")}`,
@@ -194,6 +196,7 @@ function serializePresellWriteInput(presell) {
     subtitle: String(presell.subtitle || ""),
     body: String(presell.body || ""),
     bullets: parseBullets(presell),
+    legalText: String(presell.legal_text || ""),
     ctaText: String(presell.cta_text || ""),
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
@@ -224,6 +227,7 @@ function deserializePresellWriteInput(payload = {}) {
     subtitle: String(payload.subtitle || "").trim(),
     body: String(payload.body || "").trim(),
     bullets,
+    legal_text: String(payload.legalText || payload.legal_text || "").trim(),
     cta_text: String(payload.ctaText || payload.cta_text || "").trim(),
     affiliate_url: String(payload.affiliateUrl || payload.affiliate_url || "").trim(),
     google_pixel: payload.googlePixelId || payload.google_pixel || null,
