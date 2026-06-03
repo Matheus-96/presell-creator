@@ -130,7 +130,8 @@ export function PresellWizardPage() {
   }
 
   return (
-    <div className="page">
+    <div className="h-full overflow-y-auto">
+      <div className="grid gap-6 p-[clamp(1.5rem,4vw,3rem)] content-start">
       {/* Step indicator */}
       <nav aria-label="Etapas do wizard" className="flex items-center gap-0 max-w-xl mx-auto w-full">
         {STEPS.map((step, i) => {
@@ -193,6 +194,7 @@ export function PresellWizardPage() {
             onComplete={handleCreatePresell}
           />
         )}
+      </div>
       </div>
     </div>
   )

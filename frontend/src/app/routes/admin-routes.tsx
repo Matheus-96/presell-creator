@@ -47,6 +47,7 @@ function toRouteObject(route: AdminRouteDefinition): RouteObject {
 export const adminRouteObjects: RouteObject[] = [
   ...adminRoutes.map(toRouteObject),
   { path: 'presells/new', element: LazyPresellWizardPage },
+  { path: 'presells/new-blank', element: LazyPresellEditPage },
   { path: 'presells/:id/edit', element: LazyPresellEditPage },
   { path: 'presells/:id/analytics', element: LazyPresellAnalyticsPage },
 ]
