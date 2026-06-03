@@ -84,6 +84,7 @@ export type PresellSummary = {
 export type PresellDetail = PresellSummary & {
   body: string
   bullets: string[]
+  legalText: string
   settings: Record<string, unknown>
   urls: {
     publicPage: string
@@ -169,6 +170,7 @@ export type PresellFormState = {
   subtitle: string
   body: string
   bulletsText: string
+  legalText: string
   ctaText: string
   affiliateUrl: string
   googlePixelId: string
@@ -196,6 +198,7 @@ export type PresellWritePayload = {
   subtitle: string
   body: string
   bullets: string[]
+  legalText: string
   ctaText: string
   affiliateUrl: string
   googlePixelId: string | null

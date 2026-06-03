@@ -104,6 +104,10 @@ function migrate() {
   runMigration("008_jobs_error_code", `
     ALTER TABLE jobs ADD COLUMN error_code TEXT DEFAULT NULL;
   `);
+
+  runMigration("009_add_legal_text", `
+    ALTER TABLE presells ADD COLUMN legal_text TEXT DEFAULT '';
+  `);
 }
 
 function runMigration(name, sql) {
