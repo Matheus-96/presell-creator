@@ -63,7 +63,7 @@ describe('LoginPage', () => {
     renderLoginPage('/login')
 
     expect(screen.getByText('Dashboard')).toBeDefined()
-    expect(screen.queryByRole('button', { name: /sign in/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /entrar/i })).toBeNull()
   })
 
   it('disables the submit button while submitting', async () => {
@@ -71,10 +71,10 @@ describe('LoginPage', () => {
     mockLogin.mockReturnValueOnce(new Promise<void>((res) => { resolveLogin = res }))
     renderLoginPage()
 
-    await userEvent.type(screen.getByLabelText(/username/i), 'admin')
-    await userEvent.type(screen.getByLabelText(/password/i), 'secret')
+    await userEvent.type(screen.getByLabelText(/usuário/i), 'admin')
+    await userEvent.type(screen.getByLabelText(/senha/i), 'secret')
 
-    const button = screen.getByRole('button', { name: /sign in/i })
+    const button = screen.getByRole('button', { name: /entrar/i })
     await userEvent.click(button)
 
     expect(button).toBeDisabled()
@@ -86,9 +86,9 @@ describe('LoginPage', () => {
     mockLogin.mockRejectedValueOnce(new Error('Credenciais inválidas'))
     renderLoginPage()
 
-    await userEvent.type(screen.getByLabelText(/username/i), 'admin')
-    await userEvent.type(screen.getByLabelText(/password/i), 'wrong')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await userEvent.type(screen.getByLabelText(/usuário/i), 'admin')
+    await userEvent.type(screen.getByLabelText(/senha/i), 'wrong')
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }))
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Credenciais inválidas')
