@@ -12,7 +12,9 @@ const {
   serializeAnalyticsOverview,
   serializeAnalyticsSummary,
   serializePresellStatistics,
-  serializeUploadResponse
+  serializeUploadResponse,
+  zodPresellWriteSchema,
+  zodPresellPatchSchema
 } = require("../contracts");
 const { templateDefinitions } = require("../services/presellTemplates");
 const {
@@ -127,6 +129,15 @@ function getPresell(req, res) {
 }
 
 function createPresell(req, res) {
+  const validationResult = zodPresellWriteSchema.safeParse(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json(buildApiError(
+      "validation_error",
+      "Dados inválidos.",
+      { fields: validationResult.error.flatten() }
+    ));
+  }
+
   return persistPresellMutation(req, res, {
     payload: req.body,
     statusCode: 201
@@ -134,6 +145,16 @@ function createPresell(req, res) {
 }
 
 function updatePresell(req, res) {
+  // Validate input first (before checking if presell exists)
+  const validationResult = zodPresellPatchSchema.safeParse(req.body);
+  if (!validationResult.success) {
+    return res.status(400).json(buildApiError(
+      "validation_error",
+      "Dados inválidos.",
+      { fields: validationResult.error.flatten() }
+    ));
+  }
+
   const existingPresell = getPresellById(req.params.id);
   if (!existingPresell) {
     return respondPresellNotFound(res, req.params.id);
