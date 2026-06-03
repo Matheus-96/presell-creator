@@ -18,10 +18,6 @@ function buildTrackingQuery(query) {
   return qs ? `?${qs}` : "";
 }
 
-router.get("/", (req, res) => {
-  res.redirect("/admin");
-});
-
 router.get("/p/:slug", (req, res) => {
   const presell = getPublishedPresell(req.params.slug);
   if (!presell) {
