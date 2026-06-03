@@ -24,6 +24,7 @@ import {
   createPresellForm,
   getTemplateById,
 } from '@/features/presells/lib/presell-editor.ts'
+import type { PresellDetail } from '@/features/presells/types.ts'
 import { getPresell, listTemplates } from '@/features/presells/lib/presells-api.ts'
 import { presellFormSchema } from '@/features/presells/lib/presell-form-schema.ts'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
@@ -44,7 +45,7 @@ type EditorFormProps = {
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const navigate = useNavigate()
 
-  const { register, handleSubmit, watch, setValue, formState } =
+  const { register, handleSubmit, watch, setValue, formState, reset } =
     useForm<PresellFormValues>({
       resolver: zodResolver(presellFormSchema),
       defaultValues,
@@ -93,7 +94,15 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     duplicateMutation,
     isBusy,
     handleDelete,
-  } = usePresellEditor({ id, isDirty: hasUserEdits, selectedTemplate })
+  } = usePresellEditor({
+    id,
+    isDirty: hasUserEdits,
+    selectedTemplate,
+    onSaveSuccess: (saved: PresellDetail) => {
+      userHasEdited.current = false
+      reset(createPresellForm(saved, selectedTemplate ?? null) as PresellFormValues)
+    },
+  })
 
   const presellTitle = formValues.title || formValues.headline || (id ? `Presell #${id}` : 'Novo presell')
 
