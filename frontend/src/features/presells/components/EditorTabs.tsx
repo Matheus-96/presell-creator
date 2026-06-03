@@ -1,10 +1,6 @@
-export type TabId = 'content' | 'visual' | 'conversion' | 'publish'
+import { cn } from '@/lib/utils'
 
-type Tab = {
-  id: TabId
-  label: string
-  isValid: boolean
-}
+export type TabId = 'content' | 'visual' | 'conversion' | 'publish'
 
 type EditorTabsProps = {
   activeTab: TabId
@@ -12,7 +8,7 @@ type EditorTabsProps = {
   tabValidity: Record<TabId, boolean>
 }
 
-const TABS: Pick<Tab, 'id' | 'label'>[] = [
+const TABS: { id: TabId; label: string }[] = [
   { id: 'content', label: 'Conteúdo' },
   { id: 'visual', label: 'Visual' },
   { id: 'conversion', label: 'Conversão' },
@@ -21,45 +17,31 @@ const TABS: Pick<Tab, 'id' | 'label'>[] = [
 
 export function EditorTabs({ activeTab, onTabChange, tabValidity }: EditorTabsProps) {
   return (
-    <nav
-      style={{
-        display: 'flex',
-        borderBottom: '1px solid rgba(148, 163, 184, 0.15)',
-        gap: 'var(--p-space-4)',
-      }}
-    >
+    <div className="flex items-end gap-1 px-4">
       {TABS.map(({ id, label }) => {
         const isActive = id === activeTab
-        const isValid = tabValidity[id]
-
         return (
           <button
             key={id}
             type="button"
             onClick={() => onTabChange(id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              borderBottom: isActive ? '2px solid #3b82f6' : '2px solid transparent',
-              padding: 'var(--p-space-2) 0',
-              marginBottom: '-1px',
-              cursor: 'pointer',
-              fontSize: '0.9375rem',
-              fontWeight: isActive ? 600 : 400,
-              color: isActive ? 'var(--p-text)' : 'var(--p-muted)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--p-space-2)',
-              whiteSpace: 'nowrap',
-            }}
+            className={cn(
+              'inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors',
+              '-mb-px border-b-2',
+              isActive
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-slate-300',
+            )}
           >
             {label}
-            {!isActive && isValid && (
-              <span style={{ color: '#16a34a', fontSize: '0.875rem', lineHeight: 1 }}>✓</span>
+            {tabValidity[id] && (
+              <span className={cn('text-xs leading-none', isActive ? 'text-primary' : 'text-green-600')}>
+                ✓
+              </span>
             )}
           </button>
         )
       })}
-    </nav>
+    </div>
   )
 }

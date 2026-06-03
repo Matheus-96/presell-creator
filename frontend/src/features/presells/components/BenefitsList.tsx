@@ -6,12 +6,30 @@ type BenefitsListProps = {
   disabled?: boolean
 }
 
-export function BenefitsList({ value, onChange, disabled }: BenefitsListProps) {
-  const items = value.split('\n').filter(s => s.length > 0)
+function parseItems(v: string): string[] {
+  return v === '' ? [] : v.split('\n')
+}
 
-  // Index of the newly added item that should receive focus
+export function BenefitsList({ value, onChange, disabled }: BenefitsListProps) {
+  const [items, setItems] = useState<string[]>(() => parseItems(value))
+
   const [focusIndex, setFocusIndex] = useState<number | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  // Tracks the last string we emitted via onChange so the sync effect can
+  // distinguish an external reset (value ≠ lastEmitted) from the parent
+  // echoing back our own filtered output (value === lastEmitted). Without this,
+  // clearing a row calls onChange('remaining'), the parent sets value='remaining',
+  // the effect fires and overwrites local state — wiping the empty field the user
+  // is still editing.
+  const lastEmitted = useRef(value)
+
+  useEffect(() => {
+    if (value !== lastEmitted.current) {
+      lastEmitted.current = value
+      setItems(parseItems(value))
+    }
+  }, [value])
 
   useEffect(() => {
     if (focusIndex !== null && inputRefs.current[focusIndex]) {
@@ -20,20 +38,28 @@ export function BenefitsList({ value, onChange, disabled }: BenefitsListProps) {
     }
   }, [focusIndex])
 
+  function emit(next: string[]) {
+    const emitted = next.filter(s => s.length > 0).join('\n')
+    lastEmitted.current = emitted
+    onChange(emitted)
+  }
+
   function handleChange(index: number, newText: string) {
     const next = [...items]
     next[index] = newText
-    onChange(next.join('\n'))
+    setItems(next)
+    emit(next)
   }
 
   function handleRemove(index: number) {
     const next = items.filter((_, i) => i !== index)
-    onChange(next.join('\n'))
+    setItems(next)
+    emit(next)
   }
 
   function handleAdd() {
     const next = [...items, '']
-    onChange(next.join('\n'))
+    setItems(next)
     setFocusIndex(next.length - 1)
   }
 

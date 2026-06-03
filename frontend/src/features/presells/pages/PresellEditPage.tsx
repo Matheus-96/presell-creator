@@ -1,16 +1,13 @@
 import { useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Copy, ClipboardPaste, MoreHorizontal, ChevronLeft } from 'lucide-react'
-import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { FormSection } from '@/features/presells/components/FormSection.tsx'
-import { AiJsonModal } from '@/features/presells/components/AiJsonModal.tsx'
 import { MediaPicker } from '@/features/presells/components/MediaPicker.tsx'
 import { ThemeEditor } from '@/features/presells/components/ThemeEditor.tsx'
 import { PresellLivePreview } from '@/features/presells/components/PresellLivePreview.tsx'
@@ -44,8 +41,6 @@ type EditorFormProps = {
 }
 
 function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
-  const navigate = useNavigate()
-
   const { register, handleSubmit, watch, setValue, formState, reset } =
     useForm<PresellFormValues>({
       resolver: zodResolver(presellFormSchema),
@@ -83,18 +78,13 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
   const formValues = watch()
   const selectedTemplate = getTemplateById(templates, formValues.templateId)
 
-  const [aiModalOpen, setAiModalOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<TabId>('content')
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false)
 
   const tabValidity = useTabValidation(formState.errors, formValues)
 
   const {
     saveMutation,
-    deleteMutation,
-    duplicateMutation,
     isBusy,
-    handleDelete,
   } = usePresellEditor({
     id,
     isDirty: hasUserEdits,
@@ -105,156 +95,15 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
     },
   })
 
-  const presellTitle = formValues.title || formValues.headline || (id ? `Presell #${id}` : 'Novo presell')
-
   return (
     <div className="h-full overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="shrink-0 border-b border-slate-200 bg-white">
-        {/* Row 1: nav + actions */}
-        <div className="flex items-center justify-between px-6 pt-3 pb-2 gap-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-1 text-muted-foreground"
-            onClick={() => navigate('/presells')}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Voltar para Presells
-          </Button>
-
-          <div className="flex items-center gap-2">
-            {/* Save status indicator */}
-            <span className="text-sm text-muted-foreground select-none">
-              {hasUserEdits ? 'Alterações não salvas' : 'Rascunho salvo'}
-            </span>
-
-            {/* Salvar rascunho */}
-            <Button
-              type="submit"
-              form="presell-editor-form"
-              size="sm"
-              variant="outline"
-              disabled={isBusy}
-            >
-              {saveMutation.isPending ? 'Salvando…' : 'Salvar rascunho'}
-            </Button>
-
-            {/* Publicar página */}
-            <Button
-              type="button"
-              size="sm"
-              disabled={isBusy}
-              onClick={() => {
-                setValueAndMarkEdited('status', 'published', { shouldDirty: true })
-                handleSubmit(
-                  (values) => saveMutation.mutate(values),
-                  () => toast.error('Corrija os campos obrigatórios antes de publicar'),
-                )()
-              }}
-            >
-              Publicar página
-            </Button>
-
-            {/* "..." more menu — only when editing an existing presell */}
-            {id ? (
-              <div style={{ position: 'relative' }}>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  disabled={isBusy}
-                  onClick={() => setMoreMenuOpen((v) => !v)}
-                  aria-label="Mais opções"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-
-                {moreMenuOpen && (
-                  <>
-                    {/* Backdrop to close on outside click */}
-                    <div
-                      style={{
-                        position: 'fixed',
-                        inset: 0,
-                        zIndex: 10,
-                      }}
-                      onClick={() => setMoreMenuOpen(false)}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        right: 0,
-                        top: 'calc(100% + 4px)',
-                        zIndex: 20,
-                        background: 'white',
-                        border: '1px solid rgba(148,163,184,0.3)',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 16px rgba(0,0,0,0.10)',
-                        minWidth: '140px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => {
-                          setMoreMenuOpen(false)
-                          duplicateMutation.mutate()
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          padding: '0.5rem 1rem',
-                          textAlign: 'left',
-                          fontSize: '0.875rem',
-                          cursor: isBusy ? 'not-allowed' : 'pointer',
-                          color: 'var(--p-text)',
-                        }}
-                      >
-                        {duplicateMutation.isPending ? 'Duplicando…' : 'Duplicar'}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isBusy}
-                        onClick={() => {
-                          setMoreMenuOpen(false)
-                          handleDelete()
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          padding: '0.5rem 1rem',
-                          textAlign: 'left',
-                          fontSize: '0.875rem',
-                          cursor: isBusy ? 'not-allowed' : 'pointer',
-                          color: '#dc2626',
-                        }}
-                      >
-                        {deleteMutation.isPending ? 'Excluindo…' : 'Excluir'}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : null}
-          </div>
-        </div>
-
-        {/* Row 2: eyebrow */}
-        <div className="px-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
-            Editor de presell
-          </p>
-        </div>
-
-        {/* Row 3: title */}
-        <div className="px-6 pb-3">
-          <h1 className="text-xl font-semibold leading-tight">{presellTitle}</h1>
-        </div>
+      {/* Sticky tabs bar */}
+      <div className="shrink-0 bg-white z-10 border-b border-slate-200">
+        <EditorTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          tabValidity={tabValidity}
+        />
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -267,15 +116,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
             () => toast.error('Corrija os campos obrigatórios antes de salvar'),
           )}
         >
-          {/* Tab navigation */}
-          <div className="shrink-0 px-6 pt-3">
-            <EditorTabs
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              tabValidity={tabValidity}
-            />
-          </div>
-
           {/* Tab content */}
           <div className="flex-1 px-6 py-4 flex flex-col gap-4">
 
@@ -336,7 +176,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                     <div className="flex flex-col gap-1.5">
                       <Label>Benefícios</Label>
                       <BenefitsList
-                        value={watch('bulletsText')}
+                        value={formValues.bulletsText}
                         onChange={(val) =>
                           setValueAndMarkEdited('bulletsText', val, { shouldDirty: true })
                         }
@@ -346,41 +186,28 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   </div>
                 </FormSection>
 
+                {/* Aviso legal */}
+                <FormSection
+                  title="Aviso legal"
+                  description="Texto exibido no rodapé da página"
+                  collapsible
+                  defaultOpen={false}
+                >
+                  <textarea
+                    id="legalText"
+                    className="flex min-h-[72px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    rows={3}
+                    placeholder="Ex: Este conteúdo tem caráter promocional. Deixe vazio para ocultar."
+                    {...register('legalText')}
+                  />
+                </FormSection>
+
                 {/* Configurações do template */}
                 <FormSection
                   title="Configurações do template"
                   description={selectedTemplate?.description}
                   collapsible
                   defaultOpen={true}
-                  action={
-                    selectedTemplate?.aiInstructions ? (
-                      <div className="flex items-center gap-1">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto shrink-0 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          onClick={() => {
-                            navigator.clipboard.writeText(selectedTemplate.aiInstructions!)
-                            toast.success('Instruções copiadas')
-                          }}
-                        >
-                          <Copy className="h-3.5 w-3.5 mr-1" />
-                          Copiar instruções
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto shrink-0 py-1 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={() => setAiModalOpen(true)}
-                        >
-                          <ClipboardPaste className="h-3.5 w-3.5 mr-1" />
-                          Preencher com JSON
-                        </Button>
-                      </div>
-                    ) : null
-                  }
                 >
                   <TemplateSettingsFields
                     settings={formValues.settings as Record<string, TemplateSettingValue>}
@@ -406,7 +233,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <MediaPicker
                       label="Imagem em destaque (Herói)"
-                      value={watch('media.heroImageReference')}
+                      value={formValues.media.heroImageReference}
                       onChange={(ref) => {
                         setValueAndMarkEdited('media.heroImageReference', ref, { shouldDirty: true })
                         setValueAndMarkEdited('media.heroImageFileName', ref?.fileName ?? '', { shouldDirty: true })
@@ -415,7 +242,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                     />
                     <MediaPicker
                       label="Imagem de fundo"
-                      value={watch('media.backgroundImageReference')}
+                      value={formValues.media.backgroundImageReference}
                       onChange={(ref) => {
                         setValueAndMarkEdited('media.backgroundImageReference', ref, { shouldDirty: true })
                         setValueAndMarkEdited('media.backgroundImageFileName', ref?.fileName ?? '', { shouldDirty: true })
@@ -538,20 +365,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                         <option value="published">Publicado</option>
                       </select>
                     </div>
-
-                    <div className="flex flex-col gap-1.5 sm:col-span-2">
-                      <Label htmlFor="legalText">
-                        Aviso legal{' '}
-                        <span className="text-xs font-normal text-muted-foreground">(rodapé)</span>
-                      </Label>
-                      <textarea
-                        id="legalText"
-                        className="flex min-h-[72px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        rows={3}
-                        placeholder="Ex: Este conteúdo tem caráter promocional. Deixe vazio para ocultar."
-                        {...register('legalText')}
-                      />
-                    </div>
                   </div>
                 </FormSection>
 
@@ -583,13 +396,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
           />
         </div>
       </div>
-
-      <AiJsonModal
-        open={aiModalOpen}
-        onClose={() => setAiModalOpen(false)}
-        selectedTemplate={selectedTemplate}
-        setValue={setValueAndMarkEdited}
-      />
     </div>
   )
 }
