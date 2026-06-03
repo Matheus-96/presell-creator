@@ -69,4 +69,4 @@ Design tokens (`var(--p-*)`) that have no Tailwind equivalent should be extracte
 
 All HTTP calls must go through `src/lib/api/api-client.ts` (`apiClient`). Never use raw `fetch()` or axios directly — `api-client` injects the CSRF token and normalizes errors automatically.
 
-Current violation to fix: `features/presells/api/media-api.ts:9` uses direct `fetch()` — replace with `apiClient.get()`.
+`navigator.sendBeacon()` is the only exception — it is a fire-and-forget browser API used for telemetry/analytics (presell redirect and time-on-page events) and does not need CSRF or error normalization.

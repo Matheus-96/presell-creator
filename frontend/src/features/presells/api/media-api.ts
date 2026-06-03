@@ -1,3 +1,5 @@
+import { apiClient } from '@/lib/api/api-client.ts'
+
 export interface MediaImage {
   url: string
   filename: string
@@ -6,8 +8,6 @@ export interface MediaImage {
 }
 
 export async function listMediaImages(): Promise<MediaImage[]> {
-  const res = await fetch('/api/admin/media', { credentials: 'include' })
-  if (!res.ok) throw new Error('Falha ao carregar galeria de imagens')
-  const data = (await res.json()) as { images: MediaImage[] }
+  const data = await apiClient.get<{ images: MediaImage[] }>('/api/admin/media')
   return data.images
 }
