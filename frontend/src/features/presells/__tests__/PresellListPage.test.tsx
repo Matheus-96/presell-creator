@@ -8,6 +8,9 @@ import type { PresellSummary, TemplateMetadata } from '@/features/presells/types
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   listPresells: vi.fn(),
+}))
+
+vi.mock('@/features/templates/lib/templates-api.ts', () => ({
   listTemplates: vi.fn(),
 }))
 
@@ -17,7 +20,8 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return { ...actual, useNavigate: () => mockNavigate }
 })
 
-import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import { listPresells } from '@/features/presells/lib/presells-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 
 const mockListPresells = vi.mocked(listPresells)
 const mockListTemplates = vi.mocked(listTemplates)

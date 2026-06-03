@@ -12,7 +12,6 @@ vi.mock('sonner', () => ({
 }))
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
-  listTemplates: vi.fn(),
   getPresell: vi.fn(),
   createPresell: vi.fn(),
   updatePresell: vi.fn(),
@@ -20,6 +19,10 @@ vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   duplicatePresell: vi.fn(),
   uploadMedia: vi.fn(),
   getApiErrorMessage: (_err: unknown, fallback: string) => fallback,
+}))
+
+vi.mock('@/features/templates/lib/templates-api.ts', () => ({
+  listTemplates: vi.fn(),
 }))
 
 const mockNavigate = vi.fn()
@@ -30,13 +33,13 @@ vi.mock('react-router-dom', async (importOriginal) => {
 
 import { toast } from 'sonner'
 import {
-  listTemplates,
   getPresell,
   createPresell,
   updatePresell,
   deletePresell,
   duplicatePresell,
 } from '@/features/presells/lib/presells-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 
 const mockListTemplates = vi.mocked(listTemplates)
 const mockGetPresell = vi.mocked(getPresell)
@@ -69,6 +72,7 @@ function makePresellDetail(overrides: Partial<PresellDetail> = {}): PresellDetai
     published: false,
     body: 'Body text',
     bullets: [],
+    legalText: '',
     settings: {},
     media: { heroImage: null, backgroundImage: null },
     tracking: { googlePixelId: null, trackingParam: 'gclid' },

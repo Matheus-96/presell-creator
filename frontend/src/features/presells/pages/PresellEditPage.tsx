@@ -25,7 +25,8 @@ import {
   getTemplateById,
 } from '@/features/presells/lib/presell-editor.ts'
 import type { PresellDetail } from '@/features/presells/types.ts'
-import { getPresell, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import { getPresell } from '@/features/presells/lib/presells-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 import { presellFormSchema } from '@/features/presells/lib/presell-form-schema.ts'
 import type { PresellFormValues } from '@/features/presells/lib/presell-form-schema.ts'
 import { usePresellEditor } from '@/features/presells/hooks/usePresellEditor.ts'

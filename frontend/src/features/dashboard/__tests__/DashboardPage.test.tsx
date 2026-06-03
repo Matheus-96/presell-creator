@@ -13,12 +13,15 @@ vi.mock('@/features/analytics/lib/analytics-api.ts', () => ({
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   listPresells: vi.fn(),
+}))
+
+vi.mock('@/features/templates/lib/templates-api.ts', () => ({
   listTemplates: vi.fn(),
 }))
 
-
 import { getAnalyticsSummary, getAnalyticsOverview } from '@/features/analytics/lib/analytics-api.ts'
-import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import { listPresells } from '@/features/presells/lib/presells-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 
 const mockGetAnalyticsSummary = vi.mocked(getAnalyticsSummary)
 const mockGetAnalyticsOverview = vi.mocked(getAnalyticsOverview)

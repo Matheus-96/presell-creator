@@ -6,7 +6,7 @@ type BenefitsListProps = {
   disabled?: boolean
 }
 
-export function BenefitsList({ value, onChange, disabled }: BenefitsListProps): JSX.Element {
+export function BenefitsList({ value, onChange, disabled }: BenefitsListProps) {
   const items = value.split('\n').filter(s => s.length > 0)
 
   // Index of the newly added item that should receive focus

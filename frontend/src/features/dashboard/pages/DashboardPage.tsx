@@ -5,7 +5,8 @@ import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { getAnalyticsOverview, getAnalyticsSummary } from '@/features/analytics/lib/analytics-api.ts'
-import { listPresells, listTemplates } from '@/features/presells/lib/presells-api.ts'
+import { listPresells } from '@/features/presells/lib/presells-api.ts'
+import { listTemplates } from '@/features/templates/lib/templates-api.ts'
 import {
   formatCompactNumber,
   formatDateTime,
