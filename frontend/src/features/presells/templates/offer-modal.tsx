@@ -94,6 +94,7 @@ function OfferModal({ presell }: TemplateComponentProps) {
         )}
         <button
           type="button"
+          data-presell-cta=""
           onClick={handleCta}
           className="w-full cursor-pointer transition-[filter] hover:brightness-90 active:brightness-75"
           style={{

@@ -72,4 +72,16 @@ describe("renderPresellHtml", () => {
       /inexistente/
     );
   });
+
+  it("inclui o script inline de tracking no HTML", () => {
+    const html = renderPresellHtml(buildPresell({ slug: "meu-presell", affiliate_url: "https://aff.example.com" }));
+    expect(html).toContain("page_view");
+    expect(html).toContain("data-presell-cta");
+    expect(html).toContain("meu-presell");
+  });
+
+  it("embute a affiliateUrl no script de tracking", () => {
+    const html = renderPresellHtml(buildPresell({ affiliate_url: "https://aff.example.com" }));
+    expect(html).toContain("https://aff.example.com");
+  });
 });

@@ -56,6 +56,28 @@ function renderHead(publicData) {
     .join("\n    ");
 }
 
+function renderTrackingScript(publicData) {
+  const slug = JSON.stringify(publicData.slug);
+  const affiliateUrl = JSON.stringify(publicData.affiliateUrl || "");
+  const trackingParam = JSON.stringify(publicData.trackingParam || "gclid");
+
+  return `<script>(function(){
+  var slug=${slug};
+  var affiliateUrl=${affiliateUrl};
+  var trackingParam=${trackingParam};
+  var params={};
+  location.search.slice(1).split('&').forEach(function(p){var kv=p.split('=');if(kv[0])params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||'');});
+  fetch('/api/public/presells/'+slug+'/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventType:'page_view',params:params})}).catch(function(){});
+  document.querySelectorAll('[data-presell-cta]').forEach(function(el){
+    el.addEventListener('click',function(e){
+      e.preventDefault();
+      navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'cta_click',params:params})],{type:'application/json'}));
+      try{var u=new URL(affiliateUrl);var tv=params[trackingParam];if(tv&&!u.searchParams.has(trackingParam))u.searchParams.set(trackingParam,tv);location.href=u.toString();}catch(err){location.href=affiliateUrl;}
+    });
+  });
+})();</script>`;
+}
+
 function renderPresellHtml(presell) {
   const publicData = serializePublicPresell(presell);
   const Template = registry[publicData.templateId];
@@ -73,7 +95,8 @@ function renderPresellHtml(presell) {
   <head>
     ${renderHead(publicData)}
   </head>
-  <body>${body}</body>
+  <body>${body}
+  ${renderTrackingScript(publicData)}</body>
 </html>`;
 }
 

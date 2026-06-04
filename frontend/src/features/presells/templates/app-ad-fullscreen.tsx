@@ -125,6 +125,7 @@ function AppAdFullscreen({ presell }: TemplateComponentProps) {
         )}
         <button
           type="button"
+          data-presell-cta=""
           onClick={handleCta}
           className="cursor-pointer transition-[filter] hover:brightness-90 active:brightness-75"
           style={getButtonStyle()}

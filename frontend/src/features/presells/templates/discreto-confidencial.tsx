@@ -220,6 +220,7 @@ function DiscreetConfidential({ presell }: TemplateComponentProps) {
         <div style={{ maxWidth: 'var(--p-maxw-card)', margin: '0 auto' }}>
           <button
             type="button"
+            data-presell-cta=""
             onClick={handleCta}
             className="w-full cursor-pointer uppercase tracking-wider transition-[filter] hover:brightness-90 active:brightness-75"
             style={{

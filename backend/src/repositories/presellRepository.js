@@ -69,6 +69,9 @@ const duplicatePresellStmt = db.prepare(`
 const updateRenderedHtmlStmt = db.prepare(
   "UPDATE presells SET rendered_html = ? WHERE id = ?"
 );
+const listPublishedWithoutHtmlStmt = db.prepare(
+  "SELECT * FROM presells WHERE status = 'published' AND rendered_html IS NULL"
+);
 const deletePresellStmt = db.prepare("DELETE FROM presells WHERE id = ?");
 const getSlugsByImagePathStmt = db.prepare(
   "SELECT slug FROM presells WHERE image_path LIKE ? OR background_image_path LIKE ?"
@@ -201,6 +204,10 @@ function updateRenderedHtml(id, html) {
   updateRenderedHtmlStmt.run(html, id);
 }
 
+function listPublishedWithoutHtml() {
+  return listPublishedWithoutHtmlStmt.all();
+}
+
 function deletePresell(id) {
   deletePresellStmt.run(id);
 }
@@ -219,6 +226,7 @@ module.exports = {
   updatePresell,
   createPresell,
   updateRenderedHtml,
+  listPublishedWithoutHtml,
   duplicatePresell,
   listDuplicateSlugs,
   deletePresell,
