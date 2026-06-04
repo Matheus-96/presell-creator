@@ -29,6 +29,9 @@ function buildSystemPrompt(hasBackgroundImage = false, language = 'pt-BR') {
       if (f.type === 'range') {
         desc += ` [min: ${f.min}, max: ${f.max}, step: ${f.step}]`;
       }
+      if (f.maxLength) desc += ` [máx: ${f.maxLength} caracteres]`;
+      if (f.maxLines) desc += ` [máx: ${f.maxLines} linhas]`;
+      if (f.maxLengthPerLine) desc += ` [máx por linha: ${f.maxLengthPerLine} caracteres]`;
       return desc;
     }).join('\n');
 
@@ -46,7 +49,7 @@ Sua tarefa é analisar os dados de uma página de produto e preencher automatica
 
 Você deve:
 1. Escolher o template mais adequado dentre os disponíveis (com base no tipo de produto, visual da página e screenshot)
-2. Gerar o conteúdo persuasivo em português brasileiro
+2. Gerar o conteúdo persuasivo no idioma especificado abaixo
 3. Extrair o tema de cores da identidade visual do site
 4. Preencher os campos específicos do template escolhido
 
@@ -82,7 +85,10 @@ SCHEMA:
 
 REGRAS:
 - "templateId" deve ser exatamente um dos IDs listados acima
-- "bullets" deve ser um array de strings (máximo 6 itens)
+- "headline": máximo 70 caracteres — priorize clareza e impacto (para templates de modal/card centralizado como offer-modal e app-ad-fullscreen, limite a 55 caracteres)
+- "subtitle": máximo 130 caracteres — texto de suporte, sem repetir o headline (para templates de modal/card, limite a 90 caracteres)
+- "ctaText": máximo 35 caracteres — deve caber em uma única linha no botão
+- "bullets": máximo 5 itens; cada item com máximo 80 caracteres — comece com verbo ou substantivo forte
 - "heroImageUrl" deve ser uma das URLs de imagem fornecidas (ou null se nenhuma for adequada)
 - "theme.primary" é a cor principal da marca (botões, CTAs, destaques)
 - "theme.secondary" é a cor de suporte (títulos, ícones)
@@ -92,6 +98,7 @@ REGRAS:
 - Todas as cores em formato rgba() — suporta transparência no canal alpha (0.0 a 1.0)
 - "settings" deve conter apenas os campos do template escolhido
 - Campos de "settings" do tipo "range" devem ser números dentro do min/max especificado
+- Respeite os limites de caracteres indicados por [máx: N caracteres] em cada campo — o conteúdo excedente será cortado na tela mobile
 - O JSON deve ser válido — sem vírgulas finais, sem comentários
 - Gere EXCLUSIVAMENTE o conteúdo em ${getLanguageName(language)}`;
 }

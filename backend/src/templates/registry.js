@@ -28,6 +28,7 @@ const templateRegistry = Object.freeze(
             label: "Texto de desconto",
             type: "text",
             defaultValue: "Up to 43% OFF",
+            maxLength: 20,
             previewSelector: ".offer-modal-discount"
           },
           {
@@ -35,6 +36,7 @@ const templateRegistry = Object.freeze(
             label: "Texto de escassez",
             type: "text",
             defaultValue: "Oferta por tempo limitado",
+            maxLength: 50,
             previewSelector: ".offer-modal-scarcity"
           },
           {
@@ -42,6 +44,7 @@ const templateRegistry = Object.freeze(
             label: "Nota",
             type: "text",
             defaultValue: "9.0",
+            maxLength: 5,
             previewSelector: ".offer-modal-rating-value"
           },
           {
@@ -49,6 +52,7 @@ const templateRegistry = Object.freeze(
             label: "Texto das estrelas",
             type: "text",
             defaultValue: "5 estrelas",
+            maxLength: 20,
             previewSelector: ".offer-modal-rating"
           },
           {
@@ -163,6 +167,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Rotulo",
             type: "text",
             defaultValue: "Anuncio",
+            maxLength: 15,
             previewSelector: ".app-ad-label"
           },
           {
@@ -170,6 +175,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Microcopy",
             type: "text",
             defaultValue: "Toque para continuar no site oficial.",
+            maxLength: 60,
             previewSelector: ".app-ad-microcopy"
           },
           {
@@ -177,6 +183,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Aviso",
             type: "textarea",
             defaultValue: "Voce sera redirecionado para uma pagina externa.",
+            maxLength: 100,
             previewSelector: ".app-ad-disclaimer"
           },
           {
@@ -308,6 +315,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Texto da barra superior",
             type: "text",
             defaultValue: "OFERTA OFICIAL",
+            maxLength: 20,
             helpText: "Deixe vazio para ocultar a barra.",
             previewSelector: ".urgent-offer-top-bar"
           },
@@ -327,6 +335,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Preço original (riscado)",
             type: "text",
             defaultValue: "",
+            maxLength: 15,
             helpText: "Ex: R$ 297. Deixe vazio para não exibir.",
             previewSelector: ".urgent-offer-original-price"
           },
@@ -335,6 +344,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Preço atual",
             type: "text",
             defaultValue: "",
+            maxLength: 15,
             helpText: "Ex: R$ 147. Deixe vazio para não exibir.",
             previewSelector: ".urgent-offer-current-price"
           },
@@ -343,6 +353,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Texto de escassez",
             type: "text",
             defaultValue: "",
+            maxLength: 60,
             helpText: "Ex: Restam apenas 7 unidades. Deixe vazio para ocultar.",
             previewSelector: ".urgent-offer-scarcity"
           },
@@ -358,6 +369,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Título dos bônus",
             type: "text",
             defaultValue: "Bônus Exclusivos",
+            maxLength: 30,
             helpText: "Título exibido no topo da seção de bônus."
           },
           {
@@ -365,6 +377,8 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Itens de bônus (um por linha)",
             type: "textarea",
             defaultValue: "",
+            maxLines: 5,
+            maxLengthPerLine: 70,
             helpText: "Cada linha vira um item na lista de bônus. Deixe vazio para não exibir."
           },
           {
@@ -379,6 +393,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Título da garantia",
             type: "text",
             defaultValue: "Garantia de 30 dias",
+            maxLength: 30,
             helpText: "Ex: Garantia de 7 dias, Satisfação garantida."
           },
           {
@@ -386,6 +401,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Texto da garantia",
             type: "textarea",
             defaultValue: "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
+            maxLength: 130,
             helpText: "Descrição da garantia exibida abaixo do título."
           },
           {
@@ -393,6 +409,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Aviso legal",
             type: "textarea",
             defaultValue: "",
+            maxLength: 150,
             helpText: "Texto pequeno no rodapé. Deixe vazio para ocultar.",
             previewSelector: ".urgent-offer-disclaimer"
           },
@@ -512,6 +529,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Rótulo superior",
             type: "text",
             defaultValue: "OFERTA OFICIAL",
+            maxLength: 20,
             helpText: "Texto exibido acima da imagem em destaque. Ex: PRODUTO OFICIAL, FÓRMULA EXCLUSIVA.",
             previewSelector: ".clean-authority-label"
           },
@@ -528,6 +546,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Texto complementar da avaliação",
             type: "text",
             defaultValue: "+5.000 avaliações",
+            maxLength: 25,
             helpText: "Texto exibido ao lado das estrelas. Ex: +5.000 avaliações, Mais de 10 mil clientes.",
             previewSelector: ".clean-authority-rating-count"
           },
@@ -543,6 +562,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Título dos bônus",
             type: "text",
             defaultValue: "Bônus Exclusivos",
+            maxLength: 30,
             helpText: "Título exibido no topo da seção de bônus."
           },
           {
@@ -550,6 +570,8 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Itens de bônus (um por linha)",
             type: "textarea",
             defaultValue: "",
+            maxLines: 5,
+            maxLengthPerLine: 70,
             helpText: "Cada linha vira um item na lista de bônus. Deixe vazio para não exibir."
           },
           {
@@ -564,6 +586,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Título da garantia",
             type: "text",
             defaultValue: "Garantia de 30 dias",
+            maxLength: 30,
             helpText: "Ex: Garantia de 7 dias, Satisfação garantida."
           },
           {
@@ -571,6 +594,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Texto da garantia",
             type: "textarea",
             defaultValue: "Se não ficar satisfeito, devolvemos 100% do seu dinheiro.",
+            maxLength: 130,
             helpText: "Descrição da garantia exibida abaixo do título."
           },
           {
@@ -578,6 +602,7 @@ Responda exclusivamente com um JSON válido neste formato:
             label: "Aviso legal",
             type: "textarea",
             defaultValue: "",
+            maxLength: 150,
             helpText: "Texto pequeno no rodapé. Deixe vazio para ocultar.",
             previewSelector: ".clean-authority-disclaimer"
           }
