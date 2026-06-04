@@ -65,6 +65,7 @@ Retorne EXCLUSIVAMENTE um objeto JSON válido — sem markdown, sem blocos de c�
 SCHEMA:
 {
   "templateId": "id-do-template-escolhido",
+  "slug": "slug-amigavel-da-url",
   "headline": "Título principal persuasivo",
   "subtitle": "Subtítulo complementar (pode ser vazio)",
   "body": "Texto do corpo — narrativa persuasiva de 2-4 parágrafos separados por \\n\\n",
@@ -85,6 +86,7 @@ SCHEMA:
 
 REGRAS:
 - "templateId" deve ser exatamente um dos IDs listados acima
+- "slug": URL amigável gerada no idioma selecionado — use palavras-chave do produto, máximo 5 palavras separadas por hífen, apenas letras minúsculas sem acento, números e hífens (ex: "emagrecer-rapido-natural", "productivity-app-review", "suplemento-energia-natural")
 - "headline": máximo 70 caracteres — priorize clareza e impacto (para templates de modal/card centralizado como offer-modal e app-ad-fullscreen, limite a 55 caracteres)
 - "subtitle": máximo 130 caracteres — texto de suporte, sem repetir o headline (para templates de modal/card, limite a 90 caracteres)
 - "ctaText": máximo 35 caracteres — deve caber em uma única linha no botão
@@ -215,6 +217,7 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
 
   return {
     templateId: parsed.templateId,
+    slug: typeof parsed.slug === 'string' ? parsed.slug.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') : '',
     headline: parsed.headline ?? '',
     subtitle: parsed.subtitle ?? '',
     body: parsed.body ?? '',
