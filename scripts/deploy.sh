@@ -110,6 +110,9 @@ git pull --ff-only origin "$DEPLOY_BRANCH"
 echo "📦 Instalando dependências..."
 npm install
 
+echo "🏗️ Compilando bundle de templates SSR..."
+npm run build:templates
+
 echo "🏗️ Gerando build do frontend..."
 npm run build:frontend
 
@@ -155,6 +158,9 @@ curl \
   --retry-delay 1 \
   --retry-connrefused \
   "$BACKEND_HEALTHCHECK_URL" >/dev/null
+
+echo "🖼️  Gerando HTML SSR para presells publicados sem HTML estático..."
+node "$REPO_DIR/backend/scripts/backfill-rendered-html.js" || echo "⚠️  Backfill concluído com falhas (veja logs acima)"
 
 echo "✅ Deploy concluído"
 echo "   Frontend: $FRONTEND_TARGET_DIR"
