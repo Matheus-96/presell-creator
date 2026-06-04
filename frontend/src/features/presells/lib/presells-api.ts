@@ -139,10 +139,11 @@ export function duplicatePresell(id: number) {
   return apiClient.post<PresellDetail>(`${adminApiPaths.presells}/${id}/duplicate`)
 }
 
-export function uploadMedia(file: File) {
+export function uploadMedia(file: File, purpose?: 'product' | 'background') {
   const form = new FormData()
   form.append('file', file)
-  return apiClient.post<UploadResponse>('/admin/uploads', { body: form })
+  const url = purpose ? `/admin/uploads?purpose=${purpose}` : '/admin/uploads'
+  return apiClient.post<UploadResponse>(url, { body: form })
 }
 
 export function getApiErrorMessage(error: unknown, fallbackMessage: string) {

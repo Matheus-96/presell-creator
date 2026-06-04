@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { uploadDir } = require('../services/uploadService');
+const { processImageFile } = require('../services/imageProcessor');
 
 const MAX_IMAGES = 5;
 const DOWNLOAD_TIMEOUT_MS = 8_000;
@@ -58,7 +59,7 @@ async function downloadImage(url, referer) {
  * @param {string} pageUrl - usado como Referer e base para resolver URLs relativas
  * @returns {Promise<string[]>}
  */
-async function downloadAndHostImages(imageUrls, pageUrl) {
+async function downloadAndHostImages(imageUrls, pageUrl, purpose = 'default') {
   const toProcess = imageUrls.slice(0, MAX_IMAGES);
   const hosted = [];
 
@@ -74,9 +75,12 @@ async function downloadAndHostImages(imageUrls, pageUrl) {
       }
 
       const { buffer, ext } = await downloadImage(absoluteUrl, pageUrl);
-      const filename = `poc-${hash}${ext}`;
-      fs.writeFileSync(path.join(uploadDir, filename), buffer);
-      hosted.push(`/media/${filename}`);
+      const rawFilename = `poc-${hash}${ext}`;
+      const rawFilePath = path.join(uploadDir, rawFilename);
+      fs.writeFileSync(rawFilePath, buffer);
+
+      const finalPath = await processImageFile(rawFilePath, purpose);
+      hosted.push(`/media/${path.basename(finalPath)}`);
     } catch {
       // skip failures silently
     }

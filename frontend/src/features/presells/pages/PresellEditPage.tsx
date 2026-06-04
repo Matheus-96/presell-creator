@@ -233,6 +233,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <MediaPicker
                       label="Imagem em destaque (Herói)"
+                      purpose="product"
                       value={formValues.media.heroImageReference}
                       onChange={(ref) => {
                         setValueAndMarkEdited('media.heroImageReference', ref, { shouldDirty: true })
@@ -242,6 +243,7 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                     />
                     <MediaPicker
                       label="Imagem de fundo"
+                      purpose="background"
                       value={formValues.media.backgroundImageReference}
                       onChange={(ref) => {
                         setValueAndMarkEdited('media.backgroundImageReference', ref, { shouldDirty: true })

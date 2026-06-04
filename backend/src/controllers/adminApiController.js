@@ -34,6 +34,7 @@ const {
   rotateAdminSession
 } = require("../services/adminAuthService");
 const { registerUpload } = require("../services/uploadService");
+const { processUploadedImage } = require("../services/imageProcessor");
 
 function getContracts(req, res) {
   res.json(adminApiContract);
@@ -203,7 +204,7 @@ function getAnalyticsPresellStatistics(req, res) {
   return res.json(serializePresellStatistics(getPresellStatistics(req.params.id), presell));
 }
 
-function postUpload(req, res) {
+async function postUpload(req, res) {
   if (!req.file) {
     return res.status(400).json(buildApiError(
       "upload_required",
@@ -211,9 +212,11 @@ function postUpload(req, res) {
     ));
   }
 
-  const filename = registerUpload(req.file);
+  const purpose = req.query.purpose;
+  const processedFile = await processUploadedImage(req.file, purpose);
+  const filename = registerUpload(processedFile);
   return res.status(201).json(serializeUploadResponse({
-    ...req.file,
+    ...processedFile,
     filename
   }));
 }

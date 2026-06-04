@@ -5,6 +5,7 @@ const path = require('path');
 const sharp = require('sharp');
 const { uploadDir } = require('../services/uploadService');
 const { createUpload } = require('../repositories/uploadRepository');
+const { processImageFile } = require('../services/imageProcessor');
 
 const DOWNLOAD_TIMEOUT_MS = 8_000;
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
@@ -120,12 +121,16 @@ async function extractAndHostBackgroundImage(pageData, pageUrl) {
 
     fs.writeFileSync(filePath, buffer);
 
+    const finalPath = await processImageFile(filePath, 'background');
+    const finalFilename = path.basename(finalPath);
+    const finalSize = fs.statSync(finalPath).size;
+
     // Register in uploads DB so it appears in the media gallery
     createUpload({
-      originalname: filename,
-      filename,
-      mimetype: contentType,
-      size: buffer.byteLength,
+      originalname: finalFilename,
+      filename: finalFilename,
+      mimetype: 'image/webp',
+      size: finalSize,
     });
 
     // Generate resized thumbnail via sharp
@@ -137,7 +142,7 @@ async function extractAndHostBackgroundImage(pageData, pageUrl) {
     const base64 = `data:image/jpeg;base64,${thumbBuffer.toString('base64')}`;
 
     return {
-      hostedUrl: `/media/${filename}`,
+      hostedUrl: `/media/${finalFilename}`,
       base64,
     };
   } catch {

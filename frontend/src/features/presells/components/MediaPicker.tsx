@@ -10,6 +10,7 @@ interface MediaPickerProps {
   value: MediaReference | null
   onChange: (reference: MediaReference | null) => void
   isLoading?: boolean
+  purpose?: 'product' | 'background'
 }
 
 interface ConfirmDelete {
@@ -17,7 +18,7 @@ interface ConfirmDelete {
   usedBy: string[]
 }
 
-export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerProps) {
+export function MediaPicker({ label, value, onChange, isLoading, purpose }: MediaPickerProps) {
   const [images, setImages] = useState<MediaImage[]>([])
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [loadingGallery, setLoadingGallery] = useState(false)
@@ -63,7 +64,7 @@ export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerPr
     if (!file) return
     setUploading(true)
     try {
-      const result = await uploadMedia(file)
+      const result = await uploadMedia(file, purpose)
       const imgs = await listMediaImages()
       setImages(imgs)
       onChange({

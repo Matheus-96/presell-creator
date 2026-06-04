@@ -192,7 +192,7 @@ router.post('/download-images', async (req, res) => {
     const heroUrls = heroImages.map(i => i.url);
     // Use the first image URL as the page referer (best-effort)
     const referer = heroUrls[0];
-    const hosted = await downloadAndHostImages(heroUrls.slice(0, 1), referer);
+    const hosted = await downloadAndHostImages(heroUrls.slice(0, 1), referer, 'product');
     if (hosted.length > 0) {
       result.hero = path.basename(hosted[0]);
     }
@@ -213,7 +213,7 @@ router.post('/download-images', async (req, res) => {
   if (galleryImages.length > 0) {
     const galleryUrls = galleryImages.map(i => i.url);
     const referer = galleryUrls[0];
-    const hosted = await downloadAndHostImages(galleryUrls, referer);
+    const hosted = await downloadAndHostImages(galleryUrls, referer, 'default');
     result.gallery = hosted.map(u => path.basename(u));
   }
 

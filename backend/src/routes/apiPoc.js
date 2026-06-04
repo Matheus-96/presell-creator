@@ -53,7 +53,7 @@ router.post('/generate', async (req, res) => {
   try {
     const extractor = createExtractor();
     const pageData = await extractor.extract(parsedUrl.href);
-    const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href);
+    const hostedImageUrls = await downloadAndHostImages(pageData.imageUrls ?? [], parsedUrl.href, 'product');
     const result = await generatePresellBlocks(pageData, hostedImageUrls);
 
     return res.json({
