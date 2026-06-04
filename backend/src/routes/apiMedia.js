@@ -4,7 +4,9 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { requireApiAuth } = require('../middleware/auth');
-const { uploadDir } = require('../services/uploadService');
+const { verifyApiCsrf } = require('../middleware/csrf');
+const { uploadDir, deleteUpload } = require('../services/uploadService');
+const { getSlugsByImagePath } = require('../repositories/presellRepository');
 
 const router = express.Router();
 
@@ -32,6 +34,24 @@ router.get('/', requireApiAuth, (req, res) => {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   res.json({ images });
+});
+
+router.delete('/:filename', requireApiAuth, verifyApiCsrf, (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.join(uploadDir, filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Arquivo não encontrado' });
+  }
+
+  const usedBy = getSlugsByImagePath(filename);
+
+  if (req.query.check === 'true') {
+    return res.json({ usedBy });
+  }
+
+  deleteUpload(filename);
+  res.json({ success: true });
 });
 
 module.exports = router;

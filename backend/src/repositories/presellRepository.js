@@ -67,6 +67,9 @@ const duplicatePresellStmt = db.prepare(`
   ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const deletePresellStmt = db.prepare("DELETE FROM presells WHERE id = ?");
+const getSlugsByImagePathStmt = db.prepare(
+  "SELECT slug FROM presells WHERE image_path LIKE ? OR background_image_path LIKE ?"
+);
 
 function listPresells() {
   return listPresellsStmt.all();
@@ -193,6 +196,11 @@ function deletePresell(id) {
   deletePresellStmt.run(id);
 }
 
+function getSlugsByImagePath(filename) {
+  const pattern = `%${filename}%`;
+  return getSlugsByImagePathStmt.all(pattern, pattern).map((row) => String(row.slug));
+}
+
 module.exports = {
   listPresells,
   listPresellCollection,
@@ -203,5 +211,6 @@ module.exports = {
   createPresell,
   duplicatePresell,
   listDuplicateSlugs,
-  deletePresell
+  deletePresell,
+  getSlugsByImagePath
 };
