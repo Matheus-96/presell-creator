@@ -86,7 +86,7 @@ SCHEMA:
 
 REGRAS:
 - "templateId" deve ser exatamente um dos IDs listados acima
-- "slug": URL amigável gerada no idioma selecionado — use palavras-chave do produto, máximo 5 palavras separadas por hífen, apenas letras minúsculas sem acento, números e hífens (ex: "emagrecer-rapido-natural", "productivity-app-review", "suplemento-energia-natural")
+- "slug": slug editorial de 5 a 8 palavras no idioma selecionado, estilo URL de matéria/conteúdo — deve refletir o ângulo de copy do presell (curiosidade, resultado, descoberta, autoridade), não o nome do produto; apenas letras minúsculas sem acento, números e hífens (ex: "formula-natural-que-esta-acabando-com-as-dores", "medicos-revelam-segredo-para-emagrecer-sem-dieta", "how-doctors-discovered-this-joint-pain-solution")
 - "headline": máximo 70 caracteres — priorize clareza e impacto (para templates de modal/card centralizado como offer-modal e app-ad-fullscreen, limite a 55 caracteres)
 - "subtitle": máximo 130 caracteres — texto de suporte, sem repetir o headline (para templates de modal/card, limite a 90 caracteres)
 - "ctaText": máximo 35 caracteres — deve caber em uma única linha no botão
