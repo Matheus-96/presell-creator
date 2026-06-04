@@ -32,8 +32,9 @@ ENV VITE_APP_NAME=$VITE_APP_NAME \
 
 COPY frontend/ ./frontend/
 COPY backend/ ./backend/
+COPY scripts/ ./scripts/
 
-RUN npm run build:frontend
+RUN npm run build:templates && npm run build:frontend
 
 ###############################################################################
 # Stage 2 — lighttpd com arquivos estáticos do frontend
@@ -107,8 +108,15 @@ RUN npm ci --omit=dev
 # Backend source
 COPY backend/ ./backend/
 
+# Bundle de templates SSR gerado no builder (gitignored, não está no source)
+COPY --from=builder /app/backend/src/templates/templates.bundle.js ./backend/src/templates/
+
 # Built frontend from builder stage
 COPY --from=builder /app/frontend/dist ./frontend/dist
+
+# Entrypoint: roda backfill de HTML SSR antes de iniciar o servidor
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Persistent storage directory (SQLite files + uploads) — mount as volume
 RUN mkdir -p /app/storage/uploads
@@ -119,4 +127,4 @@ ENV NODE_ENV=production \
 
 EXPOSE 3002
 
-CMD ["node", "backend/src/server.js"]
+CMD ["/entrypoint.sh"]
