@@ -1,7 +1,6 @@
 ---
 name: dev-plan
 description: Creates a structured development plan from the current conversation context or an attached PRD. Records immutable architectural decisions and organizes tasks using the tracer bullet methodology — each task is a thin vertical slice that proves the system works before expanding scope.
-disable-model-invocation: true
 ---
 
 # Dev Plan

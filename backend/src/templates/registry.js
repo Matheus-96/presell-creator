@@ -520,6 +520,133 @@ Responda exclusivamente com um JSON válido neste formato:
 \`\`\``
       },
       {
+        id: "discreto-confidencial",
+        name: "Discreto Confidencial",
+        description: "Presell dark focado em discrição e confiança. Ideal para suplementos, saúde íntima e produtos que valorizam privacidade na compra.",
+        fields: [
+          {
+            name: "brand_name",
+            label: "Nome da marca",
+            type: "text",
+            defaultValue: "",
+            maxLength: 30,
+            helpText: "Nome exibido no topo com ícone de cadeado. Ex: NUTRAVIDA, FÓRMULA PRO."
+          },
+          {
+            name: "top_bar_text",
+            label: "Texto do badge superior",
+            type: "text",
+            defaultValue: "OFERTA OFICIAL",
+            maxLength: 20,
+            helpText: "Texto do pill/badge no topo. Ex: OFERTA OFICIAL, EXCLUSIVO."
+          },
+          {
+            name: "badges",
+            label: "Trust badges (um por linha)",
+            type: "textarea",
+            defaultValue: "📦 EMBALAGEM DISCRETA\n🛡️ COMPRA PROTEGIDA\n🚚 ENTREGA SIGILOSA",
+            maxLines: 5,
+            maxLengthPerLine: 40,
+            helpText: "Cada linha vira um card. Formato: emoji TEXTO (ex: 📦 EMBALAGEM DISCRETA)."
+          },
+          {
+            name: "disclaimer",
+            label: "Aviso legal",
+            type: "textarea",
+            defaultValue: "",
+            maxLength: 200,
+            helpText: "Texto pequeno exibido abaixo do botão CTA. Deixe vazio para ocultar."
+          },
+          FONT_PAIR_FIELD
+        ],
+        aiInstructions: `Você irá preencher um template de presell do tipo "Discreto Confidencial" (discreto-confidencial).
+
+## Quando usar este template
+Use quando:
+- O produto requer discrição na compra (suplementos, saúde íntima, emagrecimento)
+- A comunicação é sóbria, confiável e sem apelos de urgência exagerada
+- O visual dark transmite seriedade e exclusividade
+**Priorize este template quando o público valoriza privacidade e confiança acima de promoção.**
+
+## Objetivo
+Presell dark com foco em credibilidade discreta. A imagem do produto ocupa destaque central. Os trust badges (embalagem discreta, compra protegida, entrega sigilosa) reforçam a proposta de privacidade. O CTA âmbar convida sem pressionar.
+
+## Estrutura visual (de cima para baixo)
+1. Nome da marca com ícone de cadeado
+2. Badge superior com label da oferta
+3. Imagem do produto (fill)
+4. Headline e subtítulo
+5. Trust badges (emoji + texto)
+6. Botão CTA fixo no fundo
+7. Disclaimer (opcional)
+
+## Campos do presell
+
+**headline** — Título principal. Foco no benefício do produto, linguagem natural e confiável. Evite urgência ou exclamações.
+Exemplo: "O método natural que já conquistou milhares de brasileiros"
+
+**subtitle** — 1–2 frases complementando o headline. Tom tranquilo, reforça facilidade de uso.
+Exemplo: "Uma fórmula simples, de uso diário, desenvolvida para apoiar seus resultados de forma segura e sem complicação."
+
+**ctaText** — Texto do CTA. Direto, sem pressão excessiva.
+Exemplo: "IR PARA O SITE OFICIAL →", "ACESSAR OFERTA EXCLUSIVA →"
+
+**bullets** — Não exibido neste template. Pode ser omitido.
+
+## Configurações (settings)
+
+**brand_name** — Nome da marca exibido no topo com ícone de cadeado. Use o nome do produto ou marca.
+Exemplo: "NUTRAVIDA", "SUPLEMENTO X", "FORMULA PRO"
+
+**top_bar_text** — Texto do badge/pill superior. Curto, em maiúsculas.
+Exemplo: "OFERTA OFICIAL", "EXCLUSIVO", "ACESSO RESTRITO"
+
+**badges** — Trust badges exibidos em cards abaixo do subtítulo. Uma por linha no formato "emoji TEXTO".
+Exemplo:
+📦 EMBALAGEM DISCRETA
+🛡️ COMPRA PROTEGIDA
+🚚 ENTREGA SIGILOSA
+
+**disclaimer** — Aviso legal exibido abaixo do botão CTA. Opcional.
+Exemplo: "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde. Não substitui orientação médica."
+
+## Cores e tom visual
+
+Este template é dark por padrão. Use cores que reforcem discrição e confiança:
+- Primária (CTA, badge): dourado/âmbar — #c9a84c, #d4a017, #b8922a
+- Background: preto ou cinza muito escuro — #111111, #0f0f0f, #141414
+- Surface (cards): cinza escuro — #1c1c1c, #1e1e1e, #222222
+- Texto principal: branco ou quase branco — #ffffff, #f5f5f5
+- Texto secundário: cinza claro — #e5e5e5, #d4d4d4
+
+## Modelo de resposta JSON
+
+Responda exclusivamente com um JSON válido neste formato:
+
+\`\`\`json
+{
+  "headline": "...",
+  "subtitle": "...",
+  "ctaText": "...",
+  "bullets": [],
+  "settings": {
+    "brand_name": "...",
+    "top_bar_text": "OFERTA OFICIAL",
+    "badges": "📦 EMBALAGEM DISCRETA\\n🛡️ COMPRA PROTEGIDA\\n🚚 ENTREGA SIGILOSA",
+    "disclaimer": "...",
+    "font_pair": "serious"
+  },
+  "theme": {
+    "primary": "rgba(201, 168, 76, 1)",
+    "secondary": "rgba(255, 255, 255, 1)",
+    "background": "rgba(17, 17, 17, 1)",
+    "surface": "rgba(28, 28, 28, 0.95)",
+    "textColor": "rgba(229, 229, 229, 1)"
+  }
+}
+\`\`\``
+      },
+      {
         id: "clean-authority",
         name: "Autoridade limpa",
         description: "Layout mobile-first centrado em autoridade e confiança, sem elementos de urgência. Ideal para saúde, suplementos, produtos naturais e cursos de bem-estar.",
