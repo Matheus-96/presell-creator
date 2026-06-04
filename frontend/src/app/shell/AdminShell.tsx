@@ -63,7 +63,7 @@ export function AdminShell() {
         </div>
       </nav>
 
-      <main className="flex-1 overflow-hidden min-w-0">
+      <main className="flex-1 overflow-y-auto min-w-0">
         <Outlet />
       </main>
     </div>
