@@ -835,6 +835,216 @@ Responda exclusivamente com um JSON válido neste formato:
   }
 }
 \`\`\``
+      },
+      {
+        id: "oferta-black",
+        name: "Oferta Black",
+        description: "Layout dark premium com countdown regressivo persistente, preço riscado e botão CTA dourado. Ideal para suplementos, emagrecimento, fitness e produtos com urgência e desconto.",
+        fields: [
+          {
+            name: "countdown_label",
+            label: "Rótulo do contador",
+            type: "text",
+            defaultValue: "A CONDIÇÃO TERMINA EM",
+            maxLength: 30,
+            helpText: "Texto exibido ao lado do contador regressivo.",
+            previewSelector: ".oferta-black-countdown"
+          },
+          {
+            name: "show_countdown",
+            label: "Exibir contador regressivo",
+            type: "checkbox",
+            defaultValue: true,
+            helpText: "Oculte quando não houver urgência real na oferta.",
+            previewSelector: ".oferta-black-countdown"
+          },
+          {
+            name: "countdown_hours",
+            label: "Duração do contador (horas)",
+            type: "range",
+            defaultValue: 24,
+            min: 1,
+            max: 72,
+            step: 1,
+            helpText: "Horas até o contador zerar. O timer persiste entre recargas do mesmo visitante."
+          },
+          {
+            name: "original_price",
+            label: "Preço original",
+            type: "text",
+            defaultValue: "R$ 347",
+            maxLength: 20,
+            helpText: "Preço antes do desconto, exibido riscado. Ex: R$ 347.",
+            previewSelector: ".oferta-black-original-price"
+          },
+          {
+            name: "sale_price",
+            label: "Preço promocional",
+            type: "text",
+            defaultValue: "R$ 167",
+            maxLength: 20,
+            helpText: "Preço com desconto em destaque. Ex: R$ 167.",
+            previewSelector: ".oferta-black-sale-price"
+          },
+          {
+            name: "scarcity_text",
+            label: "Texto de escassez",
+            type: "text",
+            defaultValue: "Últimas unidades em estoque nesta condição",
+            maxLength: 60,
+            helpText: "Exibido com marcador dourado abaixo do preço. Ex: Apenas 17 unidades disponíveis.",
+            previewSelector: ".oferta-black-scarcity"
+          },
+          {
+            name: "overlay_strength",
+            label: "Força do overlay (imagem de fundo)",
+            type: "range",
+            defaultValue: 0.75,
+            min: 0,
+            max: 0.9,
+            step: 0.05,
+            helpText: "Opacidade do overlay escuro sobre a imagem de fundo. Sem efeito se não houver imagem de fundo.",
+            previewSelector: ".oferta-black-overlay"
+          },
+          {
+            name: "disclaimer",
+            label: "Aviso legal (rodapé)",
+            type: "textarea",
+            defaultValue: "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde. Não substitui orientação médica.",
+            maxLines: 4,
+            maxLengthPerLine: 120,
+            helpText: "Texto legal exibido em fonte pequena no final da página. Adapte ao nicho do produto.",
+            previewSelector: ".oferta-black-disclaimer"
+          },
+          {
+            name: "age_gate_enabled",
+            label: "Ativar verificação de idade",
+            type: "checkbox",
+            defaultValue: false,
+            helpText: "Exibe um modal de confirmação de idade antes de mostrar o conteúdo da página. Recomendado para conteúdos voltados ao público adulto."
+          },
+          {
+            name: "age_gate_title",
+            label: "Título do modal de idade",
+            type: "text",
+            defaultValue: "Verificação de Idade",
+            maxLength: 60,
+            helpText: "Título exibido no topo do modal."
+          },
+          {
+            name: "age_gate_description",
+            label: "Descrição do modal de idade",
+            type: "textarea",
+            defaultValue: "Este conteúdo é destinado exclusivamente a maiores de 18 anos.",
+            maxLines: 3,
+            maxLengthPerLine: 120,
+            helpText: "Texto explicativo exibido no modal antes do botão de confirmação."
+          },
+          {
+            name: "age_gate_confirm_text",
+            label: "Texto do botão de confirmação",
+            type: "text",
+            defaultValue: "Declaro que possuo mais de 18 anos",
+            maxLength: 80,
+            helpText: "Texto do botão que o usuário clica para confirmar a idade."
+          },
+          FONT_PAIR_FIELD
+        ],
+        aiInstructions: `Você irá preencher um template de presell do tipo "Oferta Black" (oferta-black).
+
+## Quando usar este template
+Use quando:
+- O produto tem apelo premium ou "dark luxury" (suplementos, emagrecimento, performance, beleza)
+- A oferta tem urgência real: prazo limitado, estoque reduzido ou desconto por tempo determinado
+- O design deve transmitir exclusividade e alta conversão com estética escura e sofisticada
+- O nicho inclui saúde, beleza, fitness, emagrecimento, performance ou bem-estar premium
+**Priorize este template quando o produto tem preço original e preço promocional e a urgência é o principal gatilho de conversão.**
+
+## Objetivo
+Página mobile-first com fundo escuro e acentos dourados que combina urgência (countdown regressivo persistente por visitante), autoridade visual e pressão de escassez para maximizar a conversão. O layout direciona o olhar do usuário do topo (header + timer) à imagem do produto, ao headline de impacto, à oferta de preço e ao botão CTA fixo no rodapé.
+
+## Estrutura visual (de cima para baixo)
+1. Header com ponto dourado e "OFERTA OFICIAL" centralizado em dourado
+2. Contador regressivo HH:MM:SS com label configurável
+3. Foto do produto em destaque (ou placeholder escuro)
+4. Headline em caixa alta, negrito, branco
+5. Subtítulo descritivo em cinza claro
+6. Preço original riscado + preço promocional em destaque
+7. Texto de escassez com marcador dourado
+8. Disclaimer legal em texto muito pequeno
+9. Botão CTA dourado fixo no rodapé da tela
+
+## Campos do presell
+
+**headline** — Frase de impacto curta, em caixa alta (o template aplica uppercase automaticamente). Máximo 2 linhas visuais. Exemplo: "O Método Natural que já Conquistou Milhares de Brasileiros"
+
+**subtitle** — Descrição breve do produto, tom direto e informativo. 1–2 frases. Exemplo: "Uma fórmula simples, de uso diário, desenvolvida para apoiar seus resultados de forma segura e sem complicação."
+
+**ctaText** — Texto do botão de ação fixo no rodapé. Tom imperativo. Exemplo: "IR PARA O SITE OFICIAL →", "GARANTIR MINHA OFERTA →", "QUERO MEU DESCONTO →"
+
+**bullets** — Não exibidos neste template. Deixe o array vazio.
+
+**body** — Não exibido neste template. Deixe em branco.
+
+## Configurações (settings)
+
+**countdown_label** — Texto exibido ao lado do contador regressivo. Use maiúsculas. Exemplo: "A CONDIÇÃO TERMINA EM", "OFERTA EXPIRA EM", "TEMPO RESTANTE"
+
+**show_countdown** — true para exibir o contador; false para ocultar. Use true sempre que houver urgência real.
+
+**countdown_hours** — Duração do countdown em horas (1 a 72). O timer persiste entre recargas do mesmo visitante via localStorage. Use 4–8 para urgência máxima; 24 para urgência moderada; 48–72 para promoções de fim de semana. Valor numérico inteiro.
+
+**original_price** — Preço original antes do desconto, exibido riscado. Inclua o símbolo da moeda. Exemplo: "R$ 347", "R$ 197"
+
+**sale_price** — Preço promocional em destaque. Inclua o símbolo da moeda. Exemplo: "R$ 167", "R$ 97"
+
+**scarcity_text** — Texto de escassez exibido com marcador dourado abaixo do preço. Tom direto e urgente. Exemplo: "Últimas unidades em estoque nesta condição", "Apenas 17 unidades disponíveis"
+
+**overlay_strength** — Opacidade do overlay escuro sobre a imagem de fundo (backgroundImageUrl). Valor entre 0 e 0.9. Sem efeito se não houver backgroundImageUrl. Use 0.6–0.75 para fundos com textura visível; 0.8–0.9 para alto contraste de texto.
+
+**disclaimer** — Aviso legal em texto pequeno no final da página. Adapte ao nicho:
+- Suplementos: mencione variação de resultados e consulta a profissional de saúde
+- Produtos naturais: mencione que não substitui tratamento médico
+- Cursos: mencione que resultados dependem de dedicação do aluno
+Exemplo: "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde. Não substitui orientação médica."
+
+**font_pair** — Par tipográfico:
+- "system" — neutro, padrão do sistema
+- "modern" — Inter. Ideal para tecnologia, performance, SaaS
+- "serious" — Merriweather + Lato. Ideal para saúde, medicina, jurídico
+- "friendly" — Poppins + Nunito. Ideal para bem-estar, lifestyle
+- "bold" — Montserrat + Open Sans. Ideal para fitness, esportes, bodybuilding
+
+## Modelo de resposta JSON
+
+Responda exclusivamente com um JSON válido neste formato:
+
+\`\`\`json
+{
+  "headline": "O Método Natural que já Conquistou Milhares de Brasileiros",
+  "subtitle": "Uma fórmula simples, de uso diário, desenvolvida para apoiar seus resultados de forma segura e sem complicação.",
+  "ctaText": "IR PARA O SITE OFICIAL →",
+  "bullets": [],
+  "settings": {
+    "countdown_label": "A CONDIÇÃO TERMINA EM",
+    "show_countdown": true,
+    "countdown_hours": 24,
+    "original_price": "R$ 347",
+    "sale_price": "R$ 167",
+    "scarcity_text": "Últimas unidades em estoque nesta condição",
+    "overlay_strength": 0.75,
+    "disclaimer": "Este conteúdo tem caráter promocional. Resultados podem variar de pessoa para pessoa. Consulte um profissional de saúde. Não substitui orientação médica.",
+    "font_pair": "bold"
+  },
+  "theme": {
+    "primary": "rgba(201, 162, 39, 1)",
+    "secondary": "rgba(255, 255, 255, 1)",
+    "background": "rgba(13, 13, 13, 1)",
+    "surface": "rgba(26, 26, 26, 1)",
+    "textColor": "rgba(229, 229, 229, 1)"
+  }
+}
+\`\`\``
       }
     ].map((definition) => [definition.id, normalizeTemplateManifest(definition)])
   )

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { vi, describe, it, expect } from 'vitest'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { getTemplate } from '@/features/presells/templates/registry.ts'
 import type { PresellPublicData } from '@/features/presells/templates/types.ts'
 
@@ -248,6 +248,140 @@ describe('device-frame render', () => {
     )
     const bar = container.querySelector('[data-testid="device-top-bar"]') as HTMLElement
     expectColor(bar.style.backgroundColor, CUSTOM_THEME.primary)
+  })
+})
+
+describe('oferta-black render', () => {
+
+  it('getTemplate("oferta-black") returns a component', () => {
+    expect(getTemplate('oferta-black')).not.toBeNull()
+  })
+
+  it('renders headline and CTA normally when age_gate_enabled is false', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          headline: 'Oferta Black Headline',
+          ctaText: 'Comprar Agora',
+          settings: { age_gate_enabled: false },
+        })}
+      />,
+    )
+    expect(screen.getByText('Oferta Black Headline')).toBeDefined()
+    expect(screen.getByRole('button', { name: /comprar agora/i })).toBeDefined()
+  })
+
+  it('renders headline and CTA normally when age_gate_enabled is absent', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({ templateId: 'oferta-black', headline: 'Sem Gate' })}
+      />,
+    )
+    expect(screen.getByText('Sem Gate')).toBeDefined()
+  })
+
+  it('hides presell content and shows gate when age_gate_enabled is true', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          headline: 'Conteúdo Bloqueado',
+          settings: { age_gate_enabled: true },
+        })}
+      />,
+    )
+    expect(screen.queryByText('Conteúdo Bloqueado')).toBeNull()
+    expect(screen.getByText('Verificação de Idade')).toBeDefined()
+  })
+
+  it('shows default gate texts when no custom texts are provided', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({ templateId: 'oferta-black', settings: { age_gate_enabled: true } })}
+      />,
+    )
+    expect(screen.getByText('Verificação de Idade')).toBeDefined()
+    expect(screen.getByText('Este conteúdo é destinado exclusivamente a maiores de 18 anos.')).toBeDefined()
+    expect(screen.getByRole('button', { name: /declaro que possuo mais de 18 anos/i })).toBeDefined()
+  })
+
+  it('shows custom texts from settings', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          settings: {
+            age_gate_enabled: true,
+            age_gate_title: 'Age Verification',
+            age_gate_description: 'You must be 18+ to view this content.',
+            age_gate_confirm_text: 'I am 18 or older',
+          },
+        })}
+      />,
+    )
+    expect(screen.getByText('Age Verification')).toBeDefined()
+    expect(screen.getByText('You must be 18+ to view this content.')).toBeDefined()
+    expect(screen.getByRole('button', { name: /i am 18 or older/i })).toBeDefined()
+  })
+
+  it('age_gate_enabled as string "true" also triggers gate', () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          headline: 'Headline Oculta',
+          settings: { age_gate_enabled: 'true' },
+        })}
+      />,
+    )
+    expect(screen.queryByText('Headline Oculta')).toBeNull()
+    expect(screen.getByText('Verificação de Idade')).toBeDefined()
+  })
+
+  it('reveals presell content after clicking the confirm button', async () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          headline: 'Headline Revelada',
+          ctaText: 'Garantir Oferta',
+          settings: { age_gate_enabled: true },
+        })}
+      />,
+    )
+    expect(screen.queryByText('Headline Revelada')).toBeNull()
+
+    await userEvent.click(screen.getByRole('button', { name: /declaro que possuo mais de 18 anos/i }))
+
+    expect(screen.getByText('Headline Revelada')).toBeDefined()
+  })
+
+  it('gate is not shown after confirmation — CTA button becomes the presell CTA', async () => {
+    const OfertaBlack = getTemplate('oferta-black')!
+    render(
+      <OfertaBlack
+        presell={makePresell({
+          templateId: 'oferta-black',
+          ctaText: 'Garantir Oferta',
+          settings: {
+            age_gate_enabled: true,
+            age_gate_confirm_text: 'Confirmar Idade',
+          },
+        })}
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: /confirmar idade/i }))
+
+    expect(screen.queryByRole('button', { name: /confirmar idade/i })).toBeNull()
+    expect(screen.getByRole('button', { name: /garantir oferta/i })).toBeDefined()
   })
 })
 

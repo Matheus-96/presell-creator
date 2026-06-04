@@ -3,6 +3,14 @@ import { handlePresellCta } from '../lib/presell-cta.ts'
 import { registerTemplate } from './registry.ts'
 import type { TemplateComponentProps } from './types.ts'
 
+function hexToRgb(hex: string): string {
+  const clean = hex.replace('#', '')
+  const r = parseInt(clean.slice(0, 2), 16)
+  const g = parseInt(clean.slice(2, 4), 16)
+  const b = parseInt(clean.slice(4, 6), 16)
+  return `${r},${g},${b}`
+}
+
 function usePersistedCountdown(slug: string, hours: number, enabled: boolean) {
   const key = `presell-cd-${slug}`
 
@@ -98,10 +106,83 @@ function OfertaBlack({ presell }: TemplateComponentProps) {
   const overlayStrength = (settings.overlay_strength as number | undefined) ?? 0.75
   const disclaimer      = settings.disclaimer as string | undefined
 
+  const ageGateEnabled     = settings.age_gate_enabled === true || settings.age_gate_enabled === 'true'
+  const ageGateTitle       = (settings.age_gate_title as string | undefined) ?? 'Verificação de Idade'
+  const ageGateDescription = (settings.age_gate_description as string | undefined) ?? 'Este conteúdo é destinado exclusivamente a maiores de 18 anos.'
+  const ageGateConfirmText = (settings.age_gate_confirm_text as string | undefined) ?? 'Declaro que possuo mais de 18 anos'
+
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
+
   const countdown = usePersistedCountdown(slug, countdownHours, showCountdown)
 
   function handleCta() {
     handlePresellCta(slug, affiliateUrl, trackingParam)
+  }
+
+  if (ageGateEnabled && !ageConfirmed) {
+    return (
+      <div
+        style={{
+          minHeight: '100dvh',
+          backgroundColor: colors.background,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 var(--p-space-4)',
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            maxWidth: 'var(--p-maxw-card)',
+            backgroundColor: colors.surface,
+            border: `1px solid rgba(${hexToRgb(colors.primary)}, 0.35)`,
+            borderRadius: 'var(--p-radius-lg)',
+            padding: 'var(--p-space-8) var(--p-space-6)',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              fontSize: 'var(--p-eyebrow-size)',
+              fontWeight: 700,
+              letterSpacing: '0.14em',
+              color: colors.primary,
+              textTransform: 'uppercase',
+              marginBottom: 'var(--p-space-4)',
+            }}
+          >
+            {ageGateTitle}
+          </p>
+          <p
+            style={{
+              fontSize: 'var(--p-body-size)',
+              lineHeight: 'var(--p-body-lh)',
+              color: colors.textColor,
+              marginBottom: 'var(--p-space-8)',
+            }}
+          >
+            {ageGateDescription}
+          </p>
+          <button
+            type="button"
+            onClick={() => setAgeConfirmed(true)}
+            className="w-full cursor-pointer uppercase tracking-wider transition-[filter] hover:brightness-90 active:brightness-75"
+            style={{
+              backgroundColor: colors.primary,
+              minHeight: 'var(--p-cta-min-height)',
+              borderRadius: 'var(--p-radius-md)',
+              fontSize: 'var(--p-cta-text-size)',
+              fontWeight: 'var(--p-cta-text-weight)',
+              lineHeight: 'var(--p-cta-text-lh)',
+              color: colors.background,
+            }}
+          >
+            {ageGateConfirmText}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
