@@ -69,7 +69,7 @@ function renderTrackingScript(publicData) {
   location.search.slice(1).split('&').forEach(function(p){var kv=p.split('=');if(kv[0])params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||'');});
   fetch('/api/public/presells/'+slug+'/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventType:'page_view',params:params})}).catch(function(){});
   var startTime=Date.now();var timeSent=false;
-  function sendTime(){if(timeSent)return;timeSent=true;var seconds=Math.round((Date.now()-startTime)/1000);if(seconds<1)return;navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'time_on_page',params:{seconds:seconds}})],{type:'application/json'}));}
+  function sendTime(){if(timeSent)return;timeSent=true;var seconds=Math.round((Date.now()-startTime)/1000);if(seconds<1)return;var tp=Object.assign({},params,{seconds:seconds});navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'time_on_page',params:tp})],{type:'application/json'}));}
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')sendTime();});
   window.addEventListener('pagehide',sendTime,{once:true});
   document.querySelectorAll('[data-presell-cta]').forEach(function(el){
