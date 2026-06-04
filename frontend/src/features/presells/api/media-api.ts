@@ -8,6 +8,6 @@ export interface MediaImage {
 }
 
 export async function listMediaImages(): Promise<MediaImage[]> {
-  const data = await apiClient.get<{ images: MediaImage[] }>('/api/admin/media')
+  const data = await apiClient.get<{ images: MediaImage[] }>('/admin/media')
   return data.images
 }
