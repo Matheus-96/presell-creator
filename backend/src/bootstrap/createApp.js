@@ -22,7 +22,8 @@ const apiPocRoutes = require("../routes/apiPoc");
 const apiPublicRoutes = require("../routes/apiPublic");
 const {
   createAdminFrontendRouter,
-  createPublicPresellSpaHandler,
+  createPublicPresellHandler,
+  createPresellCssHandler,
   hasBuiltAdminFrontend
 } = require("../routes/adminFrontend");
 const assetRoutes = require("../routes/assets");
@@ -82,9 +83,10 @@ function createApp() {
     setHeaders: setStaticAssetCacheHeaders
   }));
   app.use("/media", assetRoutes);
+  app.get("/assets/presell.css", createPresellCssHandler());
+  app.use("/p", createPublicPresellHandler());
   if (adminFrontendBuilt) {
     app.use(adminFrontendPath, createAdminFrontendRouter());
-    app.use("/p/", createPublicPresellSpaHandler());
   }
   app.use("/", publicRoutes);
   app.use("/api/admin", apiAdminRoutes);

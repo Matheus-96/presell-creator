@@ -9,7 +9,7 @@
     "ecmaVersion": "latest"
   },
   "plugins": [],
-  "ignorePatterns": ["src/services/**"],
+  "ignorePatterns": ["src/services/**", "src/templates/templates.bundle.js"],
   "rules": {
     "no-console": "off",
     "func-names": "off",

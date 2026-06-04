@@ -39,11 +39,33 @@ function savePresell(input, imagePath, backgroundImagePath) {
 
   const data = normalizePresellInput(input, imagePath, backgroundImagePath, existingPresell);
 
-  if (input.id) {
-    return presellRepository.updatePresell(input.id, data);
-  }
+  const saved = input.id
+    ? presellRepository.updatePresell(input.id, data)
+    : presellRepository.createPresell(data);
 
-  return presellRepository.createPresell(data);
+  renderAndPersistHtml(saved);
+
+  return saved;
+}
+
+// Gera o HTML estático do presell e o persiste. Roda em todo save (draft
+// inclusive — simplifica a lógica; HTML de draft não é servido publicamente).
+// Falha de renderização nunca bloqueia o save: loga o erro e continua.
+function renderAndPersistHtml(presell) {
+  if (!presell) return;
+
+  try {
+    // require tardio: o bundle de templates é gerado em build time e pode não
+    // existir em ambientes que não rodaram `build:templates`.
+    const { renderPresellHtml } = require("./presellRenderer");
+    const html = renderPresellHtml(presell);
+    presellRepository.updateRenderedHtml(presell.id, html);
+    presell.rendered_html = html;
+  } catch (error) {
+    console.error(
+      `Falha ao renderizar HTML do presell ${presell.id}: ${error.message}`
+    );
+  }
 }
 
 function duplicatePresell(id) {

@@ -5,7 +5,9 @@
  * cores computadas, CSS variables e stylesheets inline.
  */
 
-const puppeteer = require('puppeteer');
+// puppeteer é importado de forma tardia dentro de extract() — é um módulo ESM
+// pesado e seu require no topo quebra o carregamento sob jest (que não parseia
+// o ESM). Carregar sob demanda evita arrastá-lo só por requerer este módulo.
 
 /** @typedef {import('./IPageExtractor').PageData} PageData */
 
@@ -58,6 +60,8 @@ class PuppeteerExtractor {
    * @throws {Error} se o Puppeteer falhar (timeout, navegação, etc.)
    */
   async extract(url) {
+    // eslint-disable-next-line global-require
+    const puppeteer = require('puppeteer');
     const browser = await puppeteer.launch({
       headless: true,
       args: [

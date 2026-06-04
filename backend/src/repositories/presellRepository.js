@@ -66,6 +66,9 @@ const duplicatePresellStmt = db.prepare(`
     cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param
   ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
+const updateRenderedHtmlStmt = db.prepare(
+  "UPDATE presells SET rendered_html = ? WHERE id = ?"
+);
 const deletePresellStmt = db.prepare("DELETE FROM presells WHERE id = ?");
 const getSlugsByImagePathStmt = db.prepare(
   "SELECT slug FROM presells WHERE image_path LIKE ? OR background_image_path LIKE ?"
@@ -194,6 +197,10 @@ function listDuplicateSlugs(baseSlug) {
     .map((row) => String(row.slug || ""));
 }
 
+function updateRenderedHtml(id, html) {
+  updateRenderedHtmlStmt.run(html, id);
+}
+
 function deletePresell(id) {
   deletePresellStmt.run(id);
 }
@@ -211,6 +218,7 @@ module.exports = {
   getPublishedPresell,
   updatePresell,
   createPresell,
+  updateRenderedHtml,
   duplicatePresell,
   listDuplicateSlugs,
   deletePresell,

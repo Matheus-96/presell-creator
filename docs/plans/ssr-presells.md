@@ -124,10 +124,10 @@ Hoje `/p/:slug` serve o `index.html` da SPA — o crawler do Google encontra uma
 
 - **Prova:** ao salvar um presell via API, o `rendered_html` no banco é atualizado automaticamente.
 - **Done-when:**
-  - [ ] `presellService.savePresell()` chama `renderPresellHtml(presell)` após o save no repositório
-  - [ ] Em caso de erro na renderização, loga o erro e não lança exceção (save continua)
-  - [ ] `presellRepository.updatePresell` e `createPresell` recebem e persistem `rendered_html`
-  - [ ] Presells com `status = 'draft'` também geram HTML (simplifica a lógica; HTML de draft não é servido publicamente)
+  - [x] `presellService.savePresell()` chama `renderPresellHtml(presell)` após o save no repositório
+  - [x] Em caso de erro na renderização, loga o erro e não lança exceção (save continua)
+  - [x] `presellRepository.updatePresell` e `createPresell` recebem e persistem `rendered_html`
+  - [x] Presells com `status = 'draft'` também geram HTML (simplifica a lógica; HTML de draft não é servido publicamente)
 - **Verificar:** via API ou sqlite3: salvar um presell e checar `SELECT rendered_html IS NOT NULL FROM presells WHERE id = ?`
 - **Balizador:** Se a coluna estiver preenchida após o save, o wiring está correto.
 
@@ -137,10 +137,10 @@ Hoje `/p/:slug` serve o `index.html` da SPA — o crawler do Google encontra uma
 
 - **Prova:** visitar `/p/slug-existente` retorna o HTML armazenado, não o `index.html` da SPA.
 - **Done-when:**
-  - [ ] `createPublicPresellSpaHandler` substituído por handler que lê `rendered_html` do banco
-  - [ ] Se `rendered_html` não for NULL: `res.set('Content-Type', 'text/html').send(rendered_html)`
-  - [ ] Se `rendered_html` for NULL (legado): fallback para `res.sendFile(frontendDistIndexFile)`
-  - [ ] Se presell não existir ou não for `published`: 404
+  - [x] `createPublicPresellSpaHandler` substituído por handler que lê `rendered_html` do banco
+  - [x] Se `rendered_html` não for NULL: `res.set('Content-Type', 'text/html').send(rendered_html)`
+  - [x] Se `rendered_html` for NULL (legado): fallback para `res.sendFile(frontendDistIndexFile)`
+  - [x] Se presell não existir ou não for `published`: 404
 - **Verificar:** `curl -s http://localhost:3000/p/<slug> | head -5` deve mostrar `<!doctype html>` com conteúdo real
 - **Balizador:** Se o `curl` mostrar o headline do presell no HTML, a rota está correta.
 
@@ -150,9 +150,9 @@ Hoje `/p/:slug` serve o `index.html` da SPA — o crawler do Google encontra uma
 
 - **Prova:** o HTML gerado carrega o CSS corretamente e tem metadados completos.
 - **Done-when:**
-  - [ ] Backend expõe rota `/assets/presell.css` que serve o arquivo CSS mais recente de `frontend/dist/assets/*.css`
-  - [ ] `presellRenderer` inclui no `<head>`: `<link rel="stylesheet" href="/assets/presell.css">`, `<title>`, `<meta name="description">`, tags OG (`og:title`, `og:description`, `og:image`, `og:type`), `<link rel="canonical">`
-  - [ ] `og:image` usa a URL absoluta da imagem do presell (via `mediaPathService`)
+  - [x] Backend expõe rota `/assets/presell.css` que serve o arquivo CSS mais recente de `frontend/dist/assets/*.css`
+  - [x] `presellRenderer` inclui no `<head>`: `<link rel="stylesheet" href="/assets/presell.css">`, `<title>`, `<meta name="description">`, tags OG (`og:title`, `og:description`, `og:image`, `og:type`), `<link rel="canonical">`
+  - [x] `og:image` usa a URL absoluta da imagem do presell (via `mediaPathService`)
 - **Verificar:** `curl -s http://localhost:3000/p/<slug> | grep -E 'og:|canonical|presell.css'`
 - **Balizador:** Se as tags aparecerem com os valores corretos do presell, a task está completa.
 
@@ -162,11 +162,11 @@ Hoje `/p/:slug` serve o `index.html` da SPA — o crawler do Google encontra uma
 
 - **Cobre:** comportamento público da rota após a mudança de SPA para HTML estático
 - **Done-when:**
-  - [ ] Presell `published` com `rendered_html` preenchido → 200, `Content-Type: text/html`, HTML contém o conteúdo armazenado
-  - [ ] Presell `published` com `rendered_html = NULL` → 200, fallback para SPA index.html
-  - [ ] Presell `draft` → 404
-  - [ ] Slug inexistente → 404
-  - [ ] Padrão de mock seguido de `publicRoutes.test.js` (jest.doMock + supertest)
+  - [x] Presell `published` com `rendered_html` preenchido → 200, `Content-Type: text/html`, HTML contém o conteúdo armazenado
+  - [x] Presell `published` com `rendered_html = NULL` → 200, fallback para SPA index.html
+  - [x] Presell `draft` → 404
+  - [x] Slug inexistente → 404
+  - [x] Padrão de mock seguido de `publicRoutes.test.js` (jest.doMock + supertest)
 - **Verificar:** `npm test --workspace backend -- --testPathPattern publicRoutes`
 
 ---

@@ -192,6 +192,7 @@ describe('processJob — skips downloading, includes extractedImages', () => {
       expect.any(Object),
       [],
       null,
+      expect.any(String),
       expect.any(String)
     );
   });

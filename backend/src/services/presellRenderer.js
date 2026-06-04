@@ -24,10 +24,20 @@ function renderGooglePixel(googlePixelId) {
     `gtag('js',new Date());gtag('config','${id}');</script>`;
 }
 
+// Constrói uma URL absoluta a partir de um caminho relativo de mídia, usando
+// PUBLIC_BASE_URL quando configurado. Sem base configurada, mantém relativo.
+function absoluteUrl(pathOrUrl) {
+  if (!pathOrUrl) return "";
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  const base = (process.env.PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+  return base ? `${base}${pathOrUrl}` : pathOrUrl;
+}
+
 function renderHead(publicData) {
   const title = escapeHtml(publicData.headline || publicData.slug);
   const description = escapeHtml(publicData.subtitle || "");
   const canonical = `/p/${escapeHtml(publicData.slug)}`;
+  const ogImage = absoluteUrl(publicData.imageUrl);
 
   return [
     '<meta charset="UTF-8">',
@@ -35,6 +45,11 @@ function renderHead(publicData) {
     `<title>${title}</title>`,
     `<meta name="description" content="${description}">`,
     `<link rel="canonical" href="${canonical}">`,
+    '<meta property="og:type" content="website">',
+    `<meta property="og:title" content="${title}">`,
+    `<meta property="og:description" content="${description}">`,
+    ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}">` : "",
+    '<link rel="stylesheet" href="/assets/presell.css">',
     renderGooglePixel(publicData.googlePixelId)
   ]
     .filter(Boolean)
