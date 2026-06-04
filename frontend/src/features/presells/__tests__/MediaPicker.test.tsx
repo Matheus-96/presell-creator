@@ -7,16 +7,20 @@ import type { MediaImage } from '@/features/presells/api/media-api.ts'
 
 vi.mock('@/features/presells/api/media-api.ts', () => ({
   listMediaImages: vi.fn(),
+  checkMediaUsage: vi.fn(),
+  deleteMediaImage: vi.fn(),
 }))
 
 vi.mock('@/features/presells/lib/presells-api.ts', () => ({
   uploadMedia: vi.fn(),
 }))
 
-import { listMediaImages } from '@/features/presells/api/media-api.ts'
+import { listMediaImages, checkMediaUsage, deleteMediaImage } from '@/features/presells/api/media-api.ts'
 import { uploadMedia } from '@/features/presells/lib/presells-api.ts'
 
 const mockListMediaImages = vi.mocked(listMediaImages)
+const mockCheckMediaUsage = vi.mocked(checkMediaUsage)
+const mockDeleteMediaImage = vi.mocked(deleteMediaImage)
 const mockUploadMedia = vi.mocked(uploadMedia)
 
 const fakeImage: MediaImage = {
@@ -101,6 +105,60 @@ describe('MediaPicker', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/falha ao carregar galeria/i)).toBeDefined()
+    })
+  })
+
+  describe('handleDeleteClick', () => {
+    async function openGalleryWithImage() {
+      mockListMediaImages.mockResolvedValue([fakeImage])
+      render(<MediaPicker label="Hero Image" value={null} onChange={vi.fn()} />)
+      await userEvent.click(screen.getByRole('button', { name: /selecionar imagem/i }))
+      await waitFor(() => expect(screen.getByText('Galeria de Imagens')).toBeDefined())
+
+      const imageWrapper = screen.getByRole('button', { name: /foo\.jpg/i }).parentElement!
+      await userEvent.hover(imageWrapper)
+      return imageWrapper
+    }
+
+    it('deletes directly and removes image from grid when usedBy is empty', async () => {
+      mockCheckMediaUsage.mockResolvedValue({ usedBy: [] })
+      mockDeleteMediaImage.mockResolvedValue(undefined)
+
+      const wrapper = await openGalleryWithImage()
+      const trashBtn = wrapper.querySelector('button[aria-label^="Excluir"]') as HTMLButtonElement
+      await userEvent.click(trashBtn)
+
+      await waitFor(() => {
+        expect(mockDeleteMediaImage).toHaveBeenCalledWith('foo.jpg')
+        expect(screen.queryByText('Confirmar exclusão')).toBeNull()
+        expect(screen.queryByRole('button', { name: /foo\.jpg/i })).toBeNull()
+      })
+    })
+
+    it('shows confirmation modal when image is used by presells', async () => {
+      mockCheckMediaUsage.mockResolvedValue({ usedBy: ['slug-1'] })
+
+      const wrapper = await openGalleryWithImage()
+      const trashBtn = wrapper.querySelector('button[aria-label^="Excluir"]') as HTMLButtonElement
+      await userEvent.click(trashBtn)
+
+      await waitFor(() => {
+        expect(screen.getByText('Confirmar exclusão')).toBeDefined()
+        expect(mockDeleteMediaImage).not.toHaveBeenCalled()
+      })
+    })
+
+    it('shows error message when direct delete fails', async () => {
+      mockCheckMediaUsage.mockResolvedValue({ usedBy: [] })
+      mockDeleteMediaImage.mockRejectedValue(new Error('server error'))
+
+      const wrapper = await openGalleryWithImage()
+      const trashBtn = wrapper.querySelector('button[aria-label^="Excluir"]') as HTMLButtonElement
+      await userEvent.click(trashBtn)
+
+      await waitFor(() => {
+        expect(screen.getByText(/falha ao excluir imagem/i)).toBeDefined()
+      })
     })
   })
 

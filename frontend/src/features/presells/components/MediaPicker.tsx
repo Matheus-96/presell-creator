@@ -86,9 +86,14 @@ export function MediaPicker({ label, value, onChange, isLoading }: MediaPickerPr
     setCheckingDelete(img.filename)
     try {
       const { usedBy } = await checkMediaUsage(img.filename)
-      setConfirmDelete({ image: img, usedBy })
+      if (usedBy.length === 0) {
+        await deleteMediaImage(img.filename)
+        setImages((prev) => prev.filter((i) => i.filename !== img.filename))
+      } else {
+        setConfirmDelete({ image: img, usedBy })
+      }
     } catch {
-      setError('Falha ao verificar uso da imagem')
+      setError('Falha ao excluir imagem')
     } finally {
       setCheckingDelete(null)
     }
