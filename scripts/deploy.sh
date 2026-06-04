@@ -159,8 +159,8 @@ curl \
   --retry-connrefused \
   "$BACKEND_HEALTHCHECK_URL" >/dev/null
 
-echo "🖼️  Gerando HTML SSR para presells publicados sem HTML estático..."
-node "$REPO_DIR/backend/scripts/backfill-rendered-html.js" || echo "⚠️  Backfill concluído com falhas (veja logs acima)"
+echo "🖼️  Re-renderizando HTML SSR de todos os presells publicados..."
+node "$REPO_DIR/backend/scripts/rerender-all.js" || echo "⚠️  Re-render concluído com falhas (veja logs acima)"
 
 echo "✅ Deploy concluído"
 echo "   Frontend: $FRONTEND_TARGET_DIR"
