@@ -19,17 +19,19 @@
     "hash-password": "node scripts/hash-password.js",
     "smoke": "node scripts/smoke.js",
     "build": "npm run build:split",
+    "build:templates": "node scripts/build-templates.js",
     "build:backend": "npm run build --workspace backend --if-present --",
     "build:frontend": "npm run build --workspace frontend --if-present --",
-    "build:split": "npm run build:backend && npm run build:frontend",
+    "build:split": "npm run build:templates && npm run build:backend && npm run build:frontend",
     "lint": "npm run lint:split",
     "lint:backend": "npm run lint --workspace backend --if-present --",
     "lint:frontend": "npm run lint --workspace frontend --if-present --",
     "lint:split": "npm run lint:backend && npm run lint:frontend"
   },
-  "dependencies": {},
   "engines": {
     "node": ">=22.5.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
 }

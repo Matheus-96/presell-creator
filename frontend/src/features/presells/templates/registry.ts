@@ -1,6 +1,6 @@
 import type { TemplateComponent } from './types.ts'
 
-const registry: Record<string, TemplateComponent> = {}
+export const registry: Record<string, TemplateComponent> = {}
 
 export function registerTemplate(id: string, component: TemplateComponent) {
   registry[id] = component

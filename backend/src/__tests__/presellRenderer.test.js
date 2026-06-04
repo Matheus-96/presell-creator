@@ -1,0 +1,75 @@
+/**
+ * Tests for presellRenderer — geração de HTML estático a partir de um presell.
+ * Mocka as dependências de banco para testar a renderização de forma isolada.
+ */
+
+jest.mock("../db/connection", () => ({
+  db: {
+    prepare: () => ({ get: jest.fn(), all: jest.fn(), run: jest.fn() }),
+    exec: jest.fn(),
+  },
+}));
+jest.mock("../services/presellTemplates", () => ({
+  parsePresellSettings: jest.fn(() => ({})),
+}));
+jest.mock("../services/presellService", () => ({
+  parseBullets: jest.fn(() => []),
+}));
+jest.mock("../services/mediaPathService", () => ({
+  normalizeMediaPath: jest.fn((p) => p || ""),
+  buildMediaUrl: jest.fn(() => null),
+}));
+
+const { renderPresellHtml } = require("../services/presellRenderer");
+
+function buildPresell(overrides = {}) {
+  return {
+    id: 1,
+    slug: "meu-presell",
+    template: "offer-modal",
+    title: "Título",
+    headline: "Headline Teste",
+    subtitle: "Subtítulo",
+    body: "",
+    bullets: "",
+    cta_text: "Continuar",
+    affiliate_url: "https://exemplo.com",
+    settings_json: "{}",
+    google_pixel: null,
+    tracking_param: "gclid",
+    image_path: "",
+    background_image_path: "",
+    theme: null,
+    gallery_images: "[]",
+    ...overrides,
+  };
+}
+
+describe("renderPresellHtml", () => {
+  it("inclui o headline do presell no HTML", () => {
+    const html = renderPresellHtml(buildPresell({ headline: "Headline Teste" }));
+    expect(html).toContain("Headline Teste");
+  });
+
+  it("inclui o canonical com o slug do presell", () => {
+    const html = renderPresellHtml(buildPresell({ slug: "meu-presell" }));
+    expect(html).toMatch(/<link rel="canonical" href="\/p\/meu-presell">/);
+  });
+
+  it("injeta o Google Pixel quando configurado", () => {
+    const html = renderPresellHtml(buildPresell({ google_pixel: "AW-123" }));
+    expect(html).toContain("AW-123");
+  });
+
+  it("não injeta código de pixel quando google_pixel é null", () => {
+    const html = renderPresellHtml(buildPresell({ google_pixel: null }));
+    expect(html).not.toContain("gtag");
+    expect(html).not.toContain("googletagmanager");
+  });
+
+  it("lança erro quando o templateId não existe no bundle", () => {
+    expect(() => renderPresellHtml(buildPresell({ template: "inexistente" }))).toThrow(
+      /inexistente/
+    );
+  });
+});

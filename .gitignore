@@ -33,6 +33,9 @@ frontend/.vercel/
 dist/
 backend/dist/
 frontend/dist/
+
+# bundle de templates SSR gerado em build time (scripts/build-templates.js)
+backend/src/templates/templates.bundle.js
 build/
 backend/build/
 frontend/build/

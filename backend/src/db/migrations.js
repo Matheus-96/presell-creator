@@ -108,6 +108,10 @@ function migrate() {
   runMigration("009_add_legal_text", `
     ALTER TABLE presells ADD COLUMN legal_text TEXT DEFAULT '';
   `);
+
+  runMigration("010_add_rendered_html", `
+    ALTER TABLE presells ADD COLUMN rendered_html TEXT DEFAULT NULL;
+  `);
 }
 
 function runMigration(name, sql) {
