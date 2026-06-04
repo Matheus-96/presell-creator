@@ -10,8 +10,18 @@ O plano não descreve detalhes de implementação — descreve decisões, crité
 
 ## Início
 
+### 1. Leia o input
 Pergunte: "Há um arquivo de PRD para eu ler, ou baseio-me na conversa atual?"
-Se ambíguo, faça perguntas até não restarem ramificações nas duvidas mapeadas.
+Leia tudo antes de continuar.
+
+### 2. Explore o repositório
+Antes de entrevistar o usuário, entenda o terreno:
+- Mapeie as camadas relevantes ao requisito (rotas, services, repositórios, componentes)
+- Identifique padrões existentes que o plano deve seguir
+- Sinalize inconsistências ou dívidas técnicas que possam impactar o escopo
+
+### 3. Entreviste o usuário
+Com base no input e na exploração, levante todas as ramificações em aberto — decisões, ambiguidades, conflitos com o que já existe. Faça perguntas uma a uma, em ordem de impacto. Não avance para o rascunho enquanto restar qualquer ramificação sem entendimento compartilhado.
 
 Salve o plano em `docs/plans/<feature-slug>.md`.
 
