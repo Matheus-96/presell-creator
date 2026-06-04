@@ -27,6 +27,7 @@ esbuild
     platform: "node",
     target: "node18",
     jsx: "automatic",
+    external: ["react", "react-dom", "react/jsx-runtime"],
     alias: {
       "@": path.join(root, "frontend/src")
     },
