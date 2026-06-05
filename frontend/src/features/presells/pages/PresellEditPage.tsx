@@ -85,7 +85,6 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
 
   const {
     saveMutation,
-    deleteMutation,
     duplicateMutation,
     isBusy,
     handleDelete,
