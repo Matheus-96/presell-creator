@@ -112,6 +112,11 @@ function migrate() {
   runMigration("010_add_rendered_html", `
     ALTER TABLE presells ADD COLUMN rendered_html TEXT DEFAULT NULL;
   `);
+
+  runMigration("011_events_country_device", `
+    ALTER TABLE events ADD COLUMN country TEXT DEFAULT NULL;
+    ALTER TABLE events ADD COLUMN device_type TEXT DEFAULT NULL;
+  `);
 }
 
 function runMigration(name, sql) {

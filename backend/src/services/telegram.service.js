@@ -1,28 +1,15 @@
 'use strict';
 
 const { loadEnv } = require('../config/env');
+const { parseDevice, extractRequestMeta } = require('../utils/request-meta');
 
 function escapeMd(str) {
   return String(str).replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
 }
 
-function parseDevice(ua) {
-  if (!ua) return '?';
-  if (/bot|crawl|spider|slurp|facebookexternalhit/i.test(ua)) return 'bot';
-  if (/mobile|android|iphone|ipad|ipod|windows phone/i.test(ua)) return 'mobile';
-  return 'desktop';
-}
-
-function extractRequestMeta(req) {
-  if (!req) return {};
-  const country = req.headers['cf-ipcountry'] || null;
-  const device = parseDevice(req.headers['user-agent']);
-  return { country, device };
-}
-
 function formatVisitorLine(data) {
   const parts = [];
-  if (data.device) parts.push(data.device === 'mobile' ? '📱' : data.device === 'bot' ? '🤖' : '🖥️');
+  if (data.device_type) parts.push(data.device_type === 'mobile' ? '📱' : data.device_type === 'bot' ? '🤖' : '🖥️');
   if (data.country) parts.push(escapeMd(data.country));
   return parts.length ? `\n${parts.join(' ')}` : '';
 }
@@ -77,4 +64,4 @@ async function notify(type, data = {}) {
   }
 }
 
-module.exports = { notify, extractRequestMeta };
+module.exports = { notify };

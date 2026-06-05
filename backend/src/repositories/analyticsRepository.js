@@ -17,8 +17,8 @@ const upsertTrackingSessionStmt = db.prepare(`
 const createEventStmt = db.prepare(`
   INSERT INTO events (
     presell_id, session_key, event_type, params_json,
-    referrer, user_agent, ip_hash
-  ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    referrer, user_agent, ip_hash, country, device_type
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const getOverviewTotalsStmt = db.prepare(`
   SELECT
@@ -186,7 +186,9 @@ function createEvent(event) {
     event.paramsJson,
     event.referrer,
     event.userAgent,
-    event.ipHash
+    event.ipHash,
+    event.country ?? null,
+    event.deviceType ?? null
   );
 }
 

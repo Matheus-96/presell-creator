@@ -57,6 +57,8 @@ const analyticsOverviewSchema = {
           sessionKey: { type: ["string", "null"] },
           referrer: { type: ["string", "null"] },
           userAgent: { type: ["string", "null"] },
+          country: { type: ["string", "null"] },
+          deviceType: { type: ["string", "null"] },
           params: {
             type: "object",
             additionalProperties: true
@@ -249,6 +251,8 @@ function serializeEvent(event) {
     sessionKey: event.session_key || null,
     referrer: event.referrer || null,
     userAgent: event.user_agent || null,
+    country: event.country || null,
+    deviceType: event.device_type || null,
     params: parseJson(event.params_json),
     createdAt: event.created_at || null
   };

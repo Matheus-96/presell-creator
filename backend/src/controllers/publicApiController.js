@@ -7,7 +7,8 @@ const {
 } = require("../contracts");
 const { getPublishedPresell } = require("../services/presellService");
 const { recordEvent, resolveRedirect, getOrCreateSession, recordEventWithSession } = require("../services/analyticsService");
-const { notify, extractRequestMeta } = require("../services/telegram.service");
+const { notify } = require("../services/telegram.service");
+const { extractRequestMeta } = require("../utils/request-meta");
 
 function getContracts(req, res) {
   res.json(publicApiContract);

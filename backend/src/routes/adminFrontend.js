@@ -5,7 +5,8 @@ const path = require("path");
 const { getAdminFrontendCacheHeaders, setAdminFrontendCacheHeaders } = require("../config/cacheControl");
 const { frontendDistDir, frontendDistIndexFile } = require("../config/paths");
 const { getPublishedPresell } = require("../services/presellService");
-const { notify, extractRequestMeta } = require("../services/telegram.service");
+const { notify } = require("../services/telegram.service");
+const { extractRequestMeta } = require("../utils/request-meta");
 
 function hasBuiltAdminFrontend() {
   return fs.existsSync(frontendDistIndexFile);

@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const { collectTrackingParams, getClientIp, hashIp } = require("../middleware/tracking");
 const analyticsRepository = require("../repositories/analyticsRepository");
 const { buildRedirectUrl } = require("./urlBuilder");
+const { extractRequestMeta } = require("../utils/request-meta");
 
 function getOrCreateSession(req) {
   if (!req.session.trackingKey) {
@@ -41,6 +42,7 @@ function recordEvent(req, presell, eventType, extraParams = {}) {
 
 function recordEventWithSession(req, presell, eventType, session, extraParams = {}) {
   const payload = { ...session.params, ...extraParams };
+  const { country, device_type } = extractRequestMeta(req);
 
   analyticsRepository.createEvent({
     presellId: presell ? presell.id : null,
@@ -49,7 +51,9 @@ function recordEventWithSession(req, presell, eventType, session, extraParams = 
     paramsJson: JSON.stringify(payload),
     referrer: req.get("referer") || "",
     userAgent: req.get("user-agent") || "",
-    ipHash: hashIp(getClientIp(req))
+    ipHash: hashIp(getClientIp(req)),
+    country,
+    deviceType: device_type
   });
 
   return {

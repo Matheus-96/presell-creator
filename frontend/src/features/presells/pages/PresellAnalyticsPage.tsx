@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button.tsx'
 import { getPresellStatistics } from '@/features/analytics/lib/analytics-api.ts'
 import { formatNumber, formatPercent, formatDate, formatTitle, formatDuration } from '@/lib/formatters.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
+import { RecentEventsTable } from '@/features/analytics/components/RecentEventsTable.tsx'
 
 export function PresellAnalyticsPage() {
   const { id: idParam } = useParams<{ id: string }>()
@@ -62,7 +63,7 @@ export function PresellAnalyticsPage() {
     )
   }
 
-  const { summary, timeSeries, utmSources, referrers, avgTimeOnPage } = statsQuery.data
+  const { summary, timeSeries, utmSources, referrers, recentEvents, avgTimeOnPage } = statsQuery.data
 
   return (
     <div className="page">
@@ -135,6 +136,13 @@ export function PresellAnalyticsPage() {
           </SectionCard>
         )}
       </div>
+
+      {/* Eventos recentes */}
+      {recentEvents.length > 0 && (
+        <SectionCard eyebrow="Eventos" title="Eventos recentes">
+          <RecentEventsTable events={recentEvents} />
+        </SectionCard>
+      )}
 
       {/* gclid stats */}
       {gclidRows.length > 0 && (

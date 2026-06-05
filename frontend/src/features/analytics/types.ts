@@ -32,6 +32,8 @@ export type AnalyticsOverview = {
     sessionKey: string | null
     referrer: string | null
     userAgent: string | null
+    country: string | null
+    deviceType: string | null
     params: Record<string, unknown>
     createdAt: string | null
   }>
