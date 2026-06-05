@@ -6,7 +6,8 @@ const {
   presellStatisticsSchema,
   serializeAnalyticsSummary,
   serializeAnalyticsOverview,
-  serializePresellStatistics
+  serializePresellStatistics,
+  serializePresellEventsPage
 } = require("./analytics");
 const { loginRequestSchema, sessionSchema, serializeAdminSession } = require("./authSession");
 const {
@@ -74,6 +75,7 @@ module.exports = {
   serializeAnalyticsSummary,
   serializeAnalyticsOverview,
   serializePresellStatistics,
+  serializePresellEventsPage,
   loginRequestSchema,
   sessionSchema,
   serializeAdminSession,

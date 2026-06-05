@@ -1,11 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
 import { SectionCard } from '@/components/ui/SectionCard.tsx'
 import { StatusBanner } from '@/components/ui/StatusBanner.tsx'
 import { Button } from '@/components/ui/button.tsx'
-import { getPresellStatistics } from '@/features/analytics/lib/analytics-api.ts'
+import { getPresellStatistics, getPresellEvents } from '@/features/analytics/lib/analytics-api.ts'
 import { formatNumber, formatPercent, formatDate, formatTitle, formatDuration } from '@/lib/formatters.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { RecentEventsTable } from '@/features/analytics/components/RecentEventsTable.tsx'
@@ -14,12 +14,21 @@ export function PresellAnalyticsPage() {
   const { id: idParam } = useParams<{ id: string }>()
   const id = Number(idParam)
   const navigate = useNavigate()
+  const [eventsPage, setEventsPage] = useState(1)
 
   const statsQuery = useQuery({
     queryKey: ['analytics', 'presell', id],
     queryFn: () => getPresellStatistics(id),
     staleTime: 30_000,
     enabled: Number.isFinite(id),
+  })
+
+  const eventsQuery = useQuery({
+    queryKey: ['analytics', 'presell', id, 'events', eventsPage],
+    queryFn: () => getPresellEvents(id, eventsPage),
+    staleTime: 30_000,
+    enabled: Number.isFinite(id),
+    placeholderData: (prev) => prev,
   })
 
   const title = statsQuery.data
@@ -63,7 +72,7 @@ export function PresellAnalyticsPage() {
     )
   }
 
-  const { summary, timeSeries, utmSources, referrers, recentEvents, avgTimeOnPage } = statsQuery.data
+  const { summary, timeSeries, utmSources, referrers, avgTimeOnPage } = statsQuery.data
 
   return (
     <div className="page">
@@ -138,11 +147,41 @@ export function PresellAnalyticsPage() {
       </div>
 
       {/* Eventos recentes */}
-      {recentEvents.length > 0 && (
-        <SectionCard eyebrow="Eventos" title="Eventos recentes">
-          <RecentEventsTable events={recentEvents} />
-        </SectionCard>
-      )}
+      <SectionCard eyebrow="Eventos" title="Eventos recentes">
+        {eventsQuery.data && eventsQuery.data.events.length > 0 ? (
+          <>
+            <RecentEventsTable events={eventsQuery.data.events} />
+            <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                Página {eventsQuery.data.page} de {eventsQuery.data.pageCount}
+                {' '}({formatNumber(eventsQuery.data.total)} eventos)
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={eventsQuery.data.page <= 1 || eventsQuery.isFetching}
+                  onClick={() => setEventsPage((p) => Math.max(1, p - 1))}
+                >
+                  Anterior
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={eventsQuery.data.page >= eventsQuery.data.pageCount || eventsQuery.isFetching}
+                  onClick={() => setEventsPage((p) => p + 1)}
+                >
+                  Próximo
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : eventsQuery.isPending ? (
+          <p className="text-sm text-muted-foreground">Carregando eventos…</p>
+        ) : (
+          <p className="text-sm text-muted-foreground">Nenhum evento registrado.</p>
+        )}
+      </SectionCard>
 
       {/* gclid stats */}
       {gclidRows.length > 0 && (

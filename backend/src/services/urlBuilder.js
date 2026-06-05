@@ -12,19 +12,17 @@ function buildAffiliateUrl(baseUrl, params) {
   return url.toString();
 }
 
-function buildRedirectUrl(affiliateUrl, params, gclid = null) {
+function buildRedirectUrl(affiliateUrl, params, clickId = null, trackingParam = "gclid") {
   const url = new URL(affiliateUrl);
 
-  // Add all tracking parameters
   for (const key of TRACKING_PARAMS) {
     if (params[key] && !url.searchParams.has(key)) {
       url.searchParams.set(key, params[key]);
     }
   }
 
-  // Add gclid if provided and not already present
-  if (gclid && !url.searchParams.has("gclid")) {
-    url.searchParams.set("gclid", gclid);
+  if (clickId && !url.searchParams.has(trackingParam)) {
+    url.searchParams.set(trackingParam, clickId);
   }
 
   return url.toString();

@@ -1,5 +1,27 @@
 import type { PresellSummary } from '@/features/presells/types.ts'
 
+export type AnalyticsEvent = {
+  id: number
+  presellId: number | null
+  eventType: string
+  sessionKey: string | null
+  referrer: string | null
+  userAgent: string | null
+  country: string | null
+  deviceType: string | null
+  params: Record<string, unknown>
+  createdAt: string | null
+}
+
+export type PresellEventsPage = {
+  events: AnalyticsEvent[]
+  total: number
+  page: number
+  pageCount: number
+  deviceOptions: string[]
+  countryOptions: string[]
+}
+
 export type AnalyticsSummary = {
   totalUsers: number
   recentSales: number
@@ -25,18 +47,7 @@ export type AnalyticsOverview = {
     ctr: number
     avgTimeOnPage: number | null
   }>
-  recentEvents: Array<{
-    id: number
-    presellId: number | null
-    eventType: string
-    sessionKey: string | null
-    referrer: string | null
-    userAgent: string | null
-    country: string | null
-    deviceType: string | null
-    params: Record<string, unknown>
-    createdAt: string | null
-  }>
+  recentEvents: AnalyticsEvent[]
   sources: Array<{
     source: string | null
     total: number
@@ -79,6 +90,6 @@ export type PresellStatistics = {
     referrer: string
     total: number
   }>
-  recentEvents: AnalyticsOverview['recentEvents']
+  recentEvents: AnalyticsEvent[]
   avgTimeOnPage: { avgSeconds: number; sampleCount: number } | null
 }

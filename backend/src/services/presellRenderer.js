@@ -100,7 +100,7 @@ function renderTrackingScript(publicData) {
       e.preventDefault();
       sendTime();
       navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'cta_click',params:params})],{type:'application/json'}));
-      var dest;try{var u=new URL(affiliateUrl);var gclid=params['gclid'];if(gclid&&!u.searchParams.has(trackingParam))u.searchParams.set(trackingParam,gclid);['gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){if(params[k]&&!u.searchParams.has(k))u.searchParams.set(k,params[k]);});dest=u.toString();}catch(err){dest=affiliateUrl;}
+      var dest;try{var u=new URL(affiliateUrl);var clickId=params['gclid']||params['wbraid']||params['gbraid'];if(clickId&&!u.searchParams.has(trackingParam))u.searchParams.set(trackingParam,clickId);['gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){if(params[k]&&!u.searchParams.has(k))u.searchParams.set(k,params[k]);});dest=u.toString();}catch(err){dest=affiliateUrl;}
       ${ctaRedirect}
     });
   });
