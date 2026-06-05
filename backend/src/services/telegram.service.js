@@ -2,20 +2,24 @@
 
 const { loadEnv } = require('../config/env');
 
+function escapeMd(str) {
+  return String(str).replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
+}
+
 function formatMessage(type, data) {
   switch (type) {
     case 'presell.created':
-      return `✅ *Presell criado*\nTítulo: ${data.title ?? '—'}\nSlug: ${data.slug ?? '—'}`;
+      return `✅ *Presell criado*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'presell.published':
-      return `🚀 *Presell publicado*\nTítulo: ${data.title ?? '—'}\nSlug: ${data.slug ?? '—'}`;
+      return `🚀 *Presell publicado*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'presell.deleted':
-      return `🗑️ *Presell removido*\nTítulo: ${data.title ?? '—'}\nSlug: ${data.slug ?? '—'}`;
+      return `🗑️ *Presell removido*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'error.critical':
-      return `🔴 *Erro crítico*\n${data.message ?? JSON.stringify(data)}`;
+      return `🔴 *Erro crítico*\n${escapeMd(data.message ?? JSON.stringify(data))}`;
     case 'deploy.triggered':
-      return `🔄 *Deploy disparado*\n${data.message ?? ''}`;
+      return `🔄 *Deploy disparado*\n${escapeMd(data.message ?? '')}`;
     default:
-      return `[${type}] ${JSON.stringify(data)}`;
+      return `[${escapeMd(type)}] ${escapeMd(JSON.stringify(data))}`;
   }
 }
 

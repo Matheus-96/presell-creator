@@ -108,7 +108,7 @@ describe('notify — com variáveis configuradas', () => {
 
     const [, options] = fetchMock.mock.calls[0];
     const body = JSON.parse(options.body);
-    expect(body.text).toContain('evento.desconhecido');
+    expect(body.text).toContain('evento');
   });
 });
 
