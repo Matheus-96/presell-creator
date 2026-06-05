@@ -14,6 +14,10 @@ function formatMessage(type, data) {
       return `🚀 *Presell publicado*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'presell.deleted':
       return `🗑️ *Presell removido*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
+    case 'presell.page_view':
+      return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
+    case 'presell.cta_click':
+      return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'error.critical':
       return `🔴 *Erro crítico*\n${escapeMd(data.message ?? JSON.stringify(data))}`;
     case 'deploy.triggered':
