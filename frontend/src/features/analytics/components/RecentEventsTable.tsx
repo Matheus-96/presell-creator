@@ -35,6 +35,31 @@ function EventTypeBadge({ eventType }: { eventType: string }) {
   )
 }
 
+type ClickIdType = 'GCLID' | 'GBRAID' | 'WBRAID'
+
+const CLICK_ID_COLORS: Record<ClickIdType, string> = {
+  GCLID: 'bg-blue-100 text-blue-700',
+  GBRAID: 'bg-purple-100 text-purple-700',
+  WBRAID: 'bg-green-100 text-green-700',
+}
+
+function resolveClickIdType(params: Record<string, unknown>): ClickIdType | null {
+  if (params.gclid) return 'GCLID'
+  if (params.gbraid) return 'GBRAID'
+  if (params.wbraid) return 'WBRAID'
+  return null
+}
+
+function ClickIdBadge({ params }: { params: Record<string, unknown> }) {
+  const type = resolveClickIdType(params)
+  if (!type) return <span className="text-muted-foreground">—</span>
+  return (
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${CLICK_ID_COLORS[type]}`}>
+      {type}
+    </span>
+  )
+}
+
 interface RecentEventsTableProps {
   events: RecentEvent[]
 }
@@ -51,6 +76,7 @@ export function RecentEventsTable({ events }: RecentEventsTableProps) {
             <th className="pb-2 pr-4 font-medium">Tipo</th>
             <th className="pb-2 pr-4 font-medium">Device</th>
             <th className="pb-2 pr-4 font-medium">País</th>
+            <th className="pb-2 pr-4 font-medium">Click ID</th>
             <th className="pb-2 font-medium">Browser / OS</th>
           </tr>
         </thead>
@@ -68,6 +94,9 @@ export function RecentEventsTable({ events }: RecentEventsTableProps) {
               </td>
               <td className="py-2 pr-4 text-xs font-mono">
                 {event.country ?? '—'}
+              </td>
+              <td className="py-2 pr-4">
+                <ClickIdBadge params={event.params} />
               </td>
               <td className="py-2 text-xs text-muted-foreground truncate max-w-[220px]">
                 {parseUserAgent(event.userAgent)}

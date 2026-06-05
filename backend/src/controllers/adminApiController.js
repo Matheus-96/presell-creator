@@ -213,7 +213,14 @@ function getAnalyticsPresellEvents(req, res) {
   }
 
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const data = getPresellEventsPaginated(req.params.id, page);
+  const filters = {};
+  if (req.query.hasClickId === "true") filters.hasClickId = true;
+  if (typeof req.query.from === "string" && req.query.from) filters.from = req.query.from;
+  if (typeof req.query.to === "string" && req.query.to) filters.to = req.query.to;
+  if (typeof req.query.device === "string" && req.query.device) filters.device = req.query.device;
+  if (typeof req.query.country === "string" && req.query.country) filters.country = req.query.country;
+
+  const data = getPresellEventsPaginated(req.params.id, page, filters);
   return res.json(serializePresellEventsPage(data));
 }
 

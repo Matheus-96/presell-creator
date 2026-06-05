@@ -9,12 +9,15 @@ import { getPresellStatistics, getPresellEvents } from '@/features/analytics/lib
 import { formatNumber, formatPercent, formatDate, formatTitle, formatDuration } from '@/lib/formatters.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { RecentEventsTable } from '@/features/analytics/components/RecentEventsTable.tsx'
+import { EventFilters } from '@/features/analytics/components/EventFilters.tsx'
+import type { EventFilters as EventFiltersType } from '@/features/analytics/components/EventFilters.tsx'
 
 export function PresellAnalyticsPage() {
   const { id: idParam } = useParams<{ id: string }>()
   const id = Number(idParam)
   const navigate = useNavigate()
   const [eventsPage, setEventsPage] = useState(1)
+  const [eventsFilters, setEventsFilters] = useState<EventFiltersType>({})
 
   const statsQuery = useQuery({
     queryKey: ['analytics', 'presell', id],
@@ -24,8 +27,8 @@ export function PresellAnalyticsPage() {
   })
 
   const eventsQuery = useQuery({
-    queryKey: ['analytics', 'presell', id, 'events', eventsPage],
-    queryFn: () => getPresellEvents(id, eventsPage),
+    queryKey: ['analytics', 'presell', id, 'events', eventsPage, eventsFilters],
+    queryFn: () => getPresellEvents(id, { page: eventsPage, ...eventsFilters }),
     staleTime: 30_000,
     enabled: Number.isFinite(id),
     placeholderData: (prev) => prev,
@@ -148,6 +151,14 @@ export function PresellAnalyticsPage() {
 
       {/* Eventos recentes */}
       <SectionCard eyebrow="Eventos" title="Eventos recentes">
+        <EventFilters
+          deviceOptions={eventsQuery.data?.deviceOptions ?? []}
+          countryOptions={eventsQuery.data?.countryOptions ?? []}
+          onFilterChange={(filters) => {
+            setEventsFilters(filters)
+            setEventsPage(1)
+          }}
+        />
         {eventsQuery.data && eventsQuery.data.events.length > 0 ? (
           <>
             <RecentEventsTable events={eventsQuery.data.events} />
