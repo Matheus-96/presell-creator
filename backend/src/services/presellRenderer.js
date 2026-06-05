@@ -72,12 +72,16 @@ function renderTrackingScript(publicData) {
     ? jsonForScript(`${publicData.googlePixelId}/${publicData.googleAdsPageviewLabel}`)
     : null;
 
+  const clickIdsSnippet = (ctaConversionSendTo || pageviewConversionSendTo)
+    ? `var clickIds={};if(params['wbraid'])clickIds.wbraid=params['wbraid'];if(params['gbraid'])clickIds.gbraid=params['gbraid'];`
+    : "";
+
   const pageviewConversionSnippet = pageviewConversionSendTo
-    ? `gtag('event','conversion',{send_to:${pageviewConversionSendTo}});`
+    ? `gtag('event','conversion',Object.assign({send_to:${pageviewConversionSendTo}},clickIds));`
     : "";
 
   const ctaRedirect = ctaConversionSendTo
-    ? `var redirected=false;function doRedirect(url){if(redirected)return;redirected=true;location.href=url;}var t=setTimeout(function(){doRedirect(dest);},1000);gtag('event','conversion',{send_to:${ctaConversionSendTo},event_callback:function(){clearTimeout(t);doRedirect(dest);}});`
+    ? `var redirected=false;function doRedirect(url){if(redirected)return;redirected=true;location.href=url;}var t=setTimeout(function(){doRedirect(dest);},1000);gtag('event','conversion',Object.assign({send_to:${ctaConversionSendTo},event_callback:function(){clearTimeout(t);doRedirect(dest);}},clickIds));`
     : `location.href=dest;`;
 
   return `<script>(function(){
@@ -85,7 +89,7 @@ function renderTrackingScript(publicData) {
   var affiliateUrl=${affiliateUrl};
   var trackingParam=${trackingParam};
   var params={};
-  location.search.slice(1).split('&').forEach(function(p){var kv=p.split('=');if(kv[0])params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||'');});
+  location.search.slice(1).split('&').forEach(function(p){var kv=p.split('=');if(kv[0])params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||'');});${clickIdsSnippet}
   fetch('/api/public/presells/'+slug+'/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventType:'page_view',params:params})}).catch(function(){});${pageviewConversionSnippet}
   var startTime=Date.now();var timeSent=false;
   function sendTime(){if(timeSent)return;timeSent=true;var seconds=Math.round((Date.now()-startTime)/1000);if(seconds<1)return;var tp=Object.assign({},params,{seconds:seconds});navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'time_on_page',params:tp})],{type:'application/json'}));}
