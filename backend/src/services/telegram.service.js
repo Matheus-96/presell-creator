@@ -6,7 +6,29 @@ function escapeMd(str) {
   return String(str).replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
 }
 
+function parseDevice(ua) {
+  if (!ua) return '?';
+  if (/bot|crawl|spider|slurp|facebookexternalhit/i.test(ua)) return 'bot';
+  if (/mobile|android|iphone|ipad|ipod|windows phone/i.test(ua)) return 'mobile';
+  return 'desktop';
+}
+
+function extractRequestMeta(req) {
+  if (!req) return {};
+  const country = req.headers['cf-ipcountry'] || null;
+  const device = parseDevice(req.headers['user-agent']);
+  return { country, device };
+}
+
+function formatVisitorLine(data) {
+  const parts = [];
+  if (data.device) parts.push(data.device === 'mobile' ? '📱' : data.device === 'bot' ? '🤖' : '🖥️');
+  if (data.country) parts.push(escapeMd(data.country));
+  return parts.length ? `\n${parts.join(' ')}` : '';
+}
+
 function formatMessage(type, data) {
+  const visitor = formatVisitorLine(data);
   switch (type) {
     case 'presell.created':
       return `✅ *Presell criado*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
@@ -15,9 +37,9 @@ function formatMessage(type, data) {
     case 'presell.deleted':
       return `🗑️ *Presell removido*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'presell.page_view':
-      return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
+      return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${visitor}`;
     case 'presell.cta_click':
-      return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
+      return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${visitor}`;
     case 'error.critical':
       return `🔴 *Erro crítico*\n${escapeMd(data.message ?? JSON.stringify(data))}`;
     case 'deploy.triggered':
@@ -55,4 +77,4 @@ async function notify(type, data = {}) {
   }
 }
 
-module.exports = { notify };
+module.exports = { notify, extractRequestMeta };

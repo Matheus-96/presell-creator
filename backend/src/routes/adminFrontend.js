@@ -5,7 +5,7 @@ const path = require("path");
 const { getAdminFrontendCacheHeaders, setAdminFrontendCacheHeaders } = require("../config/cacheControl");
 const { frontendDistDir, frontendDistIndexFile } = require("../config/paths");
 const { getPublishedPresell } = require("../services/presellService");
-const { notify } = require("../services/telegram.service");
+const { notify, extractRequestMeta } = require("../services/telegram.service");
 
 function hasBuiltAdminFrontend() {
   return fs.existsSync(frontendDistIndexFile);
@@ -49,7 +49,7 @@ function createPublicPresellHandler() {
     }
 
     if (presell.rendered_html) {
-      notify("presell.page_view", { title: presell.title, slug: presell.slug });
+      notify("presell.page_view", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
       res.set("Content-Type", "text/html; charset=utf-8");
       return res.send(presell.rendered_html);
     }
