@@ -7,7 +7,7 @@ const {
 } = require("../contracts");
 const { getPublishedPresell } = require("../services/presellService");
 const { recordEvent, resolveRedirect, getOrCreateSession, recordEventWithSession } = require("../services/analyticsService");
-const { notify } = require("../services/telegram.service");
+const { notify, extractRequestMeta } = require("../services/telegram.service");
 
 function getContracts(req, res) {
   res.json(publicApiContract);
@@ -48,7 +48,7 @@ function resolvePresellRedirectContract(req, res) {
     ));
   }
 
-  notify("presell.cta_click", { title: presell.title, slug: presell.slug });
+  notify("presell.cta_click", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
 
   return res.json(serializeTrackingRedirectResponse({
     presell,
@@ -87,7 +87,7 @@ function getPublicPresell(req, res) {
 
   const session = getOrCreateSession(req);
   recordEventWithSession(req, presell, "page_view", session);
-  notify("presell.page_view", { title: presell.title, slug: presell.slug });
+  notify("presell.page_view", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
 
   return res.json(serializePublicPresell(presell));
 }
