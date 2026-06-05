@@ -31,6 +31,10 @@ function recordPresellEvent(req, res) {
     ));
   }
 
+  if (eventType === "cta_click") {
+    notify("presell.cta_click", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
+  }
+
   return res.status(201).json(serializeTrackingEventResponse({
     presell,
     ...recordEvent(req, presell, eventType, getEventParams(req.body && req.body.params)),
