@@ -73,6 +73,8 @@ export type PresellSummary = {
   tracking: {
     googlePixelId: string | null
     trackingParam: string
+    googleAdsCTALabel: string | null
+    googleAdsPageviewLabel: string | null
   }
   timestamps: {
     createdAt: string | null
@@ -175,6 +177,8 @@ export type PresellFormState = {
   affiliateUrl: string
   googlePixelId: string
   trackingParam: string
+  googleAdsCTALabel: string
+  googleAdsPageviewLabel: string
   settings: Record<string, TemplateSettingValue>
   media: {
     heroImageFileName: string
@@ -203,6 +207,8 @@ export type PresellWritePayload = {
   affiliateUrl: string
   googlePixelId: string | null
   trackingParam: string
+  googleAdsCTALabel: string | null
+  googleAdsPageviewLabel: string | null
   settings: Record<string, TemplateSettingValue>
   media?: {
     heroImage?: { fileName: string } | null

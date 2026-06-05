@@ -271,3 +271,71 @@ describe("deserializePresellWriteInput — theme", () => {
     expect(serialized.theme).toEqual(theme);
   });
 });
+
+// ── serializePublicPresell — Google Ads labels ────────────────────────────────
+
+describe("serializePublicPresell — Google Ads labels", () => {
+  const baseRow = {
+    id: 1,
+    slug: "test",
+    template: "advertorial",
+    headline: "H",
+    cta_text: "CTA",
+    affiliate_url: "https://example.com",
+  };
+
+  test("returns googleAdsCTALabel=null when column is null", () => {
+    const result = serializePublicPresell({ ...baseRow, google_ads_cta_label: null });
+    expect(result.googleAdsCTALabel).toBeNull();
+  });
+
+  test("returns googleAdsCTALabel=null when column is omitted", () => {
+    const result = serializePublicPresell({ ...baseRow });
+    expect(result.googleAdsCTALabel).toBeNull();
+  });
+
+  test("returns googleAdsCTALabel when column has value", () => {
+    const result = serializePublicPresell({ ...baseRow, google_ads_cta_label: "AbCdEf" });
+    expect(result.googleAdsCTALabel).toBe("AbCdEf");
+  });
+
+  test("returns googleAdsPageviewLabel=null when column is null", () => {
+    const result = serializePublicPresell({ ...baseRow, google_ads_pageview_label: null });
+    expect(result.googleAdsPageviewLabel).toBeNull();
+  });
+
+  test("returns googleAdsPageviewLabel when column has value", () => {
+    const result = serializePublicPresell({ ...baseRow, google_ads_pageview_label: "PvLabel" });
+    expect(result.googleAdsPageviewLabel).toBe("PvLabel");
+  });
+});
+
+// ── deserializePresellWriteInput — Google Ads labels ─────────────────────────
+
+describe("deserializePresellWriteInput — Google Ads labels", () => {
+  const basePayload = {
+    slug: "test",
+    templateId: "advertorial",
+    affiliateUrl: "https://example.com",
+  };
+
+  test("maps googleAdsCTALabel to google_ads_cta_label", () => {
+    const result = deserializePresellWriteInput({ ...basePayload, googleAdsCTALabel: "AbCdEf" });
+    expect(result.google_ads_cta_label).toBe("AbCdEf");
+  });
+
+  test("stores null when googleAdsCTALabel is omitted", () => {
+    const result = deserializePresellWriteInput({ ...basePayload });
+    expect(result.google_ads_cta_label).toBeNull();
+  });
+
+  test("maps googleAdsPageviewLabel to google_ads_pageview_label", () => {
+    const result = deserializePresellWriteInput({ ...basePayload, googleAdsPageviewLabel: "PvLabel" });
+    expect(result.google_ads_pageview_label).toBe("PvLabel");
+  });
+
+  test("stores null when googleAdsPageviewLabel is omitted", () => {
+    const result = deserializePresellWriteInput({ ...basePayload });
+    expect(result.google_ads_pageview_label).toBeNull();
+  });
+});

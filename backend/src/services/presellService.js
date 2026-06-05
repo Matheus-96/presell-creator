@@ -114,6 +114,8 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
 
   const googlePixel = String(input.google_pixel || "").trim();
   const rawTrackingParam = String(input.tracking_param || "gclid").trim() || "gclid";
+  const googleAdsCTALabel = String(input.google_ads_cta_label || "").trim() || null;
+  const googleAdsPageviewLabel = String(input.google_ads_pageview_label || "").trim() || null;
 
   return {
     slug,
@@ -133,7 +135,9 @@ function normalizePresellInput(input, imagePath, backgroundImagePath, existingPr
     googlePixel: googlePixel || null,
     trackingParam: rawTrackingParam,
     theme: input.theme != null ? input.theme : null,
-    galleryImages: input.gallery_images ?? "[]"
+    galleryImages: input.gallery_images ?? "[]",
+    googleAdsCTALabel,
+    googleAdsPageviewLabel
   };
 }
 

@@ -15,6 +15,10 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function jsonForScript(value) {
+  return JSON.stringify(value).replace(/<\//g, "<\\/");
+}
+
 function renderGooglePixel(googlePixelId) {
   if (!googlePixelId) return "";
 
@@ -61,13 +65,28 @@ function renderTrackingScript(publicData) {
   const affiliateUrl = JSON.stringify(publicData.affiliateUrl || "");
   const trackingParam = JSON.stringify(publicData.trackingParam || "gclid");
 
+  const ctaConversionSendTo = publicData.googlePixelId && publicData.googleAdsCTALabel
+    ? jsonForScript(`${publicData.googlePixelId}/${publicData.googleAdsCTALabel}`)
+    : null;
+  const pageviewConversionSendTo = publicData.googlePixelId && publicData.googleAdsPageviewLabel
+    ? jsonForScript(`${publicData.googlePixelId}/${publicData.googleAdsPageviewLabel}`)
+    : null;
+
+  const pageviewConversionSnippet = pageviewConversionSendTo
+    ? `gtag('event','conversion',{send_to:${pageviewConversionSendTo}});`
+    : "";
+
+  const ctaRedirect = ctaConversionSendTo
+    ? `var redirected=false;function doRedirect(url){if(redirected)return;redirected=true;location.href=url;}var t=setTimeout(function(){doRedirect(dest);},1000);gtag('event','conversion',{send_to:${ctaConversionSendTo},event_callback:function(){clearTimeout(t);doRedirect(dest);}});`
+    : `location.href=dest;`;
+
   return `<script>(function(){
   var slug=${slug};
   var affiliateUrl=${affiliateUrl};
   var trackingParam=${trackingParam};
   var params={};
   location.search.slice(1).split('&').forEach(function(p){var kv=p.split('=');if(kv[0])params[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||'');});
-  fetch('/api/public/presells/'+slug+'/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventType:'page_view',params:params})}).catch(function(){});
+  fetch('/api/public/presells/'+slug+'/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({eventType:'page_view',params:params})}).catch(function(){});${pageviewConversionSnippet}
   var startTime=Date.now();var timeSent=false;
   function sendTime(){if(timeSent)return;timeSent=true;var seconds=Math.round((Date.now()-startTime)/1000);if(seconds<1)return;var tp=Object.assign({},params,{seconds:seconds});navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'time_on_page',params:tp})],{type:'application/json'}));}
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')sendTime();});
@@ -77,7 +96,8 @@ function renderTrackingScript(publicData) {
       e.preventDefault();
       sendTime();
       navigator.sendBeacon('/api/public/presells/'+slug+'/events',new Blob([JSON.stringify({eventType:'cta_click',params:params})],{type:'application/json'}));
-      try{var u=new URL(affiliateUrl);var gclid=params['gclid'];if(gclid&&!u.searchParams.has(trackingParam))u.searchParams.set(trackingParam,gclid);['gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){if(params[k]&&!u.searchParams.has(k))u.searchParams.set(k,params[k]);});location.href=u.toString();}catch(err){location.href=affiliateUrl;}
+      var dest;try{var u=new URL(affiliateUrl);var gclid=params['gclid'];if(gclid&&!u.searchParams.has(trackingParam))u.searchParams.set(trackingParam,gclid);['gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){if(params[k]&&!u.searchParams.has(k))u.searchParams.set(k,params[k]);});dest=u.toString();}catch(err){dest=affiliateUrl;}
+      ${ctaRedirect}
     });
   });
 })();</script>`;

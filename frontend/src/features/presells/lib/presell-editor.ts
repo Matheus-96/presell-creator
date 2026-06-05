@@ -95,6 +95,8 @@ export function createEmptyPresellForm(template: TemplateMetadata | null): Prese
     affiliateUrl: '',
     googlePixelId: '',
     trackingParam: DEFAULT_TRACKING_PARAM,
+    googleAdsCTALabel: '',
+    googleAdsPageviewLabel: '',
     settings: buildTemplateSettings(template),
     media: {
       heroImageFileName: '',
@@ -132,6 +134,8 @@ export function createPresellForm(
     affiliateUrl: detail.affiliateUrl,
     googlePixelId: detail.tracking.googlePixelId ?? '',
     trackingParam: detail.tracking.trackingParam ?? DEFAULT_TRACKING_PARAM,
+    googleAdsCTALabel: detail.tracking.googleAdsCTALabel ?? '',
+    googleAdsPageviewLabel: detail.tracking.googleAdsPageviewLabel ?? '',
     settings: buildTemplateSettings(template, detail.settings),
     media: {
       heroImageFileName: detail.media.heroImage?.fileName ?? '',
@@ -189,6 +193,8 @@ export function buildPresellPayload(
     affiliateUrl: form.affiliateUrl.trim(),
     googlePixelId: form.googlePixelId.trim() || null,
     trackingParam: form.trackingParam.trim() || DEFAULT_TRACKING_PARAM,
+    googleAdsCTALabel: form.googleAdsCTALabel.trim() || null,
+    googleAdsPageviewLabel: form.googleAdsPageviewLabel.trim() || null,
     settings: buildTemplateSettings(template, form.settings),
     ...(Object.keys(media).length > 0 ? { media } : {}),
     theme: form.theme ?? null,

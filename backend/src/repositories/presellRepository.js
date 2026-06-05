@@ -16,6 +16,8 @@ const presellSummarySelect = `
   tracking_param,
   theme,
   gallery_images,
+  google_ads_cta_label,
+  google_ads_pageview_label,
   created_at,
   updated_at
 `;
@@ -51,20 +53,23 @@ const updatePresellStmt = db.prepare(`
   SET slug = ?, status = ?, template = ?, title = ?, headline = ?,
       subtitle = ?, body = ?, bullets = ?, legal_text = ?, cta_text = ?, affiliate_url = ?,
       image_path = ?, settings_json = ?, google_pixel = ?, background_image_path = ?,
-      tracking_param = ?, theme = ?, gallery_images = ?, rendered_html = ?, updated_at = CURRENT_TIMESTAMP
+      tracking_param = ?, theme = ?, gallery_images = ?, rendered_html = ?,
+      google_ads_cta_label = ?, google_ads_pageview_label = ?, updated_at = CURRENT_TIMESTAMP
   WHERE id = ?
 `);
 const createPresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    legal_text, cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path, tracking_param, theme, gallery_images, rendered_html
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    legal_text, cta_text, affiliate_url, image_path, settings_json, google_pixel, background_image_path,
+    tracking_param, theme, gallery_images, rendered_html, google_ads_cta_label, google_ads_pageview_label
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const duplicatePresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param
-  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param,
+    google_ads_cta_label, google_ads_pageview_label
+  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const updateRenderedHtmlStmt = db.prepare(
   "UPDATE presells SET rendered_html = ? WHERE id = ?"
@@ -145,6 +150,8 @@ function updatePresell(id, data) {
     data.theme ?? null,
     data.galleryImages ?? "[]",
     data.renderedHtml ?? null,
+    data.googleAdsCTALabel ?? null,
+    data.googleAdsPageviewLabel ?? null,
     id
   );
 
@@ -171,7 +178,9 @@ function createPresell(data) {
     data.trackingParam ?? "gclid",
     data.theme ?? null,
     data.galleryImages ?? "[]",
-    data.renderedHtml ?? null
+    data.renderedHtml ?? null,
+    data.googleAdsCTALabel ?? null,
+    data.googleAdsPageviewLabel ?? null
   );
 
   return getPresellById(result.lastInsertRowid);
@@ -191,7 +200,9 @@ function duplicatePresell(source, { slug, title }) {
     source.image_path,
     source.settings_json || "{}",
     source.google_pixel || null,
-    source.tracking_param || "gclid"
+    source.tracking_param || "gclid",
+    source.google_ads_cta_label ?? null,
+    source.google_ads_pageview_label ?? null
   );
 
   return getPresellById(result.lastInsertRowid);

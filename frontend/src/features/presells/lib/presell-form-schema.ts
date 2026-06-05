@@ -15,6 +15,8 @@ export const presellFormSchema = z.object({
   affiliateUrl: z.union([z.literal(''), z.string().url('Insira uma URL válida')]),
   googlePixelId: z.string(),
   trackingParam: z.string(),
+  googleAdsCTALabel: z.string(),
+  googleAdsPageviewLabel: z.string(),
   settings: z.record(z.string(), z.unknown()),
   media: z.object({
     heroImageFileName: z.string(),

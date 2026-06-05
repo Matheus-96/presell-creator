@@ -34,6 +34,8 @@ const zodPresellBaseSchema = z.object({
   googlePixelId: z.string().max(50, "googlePixelId deve ter no máximo 50 caracteres").nullable().optional(),
   tracking_param: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/, "tracking_param inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra)").optional(),
   trackingParam: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/, "trackingParam inválido. Use apenas letras, números, _ ou - (máx 50 chars, início com letra)").optional(),
+  googleAdsCTALabel: z.string().max(100).nullable().optional(),
+  googleAdsPageviewLabel: z.string().max(100).nullable().optional(),
   settings: z.object({}).passthrough().optional(),
   theme: z.any().optional(),
   galleryImages: z.array(z.any()).optional(),
@@ -92,6 +94,8 @@ const presellWriteSchema = {
     affiliateUrl: { type: "string" },
     googlePixelId: { type: ["string", "null"] },
     trackingParam: { type: "string" },
+    googleAdsCTALabel: { type: ["string", "null"] },
+    googleAdsPageviewLabel: { type: ["string", "null"] },
     settings: {
       type: "object",
       additionalProperties: true
@@ -218,7 +222,9 @@ function serializePresellSummary(presell) {
     },
     tracking: {
       googlePixelId: presell.google_pixel || null,
-      trackingParam: String(presell.tracking_param || "gclid")
+      trackingParam: String(presell.tracking_param || "gclid"),
+      googleAdsCTALabel: presell.google_ads_cta_label || null,
+      googleAdsPageviewLabel: presell.google_ads_pageview_label || null
     },
     timestamps: {
       createdAt: presell.created_at || null,
@@ -259,6 +265,8 @@ function serializePresellWriteInput(presell) {
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
     trackingParam: String(presell.tracking_param || "gclid"),
+    googleAdsCTALabel: presell.google_ads_cta_label || null,
+    googleAdsPageviewLabel: presell.google_ads_pageview_label || null,
     settings: parsePresellSettings(presell),
     media: {
       heroImage: serializeMediaReference(presell.image_path),
@@ -290,6 +298,8 @@ function deserializePresellWriteInput(payload = {}) {
     affiliate_url: String(payload.affiliateUrl || payload.affiliate_url || "").trim(),
     google_pixel: payload.googlePixelId || payload.google_pixel || null,
     tracking_param: String(payload.trackingParam || payload.tracking_param || "gclid").trim() || "gclid",
+    google_ads_cta_label: payload.googleAdsCTALabel || null,
+    google_ads_pageview_label: payload.googleAdsPageviewLabel || null,
     settings: payload.settings && typeof payload.settings === "object" ? payload.settings : {},
     current_image_path: hasHeroImage
       ? readMediaReferencePath(media.heroImage)
@@ -387,6 +397,8 @@ function serializePublicPresell(presell) {
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
     trackingParam: String(presell.tracking_param || "gclid"),
+    googleAdsCTALabel: presell.google_ads_cta_label || null,
+    googleAdsPageviewLabel: presell.google_ads_pageview_label || null,
     imageUrl: buildMediaUrl(presell.image_path) || null,
     backgroundImageUrl: buildMediaUrl(presell.background_image_path) || null,
     settings: parsePresellSettings(presell),
