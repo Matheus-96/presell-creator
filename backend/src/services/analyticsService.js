@@ -68,11 +68,12 @@ function resolveRedirect(req, presell, extraParams = {}) {
 
   recordEventWithSession(req, presell, "cta_click", session, extraParams);
 
-  const { gclid } = session.params;
+  const clickId = session.params.gclid || session.params.wbraid || session.params.gbraid;
+  const trackingParam = presell.tracking_param || "gclid";
   const trackingParams = { ...session.params };
   delete trackingParams.gclid;
 
-  const redirectUrl = buildRedirectUrl(presell.affiliate_url, trackingParams, gclid);
+  const redirectUrl = buildRedirectUrl(presell.affiliate_url, trackingParams, clickId, trackingParam);
 
   recordEventWithSession(req, presell, "redirect", session, {
     ...extraParams,
@@ -85,7 +86,7 @@ function resolveRedirect(req, presell, extraParams = {}) {
     redirectUrl,
     preservedKeys: Object.keys({
       ...trackingParams,
-      ...(gclid ? { gclid } : {})
+      ...(clickId ? { [trackingParam]: clickId } : {})
     })
   };
 }
