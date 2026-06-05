@@ -14,6 +14,7 @@ vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
     startAnalysis: vi.fn(),
     goToImages: vi.fn(),
     goToReview: vi.fn(),
+    resetWizard: vi.fn(),
   }),
 }))
 
