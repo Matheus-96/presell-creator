@@ -39,7 +39,7 @@ function makePresell(overrides: Partial<PresellSummary> = {}): PresellSummary {
     affiliateUrl: 'https://example.com',
     published: false,
     media: { heroImage: null, backgroundImage: null },
-    tracking: { googlePixelId: null, trackingParam: 'gclid' },
+    tracking: { googlePixelId: null, trackingParam: 'gclid', googleAdsCTALabel: null, googleAdsPageviewLabel: null },
     timestamps: { createdAt: null, updatedAt: null },
     ...overrides,
   }

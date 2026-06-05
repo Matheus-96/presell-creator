@@ -59,6 +59,8 @@ function draftToPayload(draft: PresellDraft): PresellWritePayload {
     affiliateUrl: 'https://link-afiliado.com',
     googlePixelId: null,
     trackingParam: DEFAULT_TRACKING_PARAM,
+    googleAdsCTALabel: null,
+    googleAdsPageviewLabel: null,
     settings: draft.settings as Record<string, string | number | boolean>,
     theme: draft.theme as PresellWritePayload['theme'],
   }

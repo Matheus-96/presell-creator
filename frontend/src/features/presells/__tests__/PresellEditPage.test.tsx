@@ -75,7 +75,7 @@ function makePresellDetail(overrides: Partial<PresellDetail> = {}): PresellDetai
     legalText: '',
     settings: {},
     media: { heroImage: null, backgroundImage: null },
-    tracking: { googlePixelId: null, trackingParam: 'gclid' },
+    tracking: { googlePixelId: null, trackingParam: 'gclid', googleAdsCTALabel: null, googleAdsPageviewLabel: null },
     timestamps: { createdAt: null, updatedAt: null },
     urls: {
       publicPage: '/p/test-presell',
