@@ -12,7 +12,7 @@ jest.mock("../templates/templates.bundle.js", () => {
       },
     },
   };
-});
+}, { virtual: true });
 
 jest.mock("../db/connection", () => ({
   db: {
