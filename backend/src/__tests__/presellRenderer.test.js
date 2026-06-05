@@ -121,6 +121,42 @@ describe("renderPresellHtml", () => {
     });
   });
 
+  describe("wbraid/gbraid nos eventos de conversão", () => {
+    it("inclui clickIds e Object.assign no CTA quando conversão CTA configurada", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_cta_label: "abc123XYZ"
+      }));
+      expect(html).toContain("clickIds");
+      expect(html).toContain("Object.assign(");
+      expect(html).toContain("params['wbraid']");
+      expect(html).toContain("params['gbraid']");
+    });
+
+    it("inclui clickIds e Object.assign no pageview quando conversão pageview configurada", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_pageview_label: "pv_label_XYZ"
+      }));
+      expect(html).toContain("clickIds");
+      expect(html).toContain("Object.assign(");
+      expect(html).toContain("params['wbraid']");
+      expect(html).toContain("params['gbraid']");
+    });
+
+    it("não inclui clickIds quando não há nenhuma conversão configurada", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789"
+      }));
+      expect(html).not.toContain("clickIds");
+    });
+
+    it("não inclui clickIds quando pixel ausente", () => {
+      const html = renderPresellHtml(buildPresell({ google_pixel: null }));
+      expect(html).not.toContain("clickIds");
+    });
+  });
+
   it("lança erro quando o templateId não existe no bundle", () => {
     expect(() => renderPresellHtml(buildPresell({ template: "inexistente" }))).toThrow(
       /inexistente/
