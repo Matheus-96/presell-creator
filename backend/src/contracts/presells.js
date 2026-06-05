@@ -265,6 +265,8 @@ function serializePresellWriteInput(presell) {
     affiliateUrl: String(presell.affiliate_url || ""),
     googlePixelId: presell.google_pixel || null,
     trackingParam: String(presell.tracking_param || "gclid"),
+    googleAdsCTALabel: presell.google_ads_cta_label || null,
+    googleAdsPageviewLabel: presell.google_ads_pageview_label || null,
     settings: parsePresellSettings(presell),
     media: {
       heroImage: serializeMediaReference(presell.image_path),

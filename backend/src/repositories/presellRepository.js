@@ -16,6 +16,8 @@ const presellSummarySelect = `
   tracking_param,
   theme,
   gallery_images,
+  google_ads_cta_label,
+  google_ads_pageview_label,
   created_at,
   updated_at
 `;
@@ -65,8 +67,9 @@ const createPresellStmt = db.prepare(`
 const duplicatePresellStmt = db.prepare(`
   INSERT INTO presells (
     slug, status, template, title, headline, subtitle, body, bullets,
-    cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param
-  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    cta_text, affiliate_url, image_path, settings_json, google_pixel, tracking_param,
+    google_ads_cta_label, google_ads_pageview_label
+  ) VALUES (?, 'draft', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
 const updateRenderedHtmlStmt = db.prepare(
   "UPDATE presells SET rendered_html = ? WHERE id = ?"
@@ -197,7 +200,9 @@ function duplicatePresell(source, { slug, title }) {
     source.image_path,
     source.settings_json || "{}",
     source.google_pixel || null,
-    source.tracking_param || "gclid"
+    source.tracking_param || "gclid",
+    source.google_ads_cta_label ?? null,
+    source.google_ads_pageview_label ?? null
   );
 
   return getPresellById(result.lastInsertRowid);

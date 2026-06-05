@@ -15,6 +15,10 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
+function jsonForScript(value) {
+  return JSON.stringify(value).replace(/<\//g, "<\\/");
+}
+
 function renderGooglePixel(googlePixelId) {
   if (!googlePixelId) return "";
 
@@ -62,10 +66,10 @@ function renderTrackingScript(publicData) {
   const trackingParam = JSON.stringify(publicData.trackingParam || "gclid");
 
   const ctaConversionSendTo = publicData.googlePixelId && publicData.googleAdsCTALabel
-    ? JSON.stringify(`${publicData.googlePixelId}/${publicData.googleAdsCTALabel}`)
+    ? jsonForScript(`${publicData.googlePixelId}/${publicData.googleAdsCTALabel}`)
     : null;
   const pageviewConversionSendTo = publicData.googlePixelId && publicData.googleAdsPageviewLabel
-    ? JSON.stringify(`${publicData.googlePixelId}/${publicData.googleAdsPageviewLabel}`)
+    ? jsonForScript(`${publicData.googlePixelId}/${publicData.googleAdsPageviewLabel}`)
     : null;
 
   const pageviewConversionSnippet = pageviewConversionSendTo
