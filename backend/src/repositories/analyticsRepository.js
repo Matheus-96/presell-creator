@@ -153,6 +153,18 @@ const getPresellAvgTimeOnPageStmt = db.prepare(`
     AND CAST(json_extract(params_json, '$.seconds') AS REAL) > 0
     AND CAST(json_extract(params_json, '$.seconds') AS REAL) < 3600
 `);
+const getPresellDeviceOptionsStmt = db.prepare(`
+  SELECT DISTINCT device_type
+  FROM events
+  WHERE presell_id = ? AND device_type IS NOT NULL
+  ORDER BY device_type ASC
+`);
+const getPresellCountryOptionsStmt = db.prepare(`
+  SELECT DISTINCT country
+  FROM events
+  WHERE presell_id = ? AND country IS NOT NULL
+  ORDER BY country ASC
+`);
 const countDistinctTrackingSessionsStmt = db.prepare(
   "SELECT COUNT(DISTINCT session_key) AS count FROM tracking_sessions"
 );
@@ -201,6 +213,34 @@ function getOverview() {
   };
 }
 
+const PAGE_SIZE = 50;
+
+function getPresellEventsPaginated(presellId, page = 1) {
+  const offset = (page - 1) * PAGE_SIZE;
+
+  const rows = db.prepare(`
+    SELECT * FROM events
+    WHERE presell_id = ?
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(presellId, PAGE_SIZE, offset);
+
+  const { total } = db.prepare(
+    "SELECT COUNT(*) AS total FROM events WHERE presell_id = ?"
+  ).get(presellId);
+
+  return { rows, total: Number(total) };
+}
+
+function getPresellEventFilterOptions(presellId) {
+  const deviceRows = getPresellDeviceOptionsStmt.all(presellId);
+  const countryRows = getPresellCountryOptionsStmt.all(presellId);
+  return {
+    deviceOptions: deviceRows.map((r) => r.device_type),
+    countryOptions: countryRows.map((r) => r.country)
+  };
+}
+
 function getPresellStatistics(presellId) {
   return {
     summary: getPresellSummaryStmt.get(presellId),
@@ -232,5 +272,7 @@ module.exports = {
   createEvent,
   getOverview,
   getPresellStatistics,
+  getPresellEventsPaginated,
+  getPresellEventFilterOptions,
   getAdminSummary
 };

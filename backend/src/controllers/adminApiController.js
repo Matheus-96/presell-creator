@@ -12,6 +12,7 @@ const {
   serializeAnalyticsOverview,
   serializeAnalyticsSummary,
   serializePresellStatistics,
+  serializePresellEventsPage,
   serializeUploadResponse,
   zodPresellWriteSchema,
   zodPresellPatchSchema
@@ -27,7 +28,8 @@ const {
 const {
   getOverview,
   getAdminSummary,
-  getPresellStatistics
+  getPresellStatistics,
+  getPresellEventsPaginated
 } = require("../services/analyticsService");
 const {
   authenticateAdminCredentials,
@@ -204,6 +206,17 @@ function getAnalyticsPresellStatistics(req, res) {
   return res.json(serializePresellStatistics(getPresellStatistics(req.params.id), presell));
 }
 
+function getAnalyticsPresellEvents(req, res) {
+  const presell = getPresellById(req.params.id);
+  if (!presell) {
+    return respondPresellNotFound(res, req.params.id);
+  }
+
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const data = getPresellEventsPaginated(req.params.id, page);
+  return res.json(serializePresellEventsPage(data));
+}
+
 async function postUpload(req, res) {
   if (!req.file) {
     return res.status(400).json(buildApiError(
@@ -318,5 +331,6 @@ module.exports = {
   getAnalyticsOverview,
   getAnalyticsSummary,
   getAnalyticsPresellStatistics,
+  getAnalyticsPresellEvents,
   postUpload
 };

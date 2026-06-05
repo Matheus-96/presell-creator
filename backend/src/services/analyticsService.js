@@ -143,6 +143,12 @@ function getPresellStatistics(presellId) {
   };
 }
 
+function getPresellEventsPaginated(presellId, page) {
+  const { rows, total } = analyticsRepository.getPresellEventsPaginated(presellId, page);
+  const { deviceOptions, countryOptions } = analyticsRepository.getPresellEventFilterOptions(presellId);
+  return { rows, total, page, deviceOptions, countryOptions };
+}
+
 function getAdminSummary() {
   return analyticsRepository.getAdminSummary();
 }
@@ -154,5 +160,6 @@ module.exports = {
   resolveRedirect,
   getOverview,
   getPresellStatistics,
+  getPresellEventsPaginated,
   getAdminSummary
 };

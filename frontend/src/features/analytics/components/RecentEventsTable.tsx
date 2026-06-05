@@ -1,8 +1,8 @@
 import { UAParser } from 'ua-parser-js'
 import { formatDateTime } from '@/lib/formatters.ts'
-import type { PresellStatistics } from '@/features/analytics/types.ts'
+import type { AnalyticsEvent } from '@/features/analytics/types.ts'
 
-type RecentEvent = PresellStatistics['recentEvents'][number]
+type RecentEvent = AnalyticsEvent
 
 const EVENT_TYPE_LABELS: Record<string, string> = {
   page_view: 'Page view',

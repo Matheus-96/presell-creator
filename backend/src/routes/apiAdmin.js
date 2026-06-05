@@ -17,6 +17,7 @@ const {
   getAnalyticsOverview,
   getAnalyticsSummary,
   getAnalyticsPresellStatistics,
+  getAnalyticsPresellEvents,
   postUpload
 } = require("../controllers/adminApiController");
 
@@ -39,5 +40,6 @@ router.get("/analytics", requireApiAuth, getAnalyticsOverview);
 router.get("/analytics/overview", requireApiAuth, getAnalyticsOverview);
 router.get("/analytics/summary", requireApiAuth, getAnalyticsSummary);
 router.get("/analytics/presells/:id", requireApiAuth, getAnalyticsPresellStatistics);
+router.get("/analytics/presells/:id/events", requireApiAuth, getAnalyticsPresellEvents);
 
 module.exports = router;

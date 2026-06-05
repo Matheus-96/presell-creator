@@ -272,11 +272,24 @@ function parseJson(value) {
   }
 }
 
+function serializePresellEventsPage({ rows, total, page, deviceOptions, countryOptions }) {
+  const pageCount = Math.max(1, Math.ceil(total / 50));
+  return {
+    events: rows.map(serializeEvent),
+    total,
+    page,
+    pageCount,
+    deviceOptions,
+    countryOptions
+  };
+}
+
 module.exports = {
   analyticsSummarySchema,
   analyticsOverviewSchema,
   presellStatisticsSchema,
   serializeAnalyticsSummary,
   serializeAnalyticsOverview,
-  serializePresellStatistics
+  serializePresellStatistics,
+  serializePresellEventsPage
 };
