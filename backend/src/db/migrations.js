@@ -117,6 +117,11 @@ function migrate() {
     ALTER TABLE events ADD COLUMN country TEXT DEFAULT NULL;
     ALTER TABLE events ADD COLUMN device_type TEXT DEFAULT NULL;
   `);
+
+  runMigration("012_add_google_ads_labels", `
+    ALTER TABLE presells ADD COLUMN google_ads_cta_label TEXT DEFAULT NULL;
+    ALTER TABLE presells ADD COLUMN google_ads_pageview_label TEXT DEFAULT NULL;
+  `);
 }
 
 function runMigration(name, sql) {

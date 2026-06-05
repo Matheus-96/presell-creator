@@ -67,6 +67,60 @@ describe("renderPresellHtml", () => {
     expect(html).not.toContain("googletagmanager");
   });
 
+  describe("Google Ads CTA conversion", () => {
+    it("injeta event_callback com send_to correto quando pixel e label CTA configurados", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_cta_label: "abc123XYZ"
+      }));
+      expect(html).toContain("event_callback");
+      expect(html).toContain("AW-123456789/abc123XYZ");
+    });
+
+    it("não injeta event_callback quando label CTA ausente", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_cta_label: null
+      }));
+      expect(html).not.toContain("event_callback");
+    });
+
+    it("não injeta event_callback quando pixel ausente mas label CTA presente", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: null,
+        google_ads_cta_label: "abc123XYZ"
+      }));
+      expect(html).not.toContain("event_callback");
+    });
+  });
+
+  describe("Google Ads pageview conversion", () => {
+    it("injeta gtag conversion de pageview quando pixel e label pageview configurados", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_pageview_label: "pv_label_XYZ"
+      }));
+      expect(html).toContain("gtag('event','conversion'");
+      expect(html).toContain("AW-123456789/pv_label_XYZ");
+    });
+
+    it("não injeta gtag conversion de pageview quando label ausente", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: "AW-123456789",
+        google_ads_pageview_label: null
+      }));
+      expect(html).not.toContain("gtag('event','conversion'");
+    });
+
+    it("não injeta gtag conversion de pageview quando pixel ausente", () => {
+      const html = renderPresellHtml(buildPresell({
+        google_pixel: null,
+        google_ads_pageview_label: "pv_label_XYZ"
+      }));
+      expect(html).not.toContain("gtag('event','conversion'");
+    });
+  });
+
   it("lança erro quando o templateId não existe no bundle", () => {
     expect(() => renderPresellHtml(buildPresell({ template: "inexistente" }))).toThrow(
       /inexistente/

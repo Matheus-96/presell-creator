@@ -302,6 +302,16 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="googleAdsPageviewLabel">Label de conversão — visualização (opcional)</Label>
+                    <Input id="googleAdsPageviewLabel" placeholder="Ex: AbCdEfGhIj" {...register('googleAdsPageviewLabel')} />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="googleAdsCTALabel">Label de conversão — clique no CTA (opcional)</Label>
+                    <Input id="googleAdsCTALabel" placeholder="Ex: AbCdEfGhIj" {...register('googleAdsCTALabel')} />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
                     <Label htmlFor="trackingParam">Parâmetro de rastreamento</Label>
                     <Input id="trackingParam" placeholder="gclid" {...register('trackingParam')} />
                     <p className="text-xs text-muted-foreground">
