@@ -223,7 +223,7 @@ function getPresellEventsPaginated(presellId, page = 1, filters = {}) {
 
   if (filters.hasClickId === true) {
     conditions.push(
-      "(json_extract(params_json, '$.gclid') IS NOT NULL OR json_extract(params_json, '$.gbraid') IS NOT NULL OR json_extract(params_json, '$.wbraid') IS NOT NULL)"
+      "(NULLIF(json_extract(params_json, '$.gclid'), '') IS NOT NULL OR NULLIF(json_extract(params_json, '$.gbraid'), '') IS NOT NULL OR NULLIF(json_extract(params_json, '$.wbraid'), '') IS NOT NULL)"
     );
   }
   if (filters.from) {

@@ -14,22 +14,19 @@ type DatePreset = 'none' | 'today' | '7d' | '30d' | 'custom'
 
 function dateRange(preset: DatePreset): { from?: string; to?: string } {
   const now = new Date()
-  const pad = (n: number) => String(n).padStart(2, '0')
-  const toIso = (d: Date) =>
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.000Z`
 
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0)
-  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59)
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0)
+  const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
   const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return d }
 
   if (preset === 'today') {
-    return { from: toIso(startOfDay(now)), to: toIso(endOfDay(now)) }
+    return { from: startOfDay(now).toISOString(), to: endOfDay(now).toISOString() }
   }
   if (preset === '7d') {
-    return { from: toIso(startOfDay(daysAgo(6))), to: toIso(endOfDay(now)) }
+    return { from: startOfDay(daysAgo(6)).toISOString(), to: endOfDay(now).toISOString() }
   }
   if (preset === '30d') {
-    return { from: toIso(startOfDay(daysAgo(29))), to: toIso(endOfDay(now)) }
+    return { from: startOfDay(daysAgo(29)).toISOString(), to: endOfDay(now).toISOString() }
   }
   return {}
 }
@@ -136,7 +133,7 @@ export function EventFilters({ deviceOptions, countryOptions, onFilterChange }: 
               className="h-8 text-sm w-36"
               value={customTo.slice(0, 10)}
               onChange={(e) => {
-                const v = e.target.value ? `${e.target.value}T23:59:59.000Z` : ''
+                const v = e.target.value ? `${e.target.value}T23:59:59.999Z` : ''
                 setCustomTo(v)
                 emit({ customTo: v })
               }}

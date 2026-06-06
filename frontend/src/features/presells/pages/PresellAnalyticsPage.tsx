@@ -9,8 +9,7 @@ import { getPresellStatistics, getPresellEvents } from '@/features/analytics/lib
 import { formatNumber, formatPercent, formatDate, formatTitle, formatDuration } from '@/lib/formatters.ts'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { RecentEventsTable } from '@/features/analytics/components/RecentEventsTable.tsx'
-import { EventFilters } from '@/features/analytics/components/EventFilters.tsx'
-import type { EventFilters as EventFiltersType } from '@/features/analytics/components/EventFilters.tsx'
+import { EventFilters, type EventFilters as EventFiltersType } from '@/features/analytics/components/EventFilters.tsx'
 
 export function PresellAnalyticsPage() {
   const { id: idParam } = useParams<{ id: string }>()
