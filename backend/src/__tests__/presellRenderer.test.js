@@ -3,6 +3,17 @@
  * Mocka as dependências de banco para testar a renderização de forma isolada.
  */
 
+jest.mock("../templates/templates.bundle.js", () => {
+  const React = require("react");
+  return {
+    registry: {
+      "offer-modal": function OfferModal({ presell }) {
+        return React.createElement("div", null, presell.headline);
+      },
+    },
+  };
+}, { virtual: true });
+
 jest.mock("../db/connection", () => ({
   db: {
     prepare: () => ({ get: jest.fn(), all: jest.fn(), run: jest.fn() }),

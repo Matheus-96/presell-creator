@@ -38,6 +38,7 @@ function makeState(step: string) {
     startAnalysis: vi.fn(),
     goToImages: vi.fn(),
     goToReview: vi.fn(),
+    resetWizard: vi.fn(),
   }
 }
 

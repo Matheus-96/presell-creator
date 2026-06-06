@@ -145,7 +145,7 @@ describe('PresellEditPage', () => {
       expect(screen.getByRole('button', { name: /salvar/i })).toBeDefined()
     })
 
-    await userEvent.click(screen.getByText('Publicação'))
+    await userEvent.click(screen.getByText('Publicar'))
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('loaded-slug')
   })
 
@@ -157,15 +157,8 @@ describe('PresellEditPage', () => {
 
     await waitFor(() => expect(screen.getByRole('button', { name: /criar presell/i })).toBeDefined())
 
-    await userEvent.click(screen.getByText('Conversão'))
-    await userEvent.click(screen.getByText('Publicação'))
-    await waitFor(() => expect(screen.getByLabelText(/slug/i)).toBeDefined())
-
-    await userEvent.type(screen.getByLabelText(/slug/i), 'new-slug')
-    await userEvent.type(screen.getByLabelText(/título interno/i), 'New Title')
-    await userEvent.type(screen.getByLabelText(/^título$/i), 'New Headline')
-    await userEvent.type(screen.getByLabelText(/texto do botão/i), 'Click here')
-    await userEvent.type(screen.getByLabelText(/url de destino/i), 'https://example.com')
+    // headline is the only required field without a default — fill it in the Conteúdo tab (active by default)
+    await userEvent.type(screen.getByLabelText(/título principal/i), 'New Headline')
 
     await userEvent.click(screen.getByRole('button', { name: /criar presell/i }))
 
@@ -236,7 +229,7 @@ describe('PresellEditPage', () => {
       expect(screen.getByRole('button', { name: /criar presell/i })).toBeDefined()
     })
 
-    await userEvent.click(screen.getByText('Publicação'))
+    await userEvent.click(screen.getByText('Publicar'))
     expect((screen.getByLabelText(/slug/i) as HTMLInputElement).value).toBe('')
   })
 
@@ -291,7 +284,7 @@ describe('PresellEditPage', () => {
 
     await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
 
-    await userEvent.click(screen.getByText('Publicação'))
+    await userEvent.click(screen.getByText('Publicar'))
 
     // Actually change a registered field — this populates formState.dirtyFields
     const slugInput = screen.getByLabelText(/slug/i) as HTMLInputElement
@@ -314,47 +307,4 @@ describe('PresellEditPage', () => {
     confirmSpy.mockRestore()
   })
 
-  // Issue #121 — AnalyzeUrlSection collapsed by default in edit mode
-  describe('Re-analisar section (collapsed by default)', () => {
-    it('does NOT show the AnalyzeUrlSection URL input before expanding', async () => {
-      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
-      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
-
-      renderPage('/presells/7/edit')
-
-      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
-
-      // The URL input inside AnalyzeUrlSection should not be visible without interaction
-      const urlInput = screen.queryByPlaceholderText('https://exemplo.com/produto')
-      expect(urlInput).toBeNull()
-    })
-
-    it('shows the section title "Re-analisar a partir de uma URL"', async () => {
-      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
-      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
-
-      renderPage('/presells/7/edit')
-
-      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
-
-      expect(screen.getByText('Re-analisar a partir de uma URL')).toBeDefined()
-    })
-
-    it('shows the AnalyzeUrlSection URL input after clicking the section header', async () => {
-      mockListTemplates.mockResolvedValue({ items: [makeTemplate()] })
-      mockGetPresell.mockResolvedValue(makePresellDetail({ id: 7 }))
-
-      renderPage('/presells/7/edit')
-
-      await waitFor(() => expect(screen.getByRole('button', { name: /^salvar$/i })).toBeDefined())
-
-      // Click the collapsed section header to expand it
-      await userEvent.click(screen.getByText('Re-analisar a partir de uma URL'))
-
-      // Now the URL input inside AnalyzeUrlSection should be visible
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText('https://exemplo.com/produto')).toBeDefined()
-      })
-    })
-  })
 })

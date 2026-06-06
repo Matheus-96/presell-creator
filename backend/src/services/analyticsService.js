@@ -144,8 +144,8 @@ function getPresellStatistics(presellId) {
   };
 }
 
-function getPresellEventsPaginated(presellId, page) {
-  const { rows, total } = analyticsRepository.getPresellEventsPaginated(presellId, page);
+function getPresellEventsPaginated(presellId, page, filters = {}) {
+  const { rows, total } = analyticsRepository.getPresellEventsPaginated(presellId, page, filters);
   const { deviceOptions, countryOptions } = analyticsRepository.getPresellEventFilterOptions(presellId);
   return { rows, total, page, deviceOptions, countryOptions };
 }

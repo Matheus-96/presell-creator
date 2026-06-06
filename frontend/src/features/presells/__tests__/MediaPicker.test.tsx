@@ -177,7 +177,7 @@ describe('MediaPicker', () => {
     await userEvent.upload(input, file)
 
     await waitFor(() => {
-      expect(mockUploadMedia).toHaveBeenCalledWith(file)
+      expect(mockUploadMedia).toHaveBeenCalledWith(file, undefined)
       expect(onChange).toHaveBeenCalledWith(
         expect.objectContaining({ url: '/media/foo.jpg' }),
       )

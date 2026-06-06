@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { Button } from '@/components/ui/button.tsx'
 import { Input } from '@/components/ui/input.tsx'
 import { Label } from '@/components/ui/label.tsx'
 import { PageHeader } from '@/components/layout/PageHeader.tsx'
@@ -84,7 +85,9 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
 
   const {
     saveMutation,
+    duplicateMutation,
     isBusy,
+    handleDelete,
   } = usePresellEditor({
     id,
     isDirty: hasUserEdits,
@@ -395,6 +398,27 @@ function PresellEditorForm({ id, templates, defaultValues }: EditorFormProps) {
                 />
               </>
             )}
+          </div>
+
+          {/* Action bar */}
+          <div className="sticky bottom-0 shrink-0 flex items-center justify-between gap-2 px-6 py-3 bg-white border-t border-slate-200">
+            <div className="flex gap-2">
+              {id && (
+                <>
+                  <Button type="button" variant="outline" size="sm" disabled={isBusy} onClick={handleDelete}>
+                    Excluir
+                  </Button>
+                  <Button type="button" variant="outline" size="sm" disabled={isBusy} onClick={() => duplicateMutation.mutate()}>
+                    Duplicar
+                  </Button>
+                </>
+              )}
+            </div>
+            <Button type="submit" size="sm" disabled={isBusy}>
+              {id
+                ? (saveMutation.isPending ? 'Salvando…' : 'Salvar')
+                : (saveMutation.isPending ? 'Criando…' : 'Criar presell')}
+            </Button>
           </div>
         </form>
 

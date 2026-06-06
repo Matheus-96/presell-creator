@@ -215,19 +215,43 @@ function getOverview() {
 
 const PAGE_SIZE = 50;
 
-function getPresellEventsPaginated(presellId, page = 1) {
+function getPresellEventsPaginated(presellId, page = 1, filters = {}) {
   const offset = (page - 1) * PAGE_SIZE;
 
-  const rows = db.prepare(`
-    SELECT * FROM events
-    WHERE presell_id = ?
-    ORDER BY created_at DESC
-    LIMIT ? OFFSET ?
-  `).all(presellId, PAGE_SIZE, offset);
+  const conditions = ["presell_id = ?"];
+  const params = [presellId];
+
+  if (filters.hasClickId === true) {
+    conditions.push(
+      "(NULLIF(json_extract(params_json, '$.gclid'), '') IS NOT NULL OR NULLIF(json_extract(params_json, '$.gbraid'), '') IS NOT NULL OR NULLIF(json_extract(params_json, '$.wbraid'), '') IS NOT NULL)"
+    );
+  }
+  if (filters.from) {
+    conditions.push("created_at >= ?");
+    params.push(filters.from);
+  }
+  if (filters.to) {
+    conditions.push("created_at <= ?");
+    params.push(filters.to);
+  }
+  if (filters.device) {
+    conditions.push("device_type = ?");
+    params.push(filters.device);
+  }
+  if (filters.country) {
+    conditions.push("country = ?");
+    params.push(filters.country);
+  }
+
+  const where = conditions.join(" AND ");
+
+  const rows = db.prepare(
+    `SELECT * FROM events WHERE ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+  ).all(...params, PAGE_SIZE, offset);
 
   const { total } = db.prepare(
-    "SELECT COUNT(*) AS total FROM events WHERE presell_id = ?"
-  ).get(presellId);
+    `SELECT COUNT(*) AS total FROM events WHERE ${where}`
+  ).get(...params);
 
   return { rows, total: Number(total) };
 }

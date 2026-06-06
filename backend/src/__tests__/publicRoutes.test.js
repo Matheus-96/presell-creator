@@ -30,6 +30,9 @@ function makeApp(extraMocks = {}) {
     recordEventWithSession: jest.fn(),
     resolveRedirect: jest.fn(() => ({ redirectUrl: "https://example.com" }))
   }));
+  jest.doMock("../services/telegram.service", () => ({
+    notify: jest.fn(),
+  }));
 
   const createApp = require("../bootstrap/createApp");
   return createApp();

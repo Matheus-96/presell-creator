@@ -1,13 +1,17 @@
 const path = require("path");
 const dotenv = require("dotenv");
 
-const { rootEnvFile } = require("./paths");
+const { rootEnvFile, repoRoot } = require("./paths");
 
 let didLoadEnv = false;
 
 function loadEnv() {
   if (didLoadEnv) {
     return process.env;
+  }
+
+  if ((process.env.NODE_ENV || "").trim().toLowerCase() === "test") {
+    dotenv.config({ path: path.join(repoRoot, ".env.test") });
   }
 
   dotenv.config({ path: rootEnvFile });
