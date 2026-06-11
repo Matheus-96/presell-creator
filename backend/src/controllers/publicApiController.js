@@ -34,7 +34,9 @@ function recordPresellEvent(req, res) {
 
   if (eventType === "cta_click") {
     const session = getOrCreateSession(req);
-    const hasClickId = Boolean(session.params.gclid || session.params.wbraid || session.params.gbraid);
+    const bodyParams = getEventParams(req.body && req.body.params);
+    const allParams = { ...session.params, ...bodyParams };
+    const hasClickId = Boolean(allParams.gclid || allParams.wbraid || allParams.gbraid);
     notify("presell.cta_click", { title: presell.title, slug: presell.slug, hasClickId, ...extractRequestMeta(req) });
   }
 

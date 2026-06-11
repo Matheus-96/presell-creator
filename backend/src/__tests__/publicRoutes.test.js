@@ -26,12 +26,13 @@ function makeApp(extraMocks = {}) {
     getPublishedPresell: extraMocks.getPublishedPresell ?? jest.fn(() => null)
   }));
   jest.doMock("../services/analyticsService", () => ({
-    getOrCreateSession: jest.fn(() => ({ params: {} })),
+    getOrCreateSession: extraMocks.getOrCreateSession ?? jest.fn(() => ({ params: {} })),
+    recordEvent: jest.fn(() => ({ sessionKey: "k", sessionParams: {}, params: {} })),
     recordEventWithSession: jest.fn(),
     resolveRedirect: jest.fn(() => ({ redirectUrl: "https://example.com" }))
   }));
   jest.doMock("../services/telegram.service", () => ({
-    notify: jest.fn(),
+    notify: extraMocks.notify ?? jest.fn(),
   }));
 
   const createApp = require("../bootstrap/createApp");
@@ -126,6 +127,62 @@ describe("GET /go/:slug", () => {
 
     expect(res.status).not.toBe(500);
     expect([301, 302]).toContain(res.status);
+  });
+});
+
+// ── cta_click com gclid no body (fluxo SSR) notifica hasClickId ───────────
+
+describe("POST /api/public/presells/:slug/events — cta_click com clickId no body", () => {
+  const presell = { id: 1, slug: "test", title: "Test", status: "published" };
+
+  test("notifica Telegram com hasClickId=true quando gclid está nos params do body", async () => {
+    const notify = jest.fn();
+    const app = makeApp({
+      getPublishedPresell: jest.fn(() => presell),
+      getOrCreateSession: jest.fn(() => ({ params: {} })),
+      notify,
+    });
+
+    await request(app)
+      .post("/api/public/presells/test/events")
+      .send({ eventType: "cta_click", params: { gclid: "test_gclid_123" } });
+
+    const ctaCall = notify.mock.calls.find(([type]) => type === "presell.cta_click");
+    expect(ctaCall).toBeDefined();
+    expect(ctaCall[1].hasClickId).toBe(true);
+  });
+
+  test("notifica Telegram com hasClickId=false quando não há clickId no body nem na sessão", async () => {
+    const notify = jest.fn();
+    const app = makeApp({
+      getPublishedPresell: jest.fn(() => presell),
+      getOrCreateSession: jest.fn(() => ({ params: {} })),
+      notify,
+    });
+
+    await request(app)
+      .post("/api/public/presells/test/events")
+      .send({ eventType: "cta_click", params: { utm_source: "facebook" } });
+
+    const ctaCall = notify.mock.calls.find(([type]) => type === "presell.cta_click");
+    expect(ctaCall).toBeDefined();
+    expect(ctaCall[1].hasClickId).toBe(false);
+  });
+
+  test("notifica Telegram com hasClickId=true quando gbraid está nos params do body", async () => {
+    const notify = jest.fn();
+    const app = makeApp({
+      getPublishedPresell: jest.fn(() => presell),
+      getOrCreateSession: jest.fn(() => ({ params: {} })),
+      notify,
+    });
+
+    await request(app)
+      .post("/api/public/presells/test/events")
+      .send({ eventType: "cta_click", params: { gbraid: "gbraid_value" } });
+
+    const ctaCall = notify.mock.calls.find(([type]) => type === "presell.cta_click");
+    expect(ctaCall[1].hasClickId).toBe(true);
   });
 });
 
