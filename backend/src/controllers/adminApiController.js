@@ -37,6 +37,8 @@ const {
 } = require("../services/adminAuthService");
 const { registerUpload } = require("../services/uploadService");
 const { processUploadedImage } = require("../services/imageProcessor");
+const { notify } = require("../services/telegram.service");
+const { extractRequestMeta } = require("../utils/request-meta");
 
 function getContracts(req, res) {
   res.json(adminApiContract);
@@ -94,6 +96,7 @@ function postSession(req, res) {
       ));
     }
 
+    notify('admin.login', extractRequestMeta(req));
     return respondWithSession(req, res);
   });
 }
