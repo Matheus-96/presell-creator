@@ -33,7 +33,9 @@ function recordPresellEvent(req, res) {
   }
 
   if (eventType === "cta_click") {
-    notify("presell.cta_click", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
+    const session = getOrCreateSession(req);
+    const hasClickId = Boolean(session.params.gclid || session.params.wbraid || session.params.gbraid);
+    notify("presell.cta_click", { title: presell.title, slug: presell.slug, hasClickId, ...extractRequestMeta(req) });
   }
 
   return res.status(201).json(serializeTrackingEventResponse({
@@ -53,7 +55,9 @@ function resolvePresellRedirectContract(req, res) {
     ));
   }
 
-  notify("presell.cta_click", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
+  const session = getOrCreateSession(req);
+  const hasClickId = Boolean(session.params.gclid || session.params.wbraid || session.params.gbraid);
+  notify("presell.cta_click", { title: presell.title, slug: presell.slug, hasClickId, ...extractRequestMeta(req) });
 
   return res.json(serializeTrackingRedirectResponse({
     presell,

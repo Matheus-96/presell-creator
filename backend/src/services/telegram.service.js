@@ -28,7 +28,7 @@ function formatMessage(type, data) {
     case 'presell.page_view':
       return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${data.hasClickId ? '\n🎯 GCLID 🎯' : ''}${visitor}`;
     case 'presell.cta_click':
-      return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${visitor}`;
+      return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${data.hasClickId ? '\n🎯 GCLID 🎯' : ''}${visitor}`;
     case 'error.critical':
       return `🔴 *Erro crítico*\n${escapeMd(data.message ?? JSON.stringify(data))}`;
     case 'deploy.triggered':

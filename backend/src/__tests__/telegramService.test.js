@@ -159,6 +159,30 @@ describe('notify — com variáveis configuradas', () => {
     const body = JSON.parse(options.body);
     expect(body.text).not.toContain('🎯');
   });
+
+  test('presell.cta_click com hasClickId exibe indicador 🎯 GCLID 🎯', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('presell.cta_click', { title: 'T', slug: 's', hasClickId: true });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).toContain('🎯 GCLID 🎯');
+  });
+
+  test('presell.cta_click sem hasClickId não exibe indicador de click', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('presell.cta_click', { title: 'T', slug: 's', hasClickId: false });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).not.toContain('🎯');
+  });
 });
 
 // ── tratamento de falhas ─────────────────────────────────────────────────────
