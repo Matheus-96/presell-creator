@@ -110,6 +110,55 @@ describe('notify — com variáveis configuradas', () => {
     const body = JSON.parse(options.body);
     expect(body.text).toContain('evento');
   });
+
+  test('admin.login contém ❗❗❗ na mensagem', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('admin.login', {});
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).toContain('❗❗❗');
+  });
+
+  test('admin.login com country inclui o país na mensagem', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('admin.login', { country: 'BR', device_type: 'desktop' });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).toContain('❗❗❗');
+    expect(body.text).toContain('BR');
+  });
+
+  test('presell.page_view com hasClickId exibe indicador 🎯 GCLID 🎯', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('presell.page_view', { title: 'T', slug: 's', hasClickId: true });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).toContain('🎯 GCLID 🎯');
+  });
+
+  test('presell.page_view sem hasClickId não exibe indicador de click', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = fetchMock;
+
+    const { notify } = loadService();
+    await notify('presell.page_view', { title: 'T', slug: 's', hasClickId: false });
+
+    const [, options] = fetchMock.mock.calls[0];
+    const body = JSON.parse(options.body);
+    expect(body.text).not.toContain('🎯');
+  });
 });
 
 // ── tratamento de falhas ─────────────────────────────────────────────────────

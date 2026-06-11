@@ -18,6 +18,7 @@ Antes de entrevistar o usuário, entenda o terreno:
 - Mapeie as camadas relevantes ao requisito (rotas, services, repositórios, componentes)
 - Identifique padrões existentes que o plano deve seguir
 - Sinalize inconsistências ou dívidas técnicas que possam impactar o escopo
+- Utilize subagent para isso
 
 ### 3. Entreviste o usuário
 Com base no input e na exploração, levante todas as ramificações em aberto — decisões, ambiguidades, conflitos com o que já existe. Faça perguntas uma a uma, em ordem de impacto. Não avance para o rascunho enquanto restar qualquer ramificação sem entendimento compartilhado.

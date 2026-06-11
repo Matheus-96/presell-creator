@@ -23,14 +23,18 @@ function formatMessage(type, data) {
       return `🚀 *Presell publicado*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
     case 'presell.deleted':
       return `🗑️ *Presell removido*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}`;
+    case 'admin.login':
+      return `❗❗❗ *Login de admin detectado* ❗❗❗${visitor}`;
     case 'presell.page_view':
-      return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${visitor}`;
+      return `👁 *Visita*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${data.hasClickId ? '\n🎯 GCLID 🎯' : ''}${visitor}`;
     case 'presell.cta_click':
       return `🖱️ *Clique no CTA*\nTítulo: ${escapeMd(data.title ?? '—')}\nSlug: ${escapeMd(data.slug ?? '—')}${visitor}`;
     case 'error.critical':
       return `🔴 *Erro crítico*\n${escapeMd(data.message ?? JSON.stringify(data))}`;
     case 'deploy.triggered':
       return `🔄 *Deploy disparado*\n${escapeMd(data.message ?? '')}`;
+    case 'healthcheck.ssr_down':
+      return `🔴 *SSR fora do ar*\nErro: ${escapeMd(data.error ?? '—')}\nHost: ${escapeMd(data.host ?? '—')}`;
     default:
       return `[${escapeMd(type)}] ${escapeMd(JSON.stringify(data))}`;
   }

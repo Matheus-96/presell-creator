@@ -92,7 +92,8 @@ function getPublicPresell(req, res) {
 
   const session = getOrCreateSession(req);
   recordEventWithSession(req, presell, "page_view", session);
-  notify("presell.page_view", { title: presell.title, slug: presell.slug, ...extractRequestMeta(req) });
+  const hasClickId = Boolean(session.params.gclid || session.params.wbraid || session.params.gbraid);
+  notify("presell.page_view", { title: presell.title, slug: presell.slug, hasClickId, ...extractRequestMeta(req) });
 
   return res.json(serializePublicPresell(presell));
 }
