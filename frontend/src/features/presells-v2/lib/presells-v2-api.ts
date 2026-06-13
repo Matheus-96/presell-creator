@@ -72,3 +72,17 @@ export function createPresellV2(payload: CreatePresellV2Payload) {
     body: payload as unknown as Record<string, unknown>,
   })
 }
+
+export function getPresellV2ById(id: number | string) {
+  return apiClient.get<PresellV2Detail>(`${adminApiPaths.presellsV2}/${id}`)
+}
+
+export interface UpdatePresellV2Payload {
+  sections: Section[]
+}
+
+export function updatePresellV2(id: number | string, payload: UpdatePresellV2Payload) {
+  return apiClient.put<PresellV2Detail>(`${adminApiPaths.presellsV2}/${id}`, {
+    body: payload as unknown as Record<string, unknown>,
+  })
+}
