@@ -6,7 +6,7 @@ import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-const proxiedPaths = ['/api', '/go', '/media', '/health', '/static']
+const proxiedPaths = ['/api', '/go', '/lp', '/media', '/health', '/static']
 
 function normalizeBasePath(value: string | undefined, fallback = '/admin-app/') {
   const normalized = value?.trim() || fallback

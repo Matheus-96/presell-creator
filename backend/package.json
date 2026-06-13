@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "lint": "eslint src --ext .js",
+    "typecheck": "tsc --noEmit",
     "build": "node -e \"console.log('The relocated backend has no build step yet.')\"",
     "test": "jest"
   },
