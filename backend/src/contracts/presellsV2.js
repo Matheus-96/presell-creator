@@ -8,6 +8,10 @@ const zodSectionSchema = z.object({
   props: z.object({}).passthrough()
 });
 
+const zodPresellV2UpdateSchema = z.object({
+  sections: z.array(zodSectionSchema).min(1, "sections é obrigatório")
+});
+
 const zodPresellV2WriteSchema = z.object({
   slug: z.string().min(1, "slug é obrigatório"),
   affiliate_url: z.string().url("affiliate_url deve ser uma URL válida").optional(),
@@ -70,6 +74,7 @@ module.exports = {
   sectionTypes,
   zodSectionSchema,
   zodPresellV2WriteSchema,
+  zodPresellV2UpdateSchema,
   deserializePresellV2WriteInput,
   parseSections,
   serializePresellV2Summary,

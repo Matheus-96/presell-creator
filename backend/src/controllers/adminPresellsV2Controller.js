@@ -1,6 +1,7 @@
 const { buildApiError } = require("../contracts/shared");
 const {
   zodPresellV2WriteSchema,
+  zodPresellV2UpdateSchema,
   deserializePresellV2WriteInput,
   serializePresellV2Summary,
   serializePresellV2Detail
@@ -9,10 +10,22 @@ const {
   listPresellsV2,
   getPresellV2ById,
   createPresellV2,
+  updatePresellV2,
   deletePresellV2,
   PresellV2SlugTakenError
 } = require("../repositories/presellV2Repository");
 const { renderSectionsToHtml } = require("../services/sectionsRenderer");
+
+function extractAffiliateUrl(sections, fallback) {
+  const hero = Array.isArray(sections)
+    ? sections.find((s) => s && s.type === "hero")
+    : null;
+  const ctaUrl = hero && hero.props ? hero.props.ctaUrl : null;
+  if (typeof ctaUrl === "string" && ctaUrl.trim()) {
+    return ctaUrl.trim();
+  }
+  return fallback;
+}
 
 function respondNotFound(res, id) {
   return res.status(404).json(buildApiError(
@@ -67,6 +80,35 @@ function createV2(req, res) {
   }
 }
 
+function updateV2(req, res) {
+  const existing = getPresellV2ById(req.params.id);
+  if (!existing) {
+    return respondNotFound(res, req.params.id);
+  }
+
+  const validation = zodPresellV2UpdateSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).json(buildApiError(
+      "validation_error",
+      "Dados inválidos.",
+      { fields: validation.error.flatten() }
+    ));
+  }
+
+  const sections = validation.data.sections;
+  const affiliateUrl = extractAffiliateUrl(sections, existing.affiliate_url);
+  const renderedHtml = renderSectionsToHtml(sections);
+
+  const updated = updatePresellV2({
+    id: existing.id,
+    affiliateUrl,
+    sections,
+    renderedHtml
+  });
+
+  return res.json(serializePresellV2Detail(updated));
+}
+
 function removeV2(req, res) {
   const row = getPresellV2ById(req.params.id);
   if (!row) {
@@ -80,5 +122,6 @@ module.exports = {
   listV2,
   getV2,
   createV2,
+  updateV2,
   removeV2
 };

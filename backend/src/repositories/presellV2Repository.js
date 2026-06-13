@@ -11,6 +11,11 @@ const insertStmt = db.prepare(`
   INSERT INTO presells_v2 (slug, affiliate_url, sections_json, rendered_html)
   VALUES (?, ?, ?, ?)
 `);
+const updateStmt = db.prepare(`
+  UPDATE presells_v2
+  SET affiliate_url = ?, sections_json = ?, rendered_html = ?, updated_at = datetime('now')
+  WHERE id = ?
+`);
 const deleteStmt = db.prepare("DELETE FROM presells_v2 WHERE id = ?");
 
 const SLUG_UNIQUE_ERROR = "presell_v2_slug_taken";
@@ -49,6 +54,12 @@ function createPresellV2({ slug, affiliateUrl, sections, renderedHtml = null }) 
   }
 }
 
+function updatePresellV2({ id, affiliateUrl, sections, renderedHtml = null }) {
+  const sectionsJson = JSON.stringify(sections);
+  updateStmt.run(affiliateUrl, sectionsJson, renderedHtml, id);
+  return getPresellV2ById(id);
+}
+
 function deletePresellV2(id) {
   deleteStmt.run(id);
 }
@@ -64,6 +75,7 @@ module.exports = {
   getPresellV2ById,
   getPresellV2BySlug,
   createPresellV2,
+  updatePresellV2,
   deletePresellV2,
   PresellV2SlugTakenError
 };

@@ -231,6 +231,257 @@ describe('GET /api/admin/presells-v2/:id', () => {
   });
 });
 
+// ── PUT /api/admin/presells-v2/:id ─────────────────────────────────────────
+
+describe('PUT /api/admin/presells-v2/:id', () => {
+  test('updates sections and returns the updated presell detail', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-test',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    const updatedSections = [
+      {
+        type: 'hero',
+        order: 0,
+        props: {
+          headline: 'Novo Headline',
+          subtitle: 'Novo Sub',
+          ctaText: 'Comprar agora',
+          ctaUrl: 'https://novo-afiliado.example.com',
+          imageUrl: null,
+          bgColor: '#000'
+        }
+      },
+      {
+        type: 'footer',
+        order: 1,
+        props: { legalText: 'Novo legal', links: [] }
+      }
+    ];
+
+    const res = await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({ sections: updatedSections });
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe(created.body.id);
+    expect(res.body.slug).toBe('put-test');
+    expect(res.body.sections).toEqual(updatedSections);
+    expect(res.body.affiliateUrl).toBe('https://novo-afiliado.example.com');
+  });
+
+  test('GET detail after PUT reflects the new sections', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-detail',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    const updatedSections = [
+      {
+        type: 'hero',
+        order: 0,
+        props: {
+          headline: 'Headline atualizada',
+          subtitle: 'Sub',
+          ctaText: 'Comprar',
+          ctaUrl: 'https://aff2.example.com',
+          imageUrl: null,
+          bgColor: '#fff'
+        }
+      },
+      {
+        type: 'footer',
+        order: 1,
+        props: { legalText: 'L', links: [] }
+      }
+    ];
+
+    await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({ sections: updatedSections });
+
+    const detail = await request(app).get(`/api/admin/presells-v2/${created.body.id}`);
+    expect(detail.status).toBe(200);
+    expect(detail.body.sections).toEqual(updatedSections);
+  });
+
+  test('GET /lp/:slug after PUT serves the re-rendered html', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-lp',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    const updatedSections = [
+      {
+        type: 'hero',
+        order: 0,
+        props: {
+          headline: 'Headline Re-Renderizada',
+          subtitle: 'Sub',
+          ctaText: 'Comprar',
+          ctaUrl: 'https://aff.example.com',
+          imageUrl: null,
+          bgColor: '#fff'
+        }
+      },
+      {
+        type: 'footer',
+        order: 1,
+        props: { legalText: 'Texto Atualizado', links: [] }
+      }
+    ];
+
+    await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({ sections: updatedSections });
+
+    const lp = await request(app).get('/lp/put-lp');
+    expect(lp.status).toBe(200);
+    expect(lp.text).toContain('Headline Re-Renderizada');
+    expect(lp.text).toContain('Texto Atualizado');
+    // Old footer text from the create payload should be gone after the PUT
+    expect(lp.text).not.toContain('>Legal<');
+  });
+
+  test('updatedAt differs from createdAt after PUT', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-timestamps',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    await new Promise((resolve) => setTimeout(resolve, 1100));
+
+    const updatedSections = [
+      {
+        type: 'hero',
+        order: 0,
+        props: {
+          headline: 'H',
+          subtitle: 'S',
+          ctaText: 'C',
+          ctaUrl: 'https://aff.example.com',
+          imageUrl: null,
+          bgColor: '#fff'
+        }
+      },
+      { type: 'footer', order: 1, props: { legalText: 'L', links: [] } }
+    ];
+
+    const res = await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({ sections: updatedSections });
+
+    expect(res.status).toBe(200);
+    expect(res.body.updatedAt).not.toBe(res.body.createdAt);
+  });
+
+  test('returns 404 when id does not exist', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const res = await request(app)
+      .put('/api/admin/presells-v2/999999')
+      .set('x-csrf-token', 'test-token')
+      .send({ sections: sampleSections });
+
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('presell_v2_not_found');
+  });
+
+  test('returns 400 when sections is missing from body', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-validation',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    const res = await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('validation_error');
+  });
+
+  test('does not allow slug to be changed via PUT body', async () => {
+    const app = makeApp();
+    clearPresellsV2();
+
+    const created = await request(app)
+      .post('/api/admin/presells-v2')
+      .set('x-csrf-token', 'test-token')
+      .send({
+        slug: 'put-slug-locked',
+        affiliate_url: 'https://affiliate.example.com',
+        sections_json: sampleSections
+      });
+
+    const updatedSections = [
+      {
+        type: 'hero',
+        order: 0,
+        props: {
+          headline: 'H',
+          subtitle: 'S',
+          ctaText: 'C',
+          ctaUrl: 'https://aff.example.com',
+          imageUrl: null,
+          bgColor: '#fff'
+        }
+      },
+      { type: 'footer', order: 1, props: { legalText: 'L', links: [] } }
+    ];
+
+    const res = await request(app)
+      .put(`/api/admin/presells-v2/${created.body.id}`)
+      .set('x-csrf-token', 'test-token')
+      .send({ slug: 'tentativa-de-troca', sections: updatedSections });
+
+    expect(res.status).toBe(200);
+    expect(res.body.slug).toBe('put-slug-locked');
+  });
+});
+
 // ── DELETE /api/admin/presells-v2/:id ──────────────────────────────────────
 
 describe('DELETE /api/admin/presells-v2/:id', () => {
