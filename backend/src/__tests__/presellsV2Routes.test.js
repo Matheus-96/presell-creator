@@ -2,6 +2,31 @@
 
 const request = require('supertest');
 
+jest.mock('../templates/sections.bundle.js', () => {
+  const React = require('react');
+  return {
+    registry: {
+      hero: ({ props }) =>
+        React.createElement('section', { 'data-section': 'hero' },
+          React.createElement('h1', null, props.headline),
+          React.createElement('a', { href: props.ctaUrl, 'data-cta': true }, props.ctaText)
+        ),
+      faq: ({ props }) =>
+        React.createElement('section', { 'data-section': 'faq' },
+          React.createElement('h2', null, props.title)
+        ),
+      testimonials: ({ props }) =>
+        React.createElement('section', { 'data-section': 'testimonials' },
+          React.createElement('h2', null, props.title)
+        ),
+      footer: ({ props }) =>
+        React.createElement('footer', { 'data-section': 'footer' },
+          React.createElement('p', null, props.legalText)
+        )
+    }
+  };
+}, { virtual: true });
+
 function makeSessionStore() {
   return class {
     on() {}
@@ -261,6 +286,9 @@ describe('GET /lp/:slug', () => {
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/text\/html/);
     expect(res.text).toContain('<!doctype html>');
+    expect(res.text).toContain('https://cdn.tailwindcss.com');
+    expect(res.text).toContain('Headline');
+    expect(res.text).toContain('Legal');
   });
 
   test('returns 404 when slug does not exist', async () => {

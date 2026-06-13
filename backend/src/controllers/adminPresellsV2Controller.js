@@ -12,30 +12,7 @@ const {
   deletePresellV2,
   PresellV2SlugTakenError
 } = require("../repositories/presellV2Repository");
-
-function renderHtmlPlaceholder({ slug, sections }) {
-  const sectionTypes = Array.isArray(sections)
-    ? sections.map((s) => (s && s.type ? String(s.type) : "")).filter(Boolean)
-    : [];
-  return [
-    "<!doctype html>",
-    "<html lang=\"pt-BR\">",
-    "<head><meta charset=\"utf-8\"><title>" + escapeHtml(slug) + "</title></head>",
-    "<body>",
-    "<!-- presell v2 placeholder -->",
-    "<!-- sections: " + escapeHtml(sectionTypes.join(",")) + " -->",
-    "</body>",
-    "</html>"
-  ].join("\n");
-}
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+const { renderSectionsToHtml } = require("../services/sectionsRenderer");
 
 function respondNotFound(res, id) {
   return res.status(404).json(buildApiError(
@@ -68,10 +45,7 @@ function createV2(req, res) {
   }
 
   const input = deserializePresellV2WriteInput(req.body);
-  const renderedHtml = renderHtmlPlaceholder({
-    slug: input.slug,
-    sections: input.sections
-  });
+  const renderedHtml = renderSectionsToHtml(input.sections);
 
   try {
     const created = createPresellV2({

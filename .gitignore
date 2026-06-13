@@ -37,6 +37,8 @@ frontend/dist/
 
 # bundle de templates SSR gerado em build time (scripts/build-templates.js)
 backend/src/templates/templates.bundle.js
+# bundle de seções V2 SSR gerado em build time (scripts/build-sections.js)
+backend/src/templates/sections.bundle.js
 build/
 backend/build/
 frontend/build/
