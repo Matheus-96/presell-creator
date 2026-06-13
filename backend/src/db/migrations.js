@@ -122,6 +122,19 @@ function migrate() {
     ALTER TABLE presells ADD COLUMN google_ads_cta_label TEXT DEFAULT NULL;
     ALTER TABLE presells ADD COLUMN google_ads_pageview_label TEXT DEFAULT NULL;
   `);
+
+  runMigration("013_presells_v2", `
+    CREATE TABLE IF NOT EXISTS presells_v2 (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug          TEXT NOT NULL UNIQUE,
+      affiliate_url TEXT NOT NULL,
+      sections_json TEXT NOT NULL,
+      rendered_html TEXT,
+      created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_presells_v2_slug ON presells_v2(slug);
+  `);
 }
 
 function runMigration(name, sql) {

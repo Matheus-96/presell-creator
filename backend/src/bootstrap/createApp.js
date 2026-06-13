@@ -16,6 +16,7 @@ const errorHandler = require("../middleware/errorHandler");
 const notFound = require("../middleware/notFound");
 const { buildMediaUrl } = require("../services/mediaPathService");
 const apiAdminRoutes = require("../routes/apiAdmin");
+const apiAdminPresellsV2Routes = require("../routes/apiAdminPresellsV2");
 const apiMediaRouter = require("../routes/apiMedia");
 const apiAnalyzeUrlRouter = require("../routes/apiAnalyzeUrl");
 const apiPocRoutes = require("../routes/apiPoc");
@@ -90,6 +91,7 @@ function createApp() {
   }
   app.use("/", publicRoutes);
   app.use("/api/admin", apiAdminRoutes);
+  app.use("/api/admin/presells-v2", apiAdminPresellsV2Routes);
   app.use("/api/admin/media", apiMediaRouter);
   app.use("/api/admin/presells/analyze-url", apiAnalyzeUrlRouter);
   app.use("/api/admin/poc", apiPocRoutes);
