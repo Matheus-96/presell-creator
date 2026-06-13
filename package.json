@@ -26,12 +26,14 @@
     "lint": "npm run lint:split",
     "lint:backend": "npm run lint --workspace backend --if-present --",
     "lint:frontend": "npm run lint --workspace frontend --if-present --",
-    "lint:split": "npm run lint:backend && npm run lint:frontend"
+    "lint:split": "npm run lint:backend && npm run lint:frontend",
+    "sandcastle": "npx tsx .sandcastle/main.mts"
   },
   "engines": {
     "node": ">=22.5.0"
   },
   "devDependencies": {
+    "@ai-hero/sandcastle": "^0.8.0",
     "esbuild": "^0.28.0"
   }
 }
