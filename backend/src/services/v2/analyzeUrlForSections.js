@@ -7,13 +7,13 @@ const SECTION_TYPES = ['hero', 'faq', 'testimonials', 'footer'];
 function buildSystemPrompt() {
   return `Você é um especialista em copywriting de presell pages baseadas em seções.
 
-Sua tarefa é analisar os dados de uma página de produto e gerar 4 seções de presell.
+Sua tarefa é analisar os dados de uma página de produto e gerar as seções de presell mais adequadas.
 
 ## Formato de resposta
 
 Retorne EXCLUSIVAMENTE um objeto JSON válido — sem markdown, sem blocos de código, sem explicações.
 
-SCHEMA:
+SCHEMA (exemplo com todas as seções possíveis):
 {
   "sections": [
     {
@@ -67,14 +67,16 @@ SCHEMA:
 }
 
 REGRAS:
-- O array "sections" deve ter EXATAMENTE 4 itens, na ordem: hero, faq, testimonials, footer
+- "hero" e "footer" são obrigatórios e devem sempre estar presentes
+- "faq" e "testimonials" são opcionais — inclua-os apenas se a análise do produto indicar que agregam valor real à presell (ex.: produtos com dúvidas comuns merecem FAQ; produtos com forte apelo social merecem depoimentos)
+- O array "sections" pode ter entre 2 e 4 itens, sempre começando por hero e terminando por footer
 - Cada item deve ter os campos "type", "order" e "props"
-- Os valores de "order" devem ser 0, 1, 2 e 3 respectivamente
+- Os valores de "order" devem ser sequenciais a partir de 0, na ordem em que as seções aparecem
 - "imageUrl" no hero deve ser sempre null
 - "avatarUrl" em cada item de testimonials deve ser sempre null
 - "ctaUrl" no hero pode ser deixado vazio ("") — o servidor preencherá com o link de afiliado
-- "faq.items": entre 3 e 6 perguntas/respostas relevantes ao produto
-- "testimonials.items": entre 2 e 4 depoimentos persuasivos com nomes plausíveis
+- "faq.items" (quando incluído): entre 3 e 6 perguntas/respostas relevantes ao produto
+- "testimonials.items" (quando incluído): entre 2 e 4 depoimentos persuasivos com nomes plausíveis
 - "footer.links": entre 1 e 4 links (Termos, Privacidade, Contato, etc.)
 - Gere TODO o conteúdo em português brasileiro
 - O JSON deve ser válido — sem vírgulas finais, sem comentários, sem aspas curvas`;
@@ -100,6 +102,65 @@ function coerceItems(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function buildHeroSection(rawSection, affiliateUrl) {
+  const props = coerceProps(rawSection?.props);
+  return {
+    type: 'hero',
+    props: {
+      headline: String(props.headline || ''),
+      subtitle: String(props.subtitle || ''),
+      ctaText: String(props.ctaText || 'Quero saber mais'),
+      ctaUrl: affiliateUrl,
+      imageUrl: null,
+      bgColor: typeof props.bgColor === 'string' ? props.bgColor : '#ffffff',
+    },
+  };
+}
+
+function buildFaqSection(rawSection) {
+  const props = coerceProps(rawSection.props);
+  return {
+    type: 'faq',
+    props: {
+      title: String(props.title || 'Perguntas frequentes'),
+      items: coerceItems(props.items).map((item) => ({
+        question: String(item?.question || ''),
+        answer: String(item?.answer || ''),
+      })),
+    },
+  };
+}
+
+function buildTestimonialsSection(rawSection) {
+  const props = coerceProps(rawSection.props);
+  return {
+    type: 'testimonials',
+    props: {
+      title: String(props.title || 'Depoimentos'),
+      items: coerceItems(props.items).map((item) => ({
+        name: String(item?.name || ''),
+        role: String(item?.role || ''),
+        text: String(item?.text || ''),
+        avatarUrl: null,
+      })),
+    },
+  };
+}
+
+function buildFooterSection(rawSection) {
+  const props = coerceProps(rawSection?.props);
+  return {
+    type: 'footer',
+    props: {
+      legalText: String(props.legalText || ''),
+      links: coerceItems(props.links).map((link) => ({
+        label: String(link?.label || ''),
+        url: String(link?.url || '#'),
+      })),
+    },
+  };
+}
+
 function normalizeSections(rawSections, affiliateUrl) {
   const byType = new Map();
   if (Array.isArray(rawSections)) {
@@ -110,65 +171,18 @@ function normalizeSections(rawSections, affiliateUrl) {
     }
   }
 
-  const hero = byType.get('hero');
-  const faq = byType.get('faq');
-  const testimonials = byType.get('testimonials');
-  const footer = byType.get('footer');
+  const sections = [buildHeroSection(byType.get('hero'), affiliateUrl)];
 
-  const heroProps = coerceProps(hero?.props);
-  const faqProps = coerceProps(faq?.props);
-  const testimonialsProps = coerceProps(testimonials?.props);
-  const footerProps = coerceProps(footer?.props);
+  if (byType.has('faq')) {
+    sections.push(buildFaqSection(byType.get('faq')));
+  }
+  if (byType.has('testimonials')) {
+    sections.push(buildTestimonialsSection(byType.get('testimonials')));
+  }
 
-  return [
-    {
-      type: 'hero',
-      order: 0,
-      props: {
-        headline: String(heroProps.headline || ''),
-        subtitle: String(heroProps.subtitle || ''),
-        ctaText: String(heroProps.ctaText || 'Quero saber mais'),
-        ctaUrl: affiliateUrl,
-        imageUrl: null,
-        bgColor: typeof heroProps.bgColor === 'string' ? heroProps.bgColor : '#ffffff',
-      },
-    },
-    {
-      type: 'faq',
-      order: 1,
-      props: {
-        title: String(faqProps.title || 'Perguntas frequentes'),
-        items: coerceItems(faqProps.items).map((item) => ({
-          question: String(item?.question || ''),
-          answer: String(item?.answer || ''),
-        })),
-      },
-    },
-    {
-      type: 'testimonials',
-      order: 2,
-      props: {
-        title: String(testimonialsProps.title || 'Depoimentos'),
-        items: coerceItems(testimonialsProps.items).map((item) => ({
-          name: String(item?.name || ''),
-          role: String(item?.role || ''),
-          text: String(item?.text || ''),
-          avatarUrl: null,
-        })),
-      },
-    },
-    {
-      type: 'footer',
-      order: 3,
-      props: {
-        legalText: String(footerProps.legalText || ''),
-        links: coerceItems(footerProps.links).map((link) => ({
-          label: String(link?.label || ''),
-          url: String(link?.url || '#'),
-        })),
-      },
-    },
-  ];
+  sections.push(buildFooterSection(byType.get('footer')));
+
+  return sections.map((section, index) => ({ ...section, order: index }));
 }
 
 async function analyzeUrlForSections(pageData, affiliateUrl) {
