@@ -14,6 +14,9 @@ import {
   updatePresellV2,
 } from '@/features/presells-v2/lib/presells-v2-api.ts'
 import { SectionsPreview } from '@/features/presells-v2/components/SectionsPreview.tsx'
+import { ModalShell } from '@/features/presells-v2/components/ModalShell.tsx'
+import { ConfirmRemoveModal } from '@/features/presells-v2/components/ConfirmRemoveModal.tsx'
+import { Field } from '@/features/presells-v2/components/Field.tsx'
 import type {
   FaqItem,
   FaqProps,
@@ -548,47 +551,6 @@ function FooterEditor({ props, onChange }: FooterEditorProps) {
   )
 }
 
-type FieldProps = {
-  id: string
-  label: string
-  value: string
-  onChange: (value: string) => void
-}
-
-function Field({ id, label, value, onChange }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} />
-    </div>
-  )
-}
-
-type ModalShellProps = {
-  title: string
-  onCancel: () => void
-  children: React.ReactNode
-}
-
-function ModalShell({ title, onCancel, children }: ModalShellProps) {
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-    >
-      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-xl flex flex-col gap-4">
-        <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-        {children}
-      </div>
-    </div>
-  )
-}
-
 type AddFaqModalProps = {
   onCancel: () => void
   onConfirm: (item: FaqItem) => void
@@ -746,32 +708,6 @@ function AddFooterLinkModal({ onCancel, onConfirm }: AddFooterLinkModalProps) {
           </Button>
         </div>
       </form>
-    </ModalShell>
-  )
-}
-
-type ConfirmRemoveModalProps = {
-  message: string
-  onCancel: () => void
-  onConfirm: () => void
-}
-
-function ConfirmRemoveModal({
-  message,
-  onCancel,
-  onConfirm,
-}: ConfirmRemoveModalProps) {
-  return (
-    <ModalShell title="Remover item" onCancel={onCancel}>
-      <p className="text-sm text-slate-700">{message}</p>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button type="button" variant="destructive" onClick={onConfirm}>
-          Confirmar
-        </Button>
-      </div>
     </ModalShell>
   )
 }
