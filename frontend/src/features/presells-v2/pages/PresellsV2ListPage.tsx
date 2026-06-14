@@ -95,6 +95,13 @@ export function PresellsV2ListPage() {
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => navigate(`/presells-v2/${item.id}/edit`)}
+                  >
+                    Editar
+                  </Button>
                   <Button size="sm" variant="ghost" asChild>
                     <a href={`/lp/${item.slug}`} target="_blank" rel="noopener noreferrer">
                       Ver página

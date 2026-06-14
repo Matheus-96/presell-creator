@@ -93,6 +93,19 @@ describe('PresellsV2ListPage', () => {
     ).toBeDefined()
   })
 
+  it('navigates to /presells-v2/:id/edit when "Editar" is clicked', async () => {
+    mockListPresellsV2.mockResolvedValue({
+      items: [makeSummary({ id: 42, slug: 'edit-me' })],
+    })
+
+    renderPage()
+
+    const editButton = await screen.findByRole('button', { name: /editar/i })
+    await userEvent.click(editButton)
+
+    expect(mockNavigate).toHaveBeenCalledWith('/presells-v2/42/edit')
+  })
+
   it('navigates to /presells-v2/new when "Novo Presell V2" is clicked', async () => {
     mockListPresellsV2.mockResolvedValue({ items: [makeSummary()] })
 
