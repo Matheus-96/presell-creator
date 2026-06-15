@@ -1,5 +1,5 @@
-import { registerSection } from './registry.ts'
-import type { FaqProps, SectionComponentProps } from './types.ts'
+import { registerSection } from '../registry.ts'
+import type { FaqProps, SectionComponentProps } from '../types.ts'
 
 function FaqSection({ props }: SectionComponentProps<FaqProps>) {
   const { title, items } = props

@@ -1,5 +1,5 @@
-import { registerSection } from './registry.ts'
-import type { HeroProps, SectionComponentProps } from './types.ts'
+import { registerSection } from '../registry.ts'
+import type { HeroProps, SectionComponentProps } from '../types.ts'
 
 function HeroSection({ props }: SectionComponentProps<HeroProps>) {
   const { headline, subtitle, ctaText, ctaUrl, imageUrl, bgColor } = props

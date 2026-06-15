@@ -1,5 +1,5 @@
-import { registerSection } from './registry.ts'
-import type { SectionComponentProps, TestimonialsProps } from './types.ts'
+import { registerSection } from '../registry.ts'
+import type { SectionComponentProps, TestimonialsProps } from '../types.ts'
 
 function TestimonialsSection({ props }: SectionComponentProps<TestimonialsProps>) {
   const { title, items } = props
