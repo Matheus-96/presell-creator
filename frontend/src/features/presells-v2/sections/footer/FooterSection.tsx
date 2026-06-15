@@ -1,5 +1,5 @@
-import { registerSection } from './registry.ts'
-import type { FooterProps, SectionComponentProps } from './types.ts'
+import { registerSection } from '../registry.ts'
+import type { FooterProps, SectionComponentProps } from '../types.ts'
 
 function FooterSection({ props }: SectionComponentProps<FooterProps>) {
   const { legalText, links } = props

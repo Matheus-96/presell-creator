@@ -17,10 +17,10 @@ import { SectionsPreview } from '@/features/presells-v2/components/SectionsPrevi
 import { ModalShell } from '@/features/presells-v2/components/ModalShell.tsx'
 import { ConfirmRemoveModal } from '@/features/presells-v2/components/ConfirmRemoveModal.tsx'
 import { Field } from '@/features/presells-v2/components/Field.tsx'
+import { FooterEditor } from '@/features/presells-v2/sections/footer/FooterEditor.tsx'
 import type {
   FaqItem,
   FaqProps,
-  FooterLink,
   FooterProps,
   HeroProps,
   Section,
@@ -469,88 +469,6 @@ function TestimonialsEditor({ props, onChange }: TestimonialsEditorProps) {
   )
 }
 
-type FooterEditorProps = {
-  props: FooterProps
-  onChange: (patch: Partial<FooterProps>) => void
-}
-
-function FooterEditor({ props, onChange }: FooterEditorProps) {
-  const [addOpen, setAddOpen] = useState(false)
-  const [removeIndex, setRemoveIndex] = useState<number | null>(null)
-
-  function handleAdd(link: FooterLink) {
-    onChange({ links: [...(props.links || []), link] })
-    setAddOpen(false)
-  }
-
-  function handleConfirmRemove() {
-    if (removeIndex === null) return
-    const next = (props.links || []).filter((_, i) => i !== removeIndex)
-    onChange({ links: next })
-    setRemoveIndex(null)
-  }
-
-  return (
-    <SectionCard eyebrow="Seção" title="Footer">
-      <div className="flex flex-col gap-3">
-        <Field
-          id="v2-footer-legal"
-          label="Texto legal"
-          value={props.legalText}
-          onChange={(v) => onChange({ legalText: v })}
-        />
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Links</span>
-          <ul className="flex flex-col gap-2">
-            {(props.links || []).map((link, idx) => (
-              <li
-                key={idx}
-                className="flex items-start justify-between gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-2"
-              >
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-900">
-                    {link.label}
-                  </p>
-                  <p className="text-xs text-slate-600">{link.url}</p>
-                </div>
-                <button
-                  type="button"
-                  aria-label="Remover link"
-                  onClick={() => setRemoveIndex(idx)}
-                  className="text-slate-500 hover:text-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
-          </ul>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setAddOpen(true)}
-          >
-            Adicionar link
-          </Button>
-        </div>
-      </div>
-
-      {addOpen && (
-        <AddFooterLinkModal
-          onCancel={() => setAddOpen(false)}
-          onConfirm={handleAdd}
-        />
-      )}
-      {removeIndex !== null && (
-        <ConfirmRemoveModal
-          message="Tem certeza que deseja remover este link?"
-          onCancel={() => setRemoveIndex(null)}
-          onConfirm={handleConfirmRemove}
-        />
-      )}
-    </SectionCard>
-  )
-}
-
 type AddFaqModalProps = {
   onCancel: () => void
   onConfirm: (item: FaqItem) => void
@@ -648,55 +566,6 @@ function AddTestimonialModal({ onCancel, onConfirm }: AddTestimonialModalProps) 
             id="test-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-          />
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
-          <Button type="submit" disabled={!canSubmit}>
-            Adicionar
-          </Button>
-        </div>
-      </form>
-    </ModalShell>
-  )
-}
-
-type AddFooterLinkModalProps = {
-  onCancel: () => void
-  onConfirm: (link: FooterLink) => void
-}
-
-function AddFooterLinkModal({ onCancel, onConfirm }: AddFooterLinkModalProps) {
-  const [label, setLabel] = useState('')
-  const [url, setUrl] = useState('')
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault()
-    onConfirm({ label: label.trim(), url: url.trim() })
-  }
-
-  const canSubmit = label.trim().length > 0 && url.trim().length > 0
-
-  return (
-    <ModalShell title="Adicionar link" onCancel={onCancel}>
-      <form onSubmit={submit} className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="link-label">Rótulo</Label>
-          <Input
-            id="link-label"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            autoFocus
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="link-url">URL</Label>
-          <Input
-            id="link-url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
           />
         </div>
         <div className="flex justify-end gap-2">
