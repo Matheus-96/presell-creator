@@ -78,6 +78,34 @@ jest.mock("../templates/sections.bundle.js", () => {
               ))
           )
         );
+      },
+      "product-highlight": function ProductHighlight({ props }) {
+        if (props.variant === "benefits-list") {
+          return React.createElement(
+            "section",
+            { "data-section": "product-highlight", "data-variant": "benefits-list" },
+            React.createElement("h2", null, props.title),
+            React.createElement(
+              "ul",
+              null,
+              (props.items || []).map((item, i) =>
+                React.createElement("li", { key: i },
+                  React.createElement("span", null, item.icon),
+                  React.createElement("span", null, item.text)
+                ))
+            )
+          );
+        }
+        return React.createElement(
+          "section",
+          { "data-section": "product-highlight", "data-variant": "single-product" },
+          React.createElement("h2", null, props.name),
+          React.createElement("p", null, props.description),
+          props.discountBadge ? React.createElement("span", { "data-badge": true }, props.discountBadge) : null,
+          React.createElement("span", { "data-price": "original" }, props.originalPrice),
+          React.createElement("span", { "data-price": "current" }, props.price),
+          React.createElement("a", { href: props.ctaUrl, "data-cta": true }, props.ctaText)
+        );
       }
     }
   };
@@ -222,5 +250,54 @@ describe("renderSectionsToHtml", () => {
     expect(html).toMatch(
       /<script[^>]+src="https:\/\/cdn\.tailwindcss\.com"[^>]*><\/script>/
     );
+  });
+
+  it("renderiza seção product-highlight single-product", () => {
+    const sections = [
+      ...sampleSections,
+      {
+        type: "product-highlight",
+        order: 1.5,
+        props: {
+          variant: "single-product",
+          name: "Produto Premium",
+          description: "O melhor produto",
+          originalPrice: "R$ 200,00",
+          price: "R$ 99,00",
+          discountBadge: "-50%",
+          ctaText: "Comprar",
+          ctaUrl: "https://example.com/buy"
+        }
+      }
+    ];
+    const html = renderSectionsToHtml(sections);
+    expect(html).toContain("Produto Premium");
+    expect(html).toContain("O melhor produto");
+    expect(html).toContain("R$ 200,00");
+    expect(html).toContain("R$ 99,00");
+    expect(html).toContain("-50%");
+    expect(html).toContain("Comprar");
+  });
+
+  it("renderiza seção product-highlight benefits-list", () => {
+    const sections = [
+      ...sampleSections,
+      {
+        type: "product-highlight",
+        order: 1.5,
+        props: {
+          variant: "benefits-list",
+          title: "Por que escolher?",
+          items: [
+            { icon: "✅", text: "Frete grátis" },
+            { icon: "🎁", text: "Brinde exclusivo" }
+          ]
+        }
+      }
+    ];
+    const html = renderSectionsToHtml(sections);
+    expect(html).toContain("Por que escolher?");
+    expect(html).toContain("Frete grátis");
+    expect(html).toContain("Brinde exclusivo");
   });
 });

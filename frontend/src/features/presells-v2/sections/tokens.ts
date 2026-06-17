@@ -1,0 +1,7 @@
+export const SECTION_PY = 'py-16'
+export const SECTION_PX = 'px-6'
+export const SECTION_PADDING = 'px-6 py-16'
+export const CONTENT_WRAPPER = 'mx-auto max-w-5xl'
+export const CONTENT_WRAPPER_NARROW = 'mx-auto max-w-3xl'
+export const HEADING_GAP = 'space-y-6'
+export const CARD_GAP = 'gap-6'

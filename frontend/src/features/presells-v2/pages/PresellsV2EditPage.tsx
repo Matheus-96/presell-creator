@@ -14,6 +14,7 @@ import { HeroEditor } from '@/features/presells-v2/sections/hero/HeroEditor.tsx'
 import { FaqEditor } from '@/features/presells-v2/sections/faq/FaqEditor.tsx'
 import { TestimonialsEditor } from '@/features/presells-v2/sections/testimonials/TestimonialsEditor.tsx'
 import { FooterEditor } from '@/features/presells-v2/sections/footer/FooterEditor.tsx'
+import { ProductHighlightEditor } from '@/features/presells-v2/sections/product-highlight/ProductHighlightEditor.tsx'
 import type { Section } from '@/features/presells-v2/sections/types.ts'
 
 type SectionOfType<T extends Section['type']> = Extract<Section, { type: T }>
@@ -57,6 +58,7 @@ export function PresellsV2EditPage() {
   const faq = sections.find((s): s is SectionOfType<'faq'> => s.type === 'faq')
   const testimonials = sections.find((s): s is SectionOfType<'testimonials'> => s.type === 'testimonials')
   const footer = sections.find((s): s is SectionOfType<'footer'> => s.type === 'footer')
+  const productHighlight = sections.find((s): s is SectionOfType<'product-highlight'> => s.type === 'product-highlight')
 
   async function handleSave() {
     if (!id || saving) return
@@ -81,6 +83,7 @@ export function PresellsV2EditPage() {
           {hero && <HeroEditor props={hero.props} onChange={(patch) => setSections((s) => patchSection(s, 'hero', patch))} />}
           {faq && <FaqEditor props={faq.props} onChange={(patch) => setSections((s) => patchSection(s, 'faq', patch))} />}
           {testimonials && <TestimonialsEditor props={testimonials.props} onChange={(patch) => setSections((s) => patchSection(s, 'testimonials', patch))} />}
+          {productHighlight && <ProductHighlightEditor props={productHighlight.props} onChange={(patch) => setSections((s) => patchSection(s, 'product-highlight', patch))} />}
           {footer && <FooterEditor props={footer.props} onChange={(patch) => setSections((s) => patchSection(s, 'footer', patch))} />}
           <SectionCard eyebrow="Publicação" title="Salvar alterações">
             <div className="flex flex-col gap-3">

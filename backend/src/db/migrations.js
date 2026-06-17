@@ -135,6 +135,43 @@ function migrate() {
     );
     CREATE INDEX IF NOT EXISTS idx_presells_v2_slug ON presells_v2(slug);
   `);
+
+  runJsMigration("014_hero_variant_centered", () => {
+    const rows = db.prepare("SELECT id, sections_json FROM presells_v2").all();
+    const update = db.prepare("UPDATE presells_v2 SET sections_json = ? WHERE id = ?");
+    for (const row of rows) {
+      let sections;
+      try { sections = JSON.parse(row.sections_json); } catch { continue; }
+      if (!Array.isArray(sections)) continue;
+      let changed = false;
+      for (const section of sections) {
+        if (section && section.type === 'hero' && !section.props?.variant) {
+          section.props = section.props || {};
+          section.props.variant = 'centered';
+          changed = true;
+        }
+      }
+      if (changed) update.run(JSON.stringify(sections), row.id);
+    }
+  });
+}
+
+function runJsMigration(name, fn) {
+  const exists = db
+    .prepare("SELECT id FROM schema_migrations WHERE name = ?")
+    .get(name);
+
+  if (exists) return;
+
+  db.exec("BEGIN");
+  try {
+    fn();
+    db.prepare("INSERT INTO schema_migrations (name) VALUES (?)").run(name);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
 }
 
 function runMigration(name, sql) {

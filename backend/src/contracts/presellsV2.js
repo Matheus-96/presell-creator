@@ -1,6 +1,6 @@
 const { z } = require("zod");
 
-const sectionTypes = ["hero", "faq", "testimonials", "footer"];
+const sectionTypes = ["hero", "faq", "testimonials", "footer", "product-highlight"];
 
 const zodSectionSchema = z.object({
   type: z.enum(sectionTypes),
