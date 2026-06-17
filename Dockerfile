@@ -34,7 +34,7 @@ COPY frontend/ ./frontend/
 COPY backend/ ./backend/
 COPY scripts/ ./scripts/
 
-RUN npm run build:templates && npm run build:frontend
+RUN npm run build:templates && npm run build:sections && npm run build:frontend
 
 ###############################################################################
 # Stage 2 — lighttpd com arquivos estáticos do frontend
@@ -108,8 +108,9 @@ RUN npm ci --omit=dev
 # Backend source
 COPY backend/ ./backend/
 
-# Bundle de templates SSR gerado no builder (gitignored, não está no source)
+# Bundles SSR gerados no builder (gitignored, não estão no source)
 COPY --from=builder /app/backend/src/templates/templates.bundle.js ./backend/src/templates/
+COPY --from=builder /app/backend/src/templates/sections.bundle.js ./backend/src/templates/
 
 # Built frontend from builder stage
 COPY --from=builder /app/frontend/dist ./frontend/dist
