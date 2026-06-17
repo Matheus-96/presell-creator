@@ -14,7 +14,7 @@ function SingleProduct({ name, description, imageUrl, originalPrice, price, disc
           </div>
         )}
       </div>
-      <div className="flex-1 space-y-4">
+      <div className={`flex-1 ${HEADING_GAP}`}>
         {discountBadge && (
           <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">{discountBadge}</span>
         )}

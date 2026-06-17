@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label.tsx'
 import { useDocumentTitle } from '@/hooks/use-document-title.ts'
 import { getPresellV2ById, updatePresellV2 } from '@/features/presells-v2/lib/presells-v2-api.ts'
 import { SectionsPreview } from '@/features/presells-v2/components/SectionsPreview.tsx'
+import { SectionsManager } from '@/features/presells-v2/components/SectionsManager.tsx'
 import { HeroEditor } from '@/features/presells-v2/sections/hero/HeroEditor.tsx'
 import { FaqEditor } from '@/features/presells-v2/sections/faq/FaqEditor.tsx'
 import { TestimonialsEditor } from '@/features/presells-v2/sections/testimonials/TestimonialsEditor.tsx'
@@ -80,6 +81,9 @@ export function PresellsV2EditPage() {
       </SectionCard>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <div className="lg:col-span-2 flex flex-col gap-4">
+          <SectionCard eyebrow="Estrutura" title="Ordem das seções">
+            <SectionsManager sections={sections} onChange={setSections} />
+          </SectionCard>
           {hero && <HeroEditor props={hero.props} onChange={(patch) => setSections((s) => patchSection(s, 'hero', patch))} />}
           {faq && <FaqEditor props={faq.props} onChange={(patch) => setSections((s) => patchSection(s, 'faq', patch))} />}
           {testimonials && <TestimonialsEditor props={testimonials.props} onChange={(patch) => setSections((s) => patchSection(s, 'testimonials', patch))} />}
