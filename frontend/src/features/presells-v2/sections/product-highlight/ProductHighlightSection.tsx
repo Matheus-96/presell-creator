@@ -4,8 +4,8 @@ import type { ProductHighlightProps, SectionComponentProps } from '../types.ts'
 
 function SingleProduct({ name, description, imageUrl, originalPrice, price, discountBadge, ctaText, ctaUrl }: ProductHighlightProps) {
   return (
-    <div className={`${CONTENT_WRAPPER} flex flex-col items-center gap-8 md:flex-row`}>
-      <div className="flex-1">
+    <div className={`${CONTENT_WRAPPER} flex w-full flex-col items-center gap-8 md:flex-row`}>
+      <div className="w-full flex-1">
         {imageUrl ? (
           <img src={imageUrl} alt={name || ''} className="mx-auto h-auto w-full max-w-md rounded-lg shadow" />
         ) : (
@@ -14,13 +14,13 @@ function SingleProduct({ name, description, imageUrl, originalPrice, price, disc
           </div>
         )}
       </div>
-      <div className={`flex-1 ${HEADING_GAP}`}>
+      <div className={`w-full flex-1 ${HEADING_GAP} text-center md:text-left`}>
         {discountBadge && (
           <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">{discountBadge}</span>
         )}
         <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">{name}</h2>
         {description && <p className="text-base text-slate-700">{description}</p>}
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline justify-center gap-2 md:justify-start">
           {originalPrice && <span className="text-sm text-slate-400 line-through">{originalPrice}</span>}
           {price && <span className="text-2xl font-bold text-slate-900">{price}</span>}
         </div>

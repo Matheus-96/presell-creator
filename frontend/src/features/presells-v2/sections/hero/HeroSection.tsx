@@ -1,5 +1,5 @@
 import { registerSection } from '../registry.ts'
-import { SECTION_PADDING, CONTENT_WRAPPER, HEADING_GAP } from '../tokens.ts'
+import { SECTION_PADDING, SECTION_PX, CONTENT_WRAPPER, HEADING_GAP } from '../tokens.ts'
 import type { HeroProps, SectionComponentProps } from '../types.ts'
 
 function CenteredHero({ headline, subtitle, ctaText, ctaUrl, imageUrl }: HeroProps) {
@@ -62,7 +62,7 @@ function BackgroundImageHero({ headline, subtitle, ctaText, ctaUrl, imageUrl }: 
   return (
     <div className="relative flex min-h-[400px] items-center justify-center" style={imageUrl ? { backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}>
       <div className="absolute inset-0 bg-black/60" />
-      <div className={`${CONTENT_WRAPPER} relative z-10 w-full ${HEADING_GAP} text-center`}>
+      <div className={`${CONTENT_WRAPPER} relative z-10 w-full ${SECTION_PX} ${HEADING_GAP} text-center`}>
         <h1 className="text-3xl font-bold tracking-tight text-white md:text-5xl">{headline}</h1>
         <p className="text-base text-slate-200 md:text-lg">{subtitle}</p>
         <div>
@@ -79,7 +79,7 @@ function HeroSection({ props }: SectionComponentProps<HeroProps>) {
   const style = props.bgColor && props.variant !== 'background-image' ? { backgroundColor: props.bgColor } : undefined
 
   return (
-    <section data-section="hero" data-variant={props.variant || 'centered'} className={`w-full ${SECTION_PADDING}`} style={style}>
+    <section data-section="hero" data-variant={props.variant || 'centered'} className={`w-full ${props.variant === 'background-image' ? '' : SECTION_PADDING}`} style={style}>
       {props.variant === 'split' && <SplitHero {...props} />}
       {props.variant === 'background-image' && <BackgroundImageHero {...props} />}
       {(!props.variant || props.variant === 'centered') && <CenteredHero {...props} />}
