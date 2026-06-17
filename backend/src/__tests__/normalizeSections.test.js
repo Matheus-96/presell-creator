@@ -1,11 +1,11 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const {
   normalizeSections,
 } = require('../services/v2/analyzeUrlForSections');
 const analyzeUrlForSectionsModule = require('../services/v2/analyzeUrlForSections');
-const fs = require('fs');
-const path = require('path');
 
 const AFFILIATE = 'https://affiliate.example.com/track?id=1';
 

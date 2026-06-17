@@ -7,20 +7,28 @@ jest.mock('../templates/sections.bundle.js', () => {
   return {
     registry: {
       hero: ({ props }) =>
-        React.createElement('section', { 'data-section': 'hero' },
+        React.createElement(
+          'section', 
+          { 'data-section': 'hero' },
           React.createElement('h1', null, props.headline),
           React.createElement('a', { href: props.ctaUrl, 'data-cta': true }, props.ctaText)
         ),
       faq: ({ props }) =>
-        React.createElement('section', { 'data-section': 'faq' },
+        React.createElement(
+          'section', 
+          { 'data-section': 'faq' },
           React.createElement('h2', null, props.title)
         ),
       testimonials: ({ props }) =>
-        React.createElement('section', { 'data-section': 'testimonials' },
+        React.createElement(
+          'section', 
+          { 'data-section': 'testimonials' },
           React.createElement('h2', null, props.title)
         ),
       footer: ({ props }) =>
-        React.createElement('footer', { 'data-section': 'footer' },
+        React.createElement(
+          'footer', 
+          { 'data-section': 'footer' },
           React.createElement('p', null, props.legalText)
         )
     }
@@ -30,8 +38,11 @@ jest.mock('../templates/sections.bundle.js', () => {
 function makeSessionStore() {
   return class {
     on() {}
+
     get(sid, cb) { cb(null, null); }
+
     set(sid, session, cb) { if (cb) cb(null); }
+
     destroy(sid, cb) { if (cb) cb(null); }
   };
 }

@@ -8,8 +8,11 @@ const os = require('os');
 function makeSessionStore() {
   return class {
     on() {}
+
     get(sid, cb) { cb(null, null); }
+
     set(sid, session, cb) { if (cb) cb(null); }
+
     destroy(sid, cb) { if (cb) cb(null); }
   };
 }

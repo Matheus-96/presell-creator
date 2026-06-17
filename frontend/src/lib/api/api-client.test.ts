@@ -69,7 +69,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/admin/presells')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -90,7 +90,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/admin/auth/login', { method: 'POST' })
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -111,7 +111,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/public/something')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -156,7 +156,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/admin/presells')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -180,7 +180,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/public/data')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -203,7 +203,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/admin/presells')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -224,7 +224,7 @@ describe('ApiClient', () => {
 
       try {
         await apiClient.request('/api/admin/presells')
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 

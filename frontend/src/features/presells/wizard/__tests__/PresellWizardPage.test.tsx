@@ -8,8 +8,8 @@ vi.mock('@/features/presells/wizard/useWizardState.ts', () => ({
 }))
 
 vi.mock('@/features/presells/wizard/steps/ConfigStep.tsx', () => ({
-  ConfigStep: ({ onStartAnalysis }: any) => (
-    <div data-testid="config-step" onClick={() => onStartAnalysis({} as any, 'test-id')}>
+  ConfigStep: ({ onStartAnalysis }: { onStartAnalysis: (data: unknown, id: string) => void }) => (
+    <div data-testid="config-step" onClick={() => onStartAnalysis({}, 'test-id')}>
       Config Step
     </div>
   ),

@@ -69,8 +69,7 @@ function makeApp({ extractorFactory, analyzeUrlForSectionsService } = {}) {
           imageUrls: [],
         }),
       }),
-    }
-  );
+    });
 
   jest.doMock('../services/v2/analyzeUrlForSections', () =>
     analyzeUrlForSectionsService ?? {
@@ -108,8 +107,7 @@ function makeApp({ extractorFactory, analyzeUrlForSectionsService } = {}) {
           }
         ]
       })
-    }
-  );
+    });
 
   const express = require('express');
   const app = express();

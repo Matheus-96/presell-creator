@@ -208,8 +208,7 @@ class PuppeteerExtractor {
 
             const propLower = prop.toLowerCase();
             const isRelevant = cssVarKeywords.some((kw) =>
-              propLower.includes(kw)
-            );
+              propLower.includes(kw));
             if (!isRelevant) continue;
 
             const value = rootStyle.getPropertyValue(prop).trim();

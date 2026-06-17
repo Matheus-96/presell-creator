@@ -11,8 +11,11 @@ const RENDERED_HTML = "<!doctype html><html><body><h1>Headline Real</h1></body><
 function makeSessionStore() {
   return class {
     on() {}
+
     get(sid, cb) { cb(null, null); }
+
     set(sid, session, cb) { if (cb) cb(null); }
+
     destroy(sid, cb) { if (cb) cb(null); }
   };
 }
@@ -75,7 +78,11 @@ describe("GET /p/:slug without rendered_html (legacy fallback)", () => {
   });
 
   afterAll(() => {
-    try { fs.unlinkSync(frontendDistIndexFile); } catch {}
+    try {
+      fs.unlinkSync(frontendDistIndexFile);
+    } catch {
+      // arquivo pode já não existir
+    }
   });
 
   test("falls back to the SPA index.html", async () => {

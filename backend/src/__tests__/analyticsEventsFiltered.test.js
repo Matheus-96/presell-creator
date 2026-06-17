@@ -21,8 +21,16 @@ function insertEvent(db, overrides = {}) {
     `INSERT INTO events (presell_id, session_key, event_type, params_json, referrer, user_agent, ip_hash, country, device_type, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
-    e.presell_id, e.session_key, e.event_type, e.params_json,
-    e.referrer, e.user_agent, e.ip_hash, e.country, e.device_type, e.created_at
+    e.presell_id, 
+    e.session_key, 
+    e.event_type, 
+    e.params_json,
+    e.referrer, 
+    e.user_agent, 
+    e.ip_hash, 
+    e.country, 
+    e.device_type, 
+    e.created_at
   );
 }
 

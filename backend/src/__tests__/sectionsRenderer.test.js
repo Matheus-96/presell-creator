@@ -38,8 +38,7 @@ jest.mock("../templates/sections.bundle.js", () => {
                 { key: i },
                 React.createElement("strong", null, item.question),
                 React.createElement("span", null, item.answer)
-              )
-            )
+              ))
           )
         );
       },
@@ -58,10 +57,9 @@ jest.mock("../templates/sections.bundle.js", () => {
               item.avatarUrl
                 ? React.createElement("img", { src: item.avatarUrl, alt: "" })
                 : React.createElement("div", {
-                    "data-placeholder": "avatar"
-                  })
-            )
-          )
+                  "data-placeholder": "avatar"
+                })
+            ))
         );
       },
       footer: function Footer({ props }) {
@@ -77,8 +75,7 @@ jest.mock("../templates/sections.bundle.js", () => {
                 "li",
                 { key: i },
                 React.createElement("a", { href: link.url }, link.label)
-              )
-            )
+              ))
           )
         );
       }

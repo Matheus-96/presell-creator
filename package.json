@@ -28,13 +28,22 @@
     "lint:backend": "npm run lint --workspace backend --if-present --",
     "lint:frontend": "npm run lint --workspace frontend --if-present --",
     "lint:split": "npm run lint:backend && npm run lint:frontend",
-    "sandcastle": "npx tsx .sandcastle/main.mts"
+    "typecheck": "npm run typecheck:frontend",
+    "typecheck:frontend": "npm run typecheck --workspace frontend --if-present --",
+    "test": "npm run test:split",
+    "test:backend": "npm run test --workspace backend --if-present --",
+    "test:frontend": "npm run test:run --workspace frontend --if-present --",
+    "test:split": "npm run test:backend && npm run test:frontend",
+    "sandcastle": "npx tsx .sandcastle/main.mts",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=22.5.0"
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.8.0",
-    "esbuild": "^0.28.0"
+    "esbuild": "^0.28.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7"
   }
 }

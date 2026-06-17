@@ -9,7 +9,7 @@
     "ecmaVersion": "latest"
   },
   "plugins": [],
-  "ignorePatterns": ["src/services/**", "src/templates/templates.bundle.js"],
+  "ignorePatterns": ["src/services/**", "src/templates/templates.bundle.js", "src/templates/sections.bundle.js"],
   "rules": {
     "no-console": "off",
     "func-names": "off",
@@ -40,6 +40,13 @@
     "no-trailing-spaces": "off",
     "arrow-parens": "off",
     "implicit-arrow-linebreak": "off",
-    "no-promise-executor-return": "off"
+    "no-promise-executor-return": "off",
+    "camelcase": "off",
+    "global-require": "off",
+    "class-methods-use-this": "off",
+    "no-await-in-loop": "off",
+    "no-plusplus": "off",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "import/no-dynamic-require": "off"
   }
 }

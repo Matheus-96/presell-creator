@@ -14,7 +14,7 @@ export function SectionsPreview({ sections }: SectionsPreviewProps) {
       data-testid="sections-preview"
       className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
     >
-      {ordered.map((section, index) => {
+      {ordered.map((section) => {
         const Component = getSection(section.type)
         if (!Component) return null
         return (
