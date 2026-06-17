@@ -36,7 +36,7 @@ function makeApp(extraMocks = {}) {
   // Mock database/service layer
   jest.doMock('../services/presellService', () => ({
     listPresellCollection: () => ({ items: [], hasMore: false, limit: 20 }),
-    getPresellById: (id) => id === '1' ? {
+    getPresellById: (id) => (id === '1' ? {
       id: 1,
       slug: 'existing-presell',
       template: 'advertorial',
@@ -55,7 +55,7 @@ function makeApp(extraMocks = {}) {
       background_image_path: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
-    } : null,
+    } : null),
     savePresell: (input) => ({
       id: 1,
       slug: input.slug,

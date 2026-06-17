@@ -74,8 +74,8 @@ function toHex(value) {
 function extractColorsFromStyle(styleAttr) {
   const colors = [];
   const colorPropRe = /(?:^|;)\s*(?:background-)?color\s*:\s*([^;]+)/gi;
-  let match;
-  while ((match = colorPropRe.exec(styleAttr)) !== null) {
+  const matches = styleAttr.matchAll(colorPropRe);
+  for (const match of matches) {
     const hex = toHex(match[1]);
     if (hex) colors.push(hex);
   }

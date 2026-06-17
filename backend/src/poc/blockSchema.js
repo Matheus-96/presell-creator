@@ -98,4 +98,4 @@
  * @property {Block[]} blocks
  */
 
-module.exports = {}
+module.exports = {};

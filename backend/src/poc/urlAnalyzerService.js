@@ -231,5 +231,4 @@ async function analyzeUrlForForm(pageData, hostedImageUrls = [], backgroundImage
   };
 }
 
-
 module.exports = { analyzeUrlForForm };

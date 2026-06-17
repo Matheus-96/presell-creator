@@ -4,7 +4,8 @@ const { resolveFromRepoRoot } = require("../config/paths");
 
 const isTest = (process.env.NODE_ENV || "").trim().toLowerCase() === "test";
 
-let db, dbPath;
+let db;
+let dbPath;
 
 if (isTest) {
   // In-memory DB per worker: no file conflicts, no WAL/SHM issues.

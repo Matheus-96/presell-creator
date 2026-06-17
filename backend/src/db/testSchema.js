@@ -84,11 +84,22 @@ function applyTestSchema(db) {
       expires_at INTEGER NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS presells_v2 (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug          TEXT NOT NULL UNIQUE,
+      affiliate_url TEXT NOT NULL,
+      sections_json TEXT NOT NULL,
+      rendered_html TEXT,
+      created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE INDEX IF NOT EXISTS idx_presells_slug ON presells(slug);
     CREATE INDEX IF NOT EXISTS idx_events_presell_type ON events(presell_id, event_type);
     CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
     CREATE INDEX IF NOT EXISTS idx_jobs_session_id ON jobs(session_id);
     CREATE INDEX IF NOT EXISTS idx_jobs_expires_at ON jobs(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_presells_v2_slug ON presells_v2(slug);
   `);
 }
 

@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build templates and sections bundles
+        run: npm run build:templates && npm run build:sections
+
       - name: Run tests
         run: npm test --workspace backend
 

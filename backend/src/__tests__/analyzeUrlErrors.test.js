@@ -139,17 +139,13 @@ function makeApp({ extractorFactory, pocAssetService, backgroundImageService, ur
       createExtractor: () => ({
         extract: jest.fn().mockResolvedValue({ title: 'Default', text: '', imageUrls: [] }),
       }),
-    }
-  );
+    });
   jest.doMock('../poc/pocAssetService', () =>
-    pocAssetService ?? { downloadAndHostImages: jest.fn().mockResolvedValue([]) }
-  );
+    pocAssetService ?? { downloadAndHostImages: jest.fn().mockResolvedValue([]) });
   jest.doMock('../poc/backgroundImageService', () =>
-    backgroundImageService ?? { extractAndHostBackgroundImage: jest.fn().mockResolvedValue(null) }
-  );
+    backgroundImageService ?? { extractAndHostBackgroundImage: jest.fn().mockResolvedValue(null) });
   jest.doMock('../poc/urlAnalyzerService', () =>
-    urlAnalyzerService ?? { analyzeUrlForForm: jest.fn().mockResolvedValue({ title: 'result' }) }
-  );
+    urlAnalyzerService ?? { analyzeUrlForForm: jest.fn().mockResolvedValue({ title: 'result' }) });
 
   const express = require('express');
   const app = express();
@@ -212,7 +208,6 @@ describe('processJob — extractor throws → errorCode site_unreachable', () =>
     expect(body.errorCode).toBe('site_unreachable');
   });
 });
-
 
 describe('processJob — AI_TIMEOUT → errorCode timeout', () => {
   test('failed job response contains errorCode: timeout', async () => {
