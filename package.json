@@ -35,7 +35,7 @@
     "test:frontend": "npm run test:run --workspace frontend --if-present --",
     "test:split": "npm run test:backend && npm run test:frontend",
     "sandcastle": "npx tsx .sandcastle/main.mts",
-    "prepare": "husky || exit 0"
+    "prepare": "[ -d .git ] && husky || exit 0"
   },
   "engines": {
     "node": ">=22.5.0"
