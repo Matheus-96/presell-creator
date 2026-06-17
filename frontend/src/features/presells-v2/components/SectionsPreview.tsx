@@ -19,7 +19,7 @@ export function SectionsPreview({ sections }: SectionsPreviewProps) {
         if (!Component) return null
         return (
           <Component
-            key={`${section.type}-${index}`}
+            key={`${section.type}-${section.order}`}
             props={section.props as Record<string, unknown>}
           />
         )

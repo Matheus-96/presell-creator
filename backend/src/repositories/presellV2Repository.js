@@ -64,10 +64,12 @@ function deletePresellV2(id) {
   deleteStmt.run(id);
 }
 
+// node:sqlite uses errcode 2067 (SQLITE_CONSTRAINT_UNIQUE)
 function isUniqueSlugError(error) {
-  if (!error || typeof error.message !== "string") return false;
-  const message = error.message.toLowerCase();
-  return message.includes("unique") && message.includes("presells_v2.slug");
+  if (!error) return false;
+  if (error.errcode === 2067) return true;
+  if (error.code === "SQLITE_CONSTRAINT_UNIQUE") return true;
+  return false;
 }
 
 module.exports = {

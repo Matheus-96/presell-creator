@@ -3,6 +3,7 @@ const {
   zodPresellV2WriteSchema,
   zodPresellV2UpdateSchema,
   deserializePresellV2WriteInput,
+  extractAffiliateUrl,
   serializePresellV2Summary,
   serializePresellV2Detail
 } = require("../contracts/presellsV2");
@@ -15,17 +16,6 @@ const {
   PresellV2SlugTakenError
 } = require("../repositories/presellV2Repository");
 const { renderSectionsToHtml } = require("../services/sectionsRenderer");
-
-function extractAffiliateUrl(sections, fallback) {
-  const hero = Array.isArray(sections)
-    ? sections.find((s) => s && s.type === "hero")
-    : null;
-  const ctaUrl = hero && hero.props ? hero.props.ctaUrl : null;
-  if (typeof ctaUrl === "string" && ctaUrl.trim()) {
-    return ctaUrl.trim();
-  }
-  return fallback;
-}
 
 function respondNotFound(res, id) {
   return res.status(404).json(buildApiError(

@@ -29,8 +29,12 @@ function getPublicPresellV2(req, res) {
     });
   }
 
+  if (!row.rendered_html) {
+    return res.status(503).set("Retry-After", "60").send("Presell não está pronta. Tente novamente em alguns instantes.");
+  }
+
   res.set("Content-Type", "text/html; charset=utf-8");
-  return res.status(200).send(row.rendered_html || "");
+  return res.status(200).send(row.rendered_html);
 }
 
 module.exports = {

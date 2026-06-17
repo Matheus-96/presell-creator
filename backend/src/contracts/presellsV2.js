@@ -12,6 +12,9 @@ const zodPresellV2UpdateSchema = z.object({
   sections: z.array(zodSectionSchema).min(1, "sections é obrigatório")
 });
 
+// Dual-accept (affiliateUrl / affiliate_url, sections / sections_json / sectionsJson):
+// the frontend sends camelCase, but older API clients may send snake_case. Both are
+// accepted intentionally and normalized by deserializePresellV2WriteInput below.
 const zodPresellV2WriteSchema = z.object({
   slug: z.string().min(1, "slug é obrigatório"),
   affiliate_url: z.string().url("affiliate_url deve ser uma URL válida").optional(),
@@ -70,12 +73,24 @@ function serializePresellV2Detail(row) {
   };
 }
 
+function extractAffiliateUrl(sections, fallback) {
+  const hero = Array.isArray(sections)
+    ? sections.find((s) => s && s.type === "hero")
+    : null;
+  const ctaUrl = hero && hero.props ? hero.props.ctaUrl : null;
+  if (typeof ctaUrl === "string" && ctaUrl.trim()) {
+    return ctaUrl.trim();
+  }
+  return fallback;
+}
+
 module.exports = {
   sectionTypes,
   zodSectionSchema,
   zodPresellV2WriteSchema,
   zodPresellV2UpdateSchema,
   deserializePresellV2WriteInput,
+  extractAffiliateUrl,
   parseSections,
   serializePresellV2Summary,
   serializePresellV2Detail

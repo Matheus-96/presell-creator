@@ -2,8 +2,9 @@
 
 const crypto = require('crypto');
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const { requireApiAuth } = require('../middleware/auth');
-const { attachCsrf } = require('../middleware/csrf');
+const { attachCsrf, verifyApiCsrf } = require('../middleware/csrf');
 const { buildApiError } = require('../contracts/shared');
 const { createExtractor } = require('../extractors/extractorFactory');
 const { analyzeUrlForSections } = require('../services/v2/analyzeUrlForSections');
@@ -17,21 +18,54 @@ const {
 
 const JOB_TTL_MS = 5 * 60 * 1000;
 
+const analyzeUrlRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  handler: (req, res) => {
+    res.status(429).json(buildApiError(
+      'rate_limit_exceeded',
+      'Muitas requisições de análise. Aguarde um momento antes de tentar novamente.',
+      { retryAfterSeconds: 60 }
+    ));
+  },
+});
+
 const router = express.Router();
 router.use(attachCsrf);
 router.use(requireApiAuth);
+
+const PRIVATE_IP_RANGES = [
+  /^127\./,
+  /^10\./,
+  /^172\.(1[6-9]|2\d|3[01])\./,
+  /^192\.168\./,
+  /^0\./,
+  /^169\.254\./,
+  /^::1$/,
+  /^fc00:/i,
+  /^fe80:/i,
+  /^fd/i,
+];
+
+function isPrivateHost(hostname) {
+  if (hostname === 'localhost') return true;
+  return PRIVATE_IP_RANGES.some((re) => re.test(hostname));
+}
 
 function validateHttpUrl(value) {
   try {
     const parsed = new URL(String(value).trim());
     if (!['http:', 'https:'].includes(parsed.protocol)) return null;
+    if (isPrivateHost(parsed.hostname)) return null;
     return parsed.href;
   } catch {
     return null;
   }
 }
 
-router.post('/', async (req, res) => {
+router.post('/', verifyApiCsrf, analyzeUrlRateLimit, async (req, res) => {
   const { url, affiliateUrl } = req.body || {};
 
   if (!url || typeof url !== 'string' || !url.trim()) {
